@@ -84,8 +84,16 @@ Based on the normalized intake and BA answers, produce a scoped BA work plan cov
 | Strategic framing needed | SWOT | `ba-swot` | `swot-template.md` |
 | Financial justification needed | Cost-benefit | `ba-cost-benefit` | `feasibility-template.md` |
 
+**SRS default routing** — The document selection table above lists SRS as conditional on "system spec with screens and test cases." The following broader triggers **supersede** that row and make SRS a default deliverable alongside FRD when the intake contains **any** of:
+- UI screens or screen descriptions
+- System-level interactions (APIs, integrations, data flows)
+- Mobile or web application scope
+- Test case or acceptance testing expectations
+
+When SRS is included, invoke `ba-requirements` with explicit instruction to produce SRS using `srs-template.md` **in addition to** FRD. The SRS adds use case specifications, screen descriptions, non-functional requirements, data flow diagrams, and test cases that FRD does not cover.
+
 **Skill chain** — recommended execution order, e.g.:
-`ba-discovery` -> `ba-stakeholder` -> `ba-requirements` -> `ba-process-mapping` -> `ba-compliance`
+`ba-discovery` -> `ba-stakeholder` -> `ba-requirements` (FRD + SRS) -> `ba-user-stories` -> `ba-process-mapping` -> `ba-compliance`
 
 **Agent delegation** — which agent roles to involve:
 
@@ -105,11 +113,24 @@ Based on the normalized intake and BA answers, produce a scoped BA work plan cov
 - Intake form: `plans/reports/intake-{slug}-{date}.md`
 - Work plan: `plans/{date}-{slug}/plan.md`
 
+### Step 7 — Execute Skill Chain
+
+After the work plan is saved and approved, execute the skill chain in order. For each skill invocation, pass the intake form and work plan as context.
+
+When SRS is in the deliverable list:
+1. Invoke `ba-requirements` for FRD first (produces functional requirements by epic)
+2. Invoke `ba-requirements` for SRS second, using the FRD output as input — this adds use cases, screen descriptions, NFRs, data flows, and test cases
+3. If SRS contains screen descriptions, `ba-requirements` Phase 2 triggers automatic wireframe generation via Pencil MCP (unless user explicitly skips)
+
+**FRD naming:** `plans/reports/frd-{date}-{slug}.md` (or split by epic: `frd-{date}-{slug}-epics-1-to-N.md`)
+**SRS naming:** `plans/reports/srs-{date}-{slug}.md`
+
 ## Deliverables
 
 - Normalized intake form (from template)
 - Gap analysis summary
 - Scoped BA work plan with skill chain, agent routing, and deliverable list
+- SRS document (default when UI screens or system interactions are present)
 
 ## Templates
 
@@ -135,3 +156,5 @@ Based on the normalized intake and BA answers, produce a scoped BA work plan cov
 - Work plan names specific skills, templates, and agents
 - Skill chain order respects dependencies (discovery before requirements, requirements before compliance)
 - Deliverable list matches the complexity and governance needs of the initiative
+- SRS is included when intake contains UI screens, system interactions, or mobile/web app scope
+- SRS references correct template (`srs-template.md`) and follows `ba-requirements` Phase 2 for wireframe generation (unless user explicitly skips)

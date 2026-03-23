@@ -29,11 +29,11 @@ This catalog explains when to use each BA-kit skill, what it produces, and which
 
 ### Kickoff from Raw Input
 
-`ba-kickoff` -> `ba-discovery` -> `ba-stakeholder` -> `ba-requirements` -> `ba-process-mapping` -> `ba-compliance`
+`ba-kickoff` -> `ba-discovery` -> `ba-stakeholder` -> `ba-requirements` (FRD + SRS when UI/system scope) -> `ba-user-stories` -> `ba-process-mapping` -> `ba-compliance`
 
 ### Discovery to Formal Requirements
 
-`ba-discovery` -> `ba-stakeholder` -> `ba-requirements` -> `ba-acceptance-criteria`
+`ba-discovery` -> `ba-stakeholder` -> `ba-requirements` (FRD + SRS when UI/system scope) -> `ba-acceptance-criteria`
 
 ### Agile Product Framing
 
