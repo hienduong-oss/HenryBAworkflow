@@ -90,6 +90,8 @@ Templates live in `./templates/` and cover:
 - feasibility, SWOT, and cost/benefit adjacent planning
 - communication and change impact plans
 
+Wireframe artifacts for SRS screen sections should live under `./designs/` as Pencil `.pen` files. See [designs/README.md](./designs/README.md) for the naming convention.
+
 ## Configuration
 
 BA-kit uses [`.ck.json`](./.ck.json) to define project paths, plan naming, methodology defaults, and quality assertions. The default methodology is `hybrid`.

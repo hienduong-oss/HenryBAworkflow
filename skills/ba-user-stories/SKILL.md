@@ -19,6 +19,7 @@ Use this skill when the work needs Agile story slicing, backlog shaping, or acce
 - Epic map
 - Story list with acceptance criteria
 - Story mapping notes
+- Screen-level notes when stories map to specific UI flows
 - Ready/Done checklist
 
 ## Templates
@@ -34,4 +35,5 @@ Use this skill when the work needs Agile story slicing, backlog shaping, or acce
 ## Quality Check
 - Each story has a clear actor, outcome, and value
 - Acceptance criteria are observable and testable
+- Story-linked screens or steps are explicit when UI behavior matters
 - Stories are small enough for planning

@@ -9,7 +9,7 @@ This catalog explains when to use each BA-kit skill, what it produces, and which
 | Skill | When to Use | Related Templates | Related Agents | Typical Output |
 | --- | --- | --- | --- | --- |
 | `ba-discovery` | Early-stage scoping or ambiguous problem spaces | `stakeholder-register-template.md`, `process-map-template.md`, `feasibility-template.md` | `stakeholder-analyst`, `ba-researcher` | Discovery report, scope framing, next-step plan |
-| `ba-requirements` | Formal requirements capture and validation | `brd-template.md`, `frd-template.md`, `srs-template.md` | `requirements-engineer` | BRD, FRD, SRS, traceability view |
+| `ba-requirements` | Formal requirements capture and validation | `brd-template.md`, `frd-template.md`, `srs-template.md` | `requirements-engineer` | BRD, FRD, SRS, traceability view, Pencil-linked screen specs |
 | `ba-user-stories` | Agile backlog shaping and story decomposition | `user-story-template.md` | `requirements-engineer` | Story map, stories, acceptance criteria |
 | `ba-process-mapping` | Current-state and future-state workflow analysis | `process-map-template.md` | `process-mapper` | Mermaid swimlanes, bottlenecks, optimization options |
 | `ba-stakeholder` | Stakeholder discovery and engagement planning | `stakeholder-register-template.md`, `raci-template.md`, `communication-plan-template.md` | `stakeholder-analyst` | Stakeholder register, RACI, engagement plan |
