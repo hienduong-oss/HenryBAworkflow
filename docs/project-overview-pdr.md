@@ -2,11 +2,11 @@
 
 ## Summary
 
-BA-kit is a reusable toolkit that equips Claude Code for professional business analysis work. It standardizes discovery, requirements, process design, compliance review, and document packaging through a curated set of skills, templates, rules, and agent roles.
+BA-kit is a reusable toolkit that equips Claude Code and Codex for professional business analysis work. It standardizes discovery, requirements, process design, compliance review, and document packaging through a curated set of skills, templates, rules, and agent roles.
 
 ## Problem Statement
 
-Claude Code environments are usually optimized for software implementation. Business analysis work needs different defaults:
+Agent coding environments are usually optimized for software implementation. Business analysis work needs different defaults:
 - structured elicitation
 - formal and Agile requirement artifacts
 - process and stakeholder analysis
@@ -27,10 +27,11 @@ BA-kit closes that gap with a BA-first operating model.
 
 | Component | Purpose |
 | --- | --- |
-| `skills/` | Task-specific BA operating instructions |
+| `skills/` | Task-specific BA operating instructions and Codex reference playbooks |
 | `agents/` | Specialized delegation roles for parallel execution |
 | `rules/` | Workflow, quality, methodology, and documentation standards |
 | `templates/` | Ready-to-fill BA deliverable structures |
+| `AGENTS.md` | Persistent Codex repository instructions |
 | `docs/` | Project-level guidance and catalogs |
 
 ## Product Scope
@@ -65,6 +66,7 @@ BA-kit closes that gap with a BA-first operating model.
 - Every requirement-oriented skill references acceptance criteria and templates
 - Rule files clearly guide lifecycle decisions without depending on software-dev assumptions
 - Installation takes less than five minutes in a standard Claude environment
+- Codex can use the repo immediately through `AGENTS.md` plus local playbooks
 
 ## Design Decisions
 

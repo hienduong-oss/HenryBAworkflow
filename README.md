@@ -1,6 +1,6 @@
 # BA-kit
 
-BA-kit is a Claude Code toolkit for business analysis work. It packages BA-specific skills, agent roles, workflow rules, and reusable templates so discovery, requirements, and handoff work follow a consistent operating model.
+BA-kit is a business analysis toolkit for agentic coding environments. It packages BA-specific skills, agent roles, workflow rules, and reusable templates so discovery, requirements, and handoff work follow a consistent operating model in Claude Code and Codex.
 
 ## What It Includes
 
@@ -10,13 +10,18 @@ BA-kit is a Claude Code toolkit for business analysis work. It packages BA-speci
 - 12 reusable document templates
 - project instructions and configuration for BA engagements
 
+Start here for practical setup and usage: [docs/getting-started.md](./docs/getting-started.md)
+
 ## Prerequisites
 
 - Claude Code CLI
+- Codex with repo-level `AGENTS.md` support
 - A local Claude workspace with access to `~/.claude/`
 - Bash-compatible shell for running `install.sh`
 
 ## Installation
+
+### Claude Code Installation
 
 1. Clone or copy this repository locally.
 2. Run:
@@ -32,6 +37,18 @@ The installer copies:
 - `agents/` to `~/.claude/agents/`
 - `rules/` to `~/.claude/rules/ba-kit/`
 - `templates/` to `~/.claude/templates/`
+
+## Use With Codex
+
+BA-kit supports Codex through the root [AGENTS.md](./AGENTS.md) file and repo-local playbooks:
+- Codex should read [AGENTS.md](./AGENTS.md) for persistent repository instructions
+- `skills/` acts as BA reference playbooks
+- `rules/` and `templates/` provide workflow and artifact structure
+- `designs/` stores Pencil `.pen` files for SRS screen wireframes
+
+Codex does not require `./install.sh` or installation into `~/.claude`. Open the repository with `AGENTS.md` present, then explicitly direct Codex to use the relevant BA playbook from `skills/`.
+
+See [docs/codex-setup.md](./docs/codex-setup.md) for prompt patterns and setup guidance.
 
 ## Quick Start
 
