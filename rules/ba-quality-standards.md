@@ -3,8 +3,7 @@
 All BA-kit artifacts must satisfy these standards before they are considered complete.
 
 Related rules:
-- [BA Primary Workflow](./ba-primary-workflow.md)
-- [BA Documentation Rules](./ba-documentation-rules.md)
+- [BA Workflow](./ba-workflow.md)
 
 ## Requirements
 - Every requirement has a clear source, business rationale, and owner.
@@ -21,6 +20,16 @@ Related rules:
 - Business goals map to requirements.
 - Requirements map to downstream artifacts, controls, or test cases.
 - Cross-references are explicit and easy to follow.
+
+## Cross-Artifact Consistency
+- Use cases, screen descriptions, and wireframes must describe the **same** behavior using **identical** terminology.
+- UC actor actions must match screen User Actions — same wording, same sequence.
+- UC system responses must match screen field Behaviour Rules.
+- UC alternate flows must be reflected in screen Error/States.
+- Field names must be identical across UC steps, screen field tables, and wireframe labels.
+- User story acceptance criteria must be covered by UC postconditions and screen Validation Rules.
+- FRD features must be fully traceable through user stories into SRS requirements.
+- When inconsistency is found, the upstream artifact (user story > use case > screen > wireframe) is the source of truth.
 
 ## Quality Checks
 - SMART: specific, measurable, achievable, relevant, time-bound.
