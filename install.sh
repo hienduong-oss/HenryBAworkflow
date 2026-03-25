@@ -30,7 +30,7 @@ copy_tree "${ROOT_DIR}/rules" "${RULES_TARGET}"
 copy_tree "${ROOT_DIR}/agents" "${AGENTS_TARGET}"
 copy_tree "${ROOT_DIR}/templates" "${TEMPLATES_TARGET}"
 
-mkdir -p "${ROOT_DIR}/docs" "${ROOT_DIR}/templates"
+mkdir -p "${ROOT_DIR}/docs" "${ROOT_DIR}/templates" "${ROOT_DIR}/designs"
 
 echo "Installed skills to ${SKILLS_TARGET}"
 echo "Installed rules to ${RULES_TARGET}"

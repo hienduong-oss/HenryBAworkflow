@@ -33,6 +33,7 @@ Document the main system interactions in actor-goal format. One row per use case
 **Supporting Actors/Systems:** [Optional]
 **Preconditions:** [What must already be true]
 **Postconditions:** [What is true after completion]
+**Linked User Stories:** [US-001, US-002]
 
 | Step | Actor Action | System Response |
 | --- | --- | --- |
@@ -44,8 +45,12 @@ Document the main system interactions in actor-goal format. One row per use case
 **Business Rules**
 - [Rule reference]
 
+**Linked Screen:** [SCR-01 — Screen Name]
+
 **Acceptance Notes**
 - [What must be validated]
+
+> **Consistency rule:** Actor actions in this use case must match the corresponding screen's User Actions. System responses must match the screen's field Behaviour Rules. If the use case says "system validates email format", the linked screen's email field must have a matching Validation Rule.
 
 ## Screen Descriptions
 Capture screen-level behavior, navigation, fields, and validation expectations for any UI-backed scope.
@@ -60,11 +65,20 @@ Capture screen-level behavior, navigation, fields, and validation expectations f
 **Artifact Scope:** [Single screen / multiple screens / end-to-end flow]
 **Layout Summary:** [Key regions, panels, or sections]
 **Navigation Rules:** [Menu, breadcrumbs, modal, back/next behavior]
+**Linked Use Cases:** [UC-01, UC-02]
+**Linked User Stories:** [US-001, US-002]
+
+> **Consistency rule:** This screen must implement the exact interactions described in its linked use cases. Field names, action labels, and flow sequences must match between UC steps and screen fields/actions. The Pencil wireframe must reflect this screen's field table and layout.
 
 ## Wireframe / Mockup Reference
 - Pencil file: `designs/[initiative-slug]/SCR-01-[screen-name].pen`
+- Exported image: `designs/[initiative-slug]/SCR-01-[screen-name].png`
 - Covered screen IDs: [SCR-01, SCR-02]
 - Last updated: [YYYY-MM-DD]
+
+> In the final HTML export, the PNG image below is embedded inline automatically.
+
+![SCR-01 Wireframe](designs/[initiative-slug]/SCR-01-[screen-name].png)
 
 ## Wireframe Intent
 Explain what the wireframe is optimizing for, such as data entry speed, guided completion, review-before-submit, or dashboard scanning.
@@ -92,18 +106,17 @@ Use the Pencil `.pen` artifact as the primary wireframe. Add a lightweight text 
 +--------------------------------------------------+
 ```
 
-| Field/Control | Type | Required | Validation | Source/Default | Notes |
-| --- | --- | --- | --- | --- | --- |
-| [Field] | [Input/Dropdown/Button] | [Yes/No] | [Rule] | [Default/source] | [Notes] |
+| Field Name | Field Type | Description |
+| --- | --- | --- |
+| [Field name] | [Text / Dropdown / Date Picker / Checkbox / Button / Table / etc.] | **Display:** [Display rules — visibility, default value, read-only conditions, formatting] |
+| | | **Behaviour:** [Behaviour rules — on-change actions, auto-fill, cascading, navigation triggers] |
+| | | **Validation:** [Validation rules — required, format, range, cross-field, error messages] |
 
 **User Actions**
-- [Primary action]
-- [Secondary action]
+- [Primary action and its behavior]
+- [Secondary action and its behavior]
 
-**Error and Empty States**
-- [State and expected behavior]
-
-**State Variants**
+**States**
 - Loading: [Expected UI state]
 - Empty: [Expected UI state]
 - Success: [Expected UI state]
@@ -113,17 +126,10 @@ Use the Pencil `.pen` artifact as the primary wireframe. Add a lightweight text 
 **Permission and Visibility Rules**
 - [Which roles can view or act on which controls]
 
-**Responsive Notes**
-- Desktop: [Layout behavior]
-- Tablet: [Layout behavior]
-- Mobile: [Layout behavior]
-
-**Linked Use Cases / Requirements**
+**Linked User Stories / Use Cases / Requirements**
+- User stories: [US-001, US-002]
 - Use cases: [UC-01, UC-02]
 - Requirements: [FR-01, FR-02, BR-01]
-
-**Accessibility or UX Notes**
-- [Relevant constraints]
 
 ## Non-Functional Requirements
 | ID | Category | Requirement | Target |
@@ -172,5 +178,5 @@ erDiagram
 
 ## Related Templates
 - [FRD Template](./frd-template.md)
-- [Gap Analysis Template](./gap-analysis-template.md)
-- [Change Impact Template](./change-impact-template.md)
+- [User Story Template](./user-story-template.md)
+- [Intake Form Template](./intake-form-template.md)

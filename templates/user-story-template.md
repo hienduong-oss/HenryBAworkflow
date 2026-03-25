@@ -43,4 +43,5 @@ As a [role], I want [capability] so that [benefit].
 
 ## Related Templates
 - [FRD Template](./frd-template.md)
-- [Acceptance Criteria Template](./acceptance-criteria-template.md)
+- [SRS Template](./srs-template.md)
+- [Intake Form Template](./intake-form-template.md)

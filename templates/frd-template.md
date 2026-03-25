@@ -56,6 +56,6 @@ flowchart LR
 - [Criterion]
 
 ## Related Templates
-- [BRD Template](./brd-template.md)
+- [SRS Template](./srs-template.md)
 - [User Story Template](./user-story-template.md)
-- [Process Map Template](./process-map-template.md)
+- [Intake Form Template](./intake-form-template.md)
