@@ -10,7 +10,7 @@ user stories, or any markdown file.
 
 Supports:
     - Mermaid diagrams (rendered client-side via mermaid.js CDN)
-    - Inline wireframe images from designs/{slug}/*.png (base64 embedded)
+    - Inline wireframe images from explicit PNG references in the markdown
     - Page breaks for PDF printing (browser Print → Save as PDF)
     - Table of contents generation
 """
@@ -245,16 +245,8 @@ def convert(md_path: Path) -> Path:
     base_dir = md_path.parent.parent.parent  # plans/reports/srs.md → project root
     md = md_path.read_text(encoding="utf-8")
 
-    # Replace .pen references with .png (exported wireframes)
-    # Pattern: designs/slug/SCR-xx-name.pen → designs/slug/SCR-xx-name.png
-    md = re.sub(
-        r"(designs/[^)]+)\.pen",
-        r"\1.png",
-        md,
-    )
-
     # Convert wireframe file references to embedded images
-    # Pattern: `designs/slug/SCR-xx-name.png` or designs/slug/SCR-xx-name.png
+    # Pattern: `designs/.../*.png`
     md = re.sub(
         r"`(designs/[^`]+\.png)`",
         r"![\1](\1)",
