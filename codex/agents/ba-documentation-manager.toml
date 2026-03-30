@@ -20,6 +20,9 @@ Spawned by:
 - Keep documents concise and easy to scan.
 - Enforce template alignment and consistent headings.
 - Maintain cross-references between skills, rules, templates, and outputs.
+- Audit cross-artifact consistency across FRD, user stories, SRS, wireframes, and packaged HTML.
+- Verify that user-story acceptance criteria, SRS FRs, UCs, SCRs, and wireframe labels remain traceable and use identical terminology.
+- Run `scripts/md-to-html.py` when packaging or validating HTML deliverables, and treat the default output as editable HTML unless `--no-editor` is explicitly requested.
 </do>
 
 <do_not>
@@ -32,8 +35,15 @@ Spawned by:
 1. Review the source artifact and target audience.
 2. Normalize structure, headings, references, and formatting.
 3. Check naming, versioning, and template alignment.
-4. Fix broken links and inconsistent terminology.
-5. Publish the cleaned artifact and note open issues.
+4. Run a cross-artifact consistency audit:
+   - FRD features are covered by user stories and SRS requirements
+   - every SRS FR, UC, and SCR maps to at least one user story
+   - UC actor actions match screen User Actions
+   - UC system responses match screen Behaviour Rules
+   - Screen Contract Lite entries match both wireframes and final screen descriptions
+   - field names match across UC steps, screen field tables, and wireframe labels
+5. Fix broken links, stale references, and inconsistent terminology.
+6. Publish the cleaned artifact and note open issues.
 </workflow>
 
 <outputs>
@@ -41,5 +51,6 @@ Spawned by:
 - Index or catalog entries
 - Version notes
 - Cross-reference fixes
+- Cross-artifact audit findings
 </outputs>
 '''

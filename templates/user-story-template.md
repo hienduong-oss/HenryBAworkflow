@@ -1,47 +1,47 @@
-# User Story Template
+# Mẫu User Story (User Story Template)
 
-**Epic:** [Epic name]
-**Feature:** [Feature name]
-**Story ID:** [US-001]
-**Owner:** [BA / product owner]
+**Epic:** [Tên Epic]
+**Tính năng (Feature):** [Tên tính năng]
+**Mã Story (Story ID):** [US-001]
+**Chủ sở hữu (Owner):** [BA / product owner]
 
-## Story
-As a [role], I want [capability] so that [benefit].
+## Câu chuyện (Story)
+Với tư cách là [vai trò], tôi muốn [khả năng] để [lợi ích].
 
-## Context
-- Business objective:
-- User need:
-- Scenario:
+## Bối cảnh (Context)
+- Mục tiêu kinh doanh:
+- Nhu cầu người dùng:
+- Kịch bản:
 
-## Acceptance Criteria
-- Given [context], when [action], then [expected outcome].
-- Given [context], when [action], then [expected outcome].
+## Tiêu chí chấp nhận (Acceptance Criteria)
+- Cho trước [bối cảnh], khi [hành động], thì [kết quả mong đợi].
+- Cho trước [bối cảnh], khi [hành động], thì [kết quả mong đợi].
 
-## INVEST Check
-- Independent:
-- Negotiable:
-- Valuable:
-- Estimable:
-- Small:
-- Testable:
+## Kiểm tra INVEST (INVEST Check)
+- Independent (Độc lập):
+- Negotiable (Có thể thương lượng):
+- Valuable (Có giá trị):
+- Estimable (Ước lượng được):
+- Small (Đủ nhỏ):
+- Testable (Kiểm thử được):
 
-## Story Points
-- Estimate:
-- Basis:
+## Điểm Story (Story Points)
+- Ước lượng:
+- Cơ sở:
 
-## Definition of Ready
-- [ ] User role is clear
-- [ ] Acceptance criteria are defined
-- [ ] Dependencies are identified
-- [ ] Priority is confirmed
+## Định nghĩa sẵn sàng (Definition of Ready)
+- [ ] Vai trò người dùng rõ ràng
+- [ ] Tiêu chí chấp nhận đã định nghĩa
+- [ ] Các phụ thuộc đã xác định
+- [ ] Mức ưu tiên đã xác nhận
 
-## Definition of Done
-- [ ] Story meets all acceptance criteria
-- [ ] Stakeholders approve the result
-- [ ] Documentation is updated
-- [ ] Related tests are defined
+## Định nghĩa hoàn thành (Definition of Done)
+- [ ] Story đáp ứng tất cả tiêu chí chấp nhận
+- [ ] Các bên liên quan phê duyệt kết quả
+- [ ] Tài liệu đã cập nhật
+- [ ] Các test case liên quan đã định nghĩa
 
-## Related Templates
+## Tài liệu liên quan (Related Templates)
 - [FRD Template](./frd-template.md)
 - [SRS Template](./srs-template.md)
 - [Intake Form Template](./intake-form-template.md)

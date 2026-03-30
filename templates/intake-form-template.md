@@ -1,76 +1,76 @@
-# Intake Form
+# Phiếu tiếp nhận yêu cầu (Intake Form)
 
-## Project Information
+## Thông tin dự án (Project Information)
 
-| Field | Value |
+| Trường (Field) | Giá trị (Value) |
 | --- | --- |
-| Project name | |
-| Date | |
-| Requester | |
-| Source file | |
+| Tên dự án (Project name) | |
+| Ngày (Date) | |
+| Người yêu cầu (Requester) | |
+| Tài liệu gốc (Source file) | |
 
-## Business Context
+## Bối cảnh kinh doanh (Business Context)
 
-### Problem Statement
+### Vấn đề cần giải quyết (Problem Statement)
 
-<!-- What business problem or opportunity does this initiative address? -->
+<!-- Vấn đề hoặc cơ hội kinh doanh mà sáng kiến này giải quyết? -->
 
-### Business Goals
+### Mục tiêu kinh doanh (Business Goals)
 
-<!-- What measurable outcomes are expected? -->
+<!-- Kết quả đo lường được kỳ vọng? -->
 
-### Stakeholders Mentioned
+### Các bên liên quan (Stakeholders Mentioned)
 
-| Name / Role | Interest / Influence | Notes |
+| Tên / Vai trò | Mức quan tâm / Ảnh hưởng | Ghi chú |
 | --- | --- | --- |
 | | | |
 
-## Raw Requirements
+## Yêu cầu thô (Raw Requirements)
 
-<!-- Extracted verbatim from the source material. Preserve original wording. -->
+<!-- Trích nguyên văn từ tài liệu gốc. Giữ nguyên lời gốc. -->
 
 1.
 
-## Screens and UI
+## Màn hình và giao diện (Screens and UI)
 
-<!-- List any screens, pages, dashboards, or UI elements mentioned. -->
+<!-- Liệt kê các màn hình, trang, dashboard, hoặc thành phần UI được đề cập. -->
 
-| Screen / Element | Description | Notes |
+| Màn hình / Thành phần | Mô tả | Ghi chú |
 | --- | --- | --- |
 | | | |
 
-## Processes and Workflows
+## Quy trình và luồng công việc (Processes and Workflows)
 
-<!-- List any processes, workflows, or operational steps mentioned. -->
+<!-- Liệt kê các quy trình, luồng công việc, hoặc bước vận hành được đề cập. -->
 
-| Process / Workflow | Description | Notes |
+| Quy trình / Luồng | Mô tả | Ghi chú |
 | --- | --- | --- |
 | | | |
 
-## Constraints and Assumptions
+## Ràng buộc và giả định (Constraints and Assumptions)
 
-### Constraints
-
--
-
-### Assumptions
+### Ràng buộc (Constraints)
 
 -
 
-## Compliance and Regulatory Needs
-
-<!-- GDPR, HIPAA, SOX, accessibility, data residency, etc. -->
+### Giả định (Assumptions)
 
 -
 
-## Open Questions
+## Tuân thủ và quy định (Compliance and Regulatory Needs)
 
-<!-- Questions identified during parsing that need BA clarification. -->
+<!-- GDPR, HIPAA, SOX, accessibility, data residency, v.v. -->
+
+-
+
+## Câu hỏi mở (Open Questions)
+
+<!-- Các câu hỏi được phát hiện trong quá trình phân tích cần BA làm rõ. -->
 
 1.
 
-## Parsing Notes
+## Ghi chú phân tích (Parsing Notes)
 
-<!-- Any extraction caveats: unclear sections, low-confidence readings, missing pages. -->
+<!-- Các lưu ý khi trích xuất: phần không rõ ràng, độ tin cậy thấp, trang thiếu. -->
 
 -

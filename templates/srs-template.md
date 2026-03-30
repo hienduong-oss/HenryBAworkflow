@@ -1,180 +1,180 @@
-# Software Requirements Specification
+# Đặc tả yêu cầu phần mềm (Software Requirements Specification)
 
-**Project:** [Project name]
-**Version:** [v1.0]
-**Owner:** [BA/technical owner]
-**Date:** [YYYY-MM-DD]
+**Dự án (Project):** [Tên dự án]
+**Phiên bản (Version):** [v1.0]
+**Chủ sở hữu (Owner):** [BA/technical owner]
+**Ngày (Date):** [YYYY-MM-DD]
 
-## Purpose and Scope
-State the software scope, boundaries, and intended readers.
+## Mục đích và phạm vi (Purpose and Scope)
+Nêu phạm vi phần mềm, ranh giới hệ thống, và đối tượng đọc.
 
-## Overall Description
-- Product perspective:
-- User classes:
-- Operating environment:
-- Assumptions and dependencies:
+## Mô tả tổng quan (Overall Description)
+- Góc nhìn sản phẩm:
+- Nhóm người dùng:
+- Môi trường vận hành:
+- Giả định và phụ thuộc:
 
-## Functional Requirements
-| ID | Requirement | Priority | Source | Acceptance Criteria |
+## Yêu cầu chức năng (Functional Requirements)
+| Mã (ID) | Yêu cầu (Requirement) | Ưu tiên (Priority) | Nguồn (Source) | Tiêu chí chấp nhận (Acceptance Criteria) |
 | --- | --- | --- | --- | --- |
-| FR-01 | [Requirement] | [Must/Should/Could] | [Source] | [AC] |
+| FR-01 | [Yêu cầu] | [Must/Should/Could] | [Nguồn] | [AC] |
 
-## Use Case Specifications
-Document the main system interactions in actor-goal format. One row per use case, then expand critical use cases below.
+## Đặc tả Use Case (Use Case Specifications)
+Mô tả các tương tác chính của hệ thống theo định dạng actor-goal. Mỗi dòng một use case, sau đó mở rộng các use case quan trọng bên dưới.
 
-| Use Case ID | Use Case Name | Primary Actor | Trigger | Precondition | Postcondition |
+| Mã UC (Use Case ID) | Tên UC (Use Case Name) | Tác nhân chính (Primary Actor) | Trigger | Điều kiện tiên quyết (Precondition) | Hậu điều kiện (Postcondition) |
 | --- | --- | --- | --- | --- | --- |
-| UC-01 | [Use case] | [Actor] | [Trigger] | [Precondition] | [Postcondition] |
+| UC-01 | [Use case] | [Tác nhân] | [Trigger] | [Điều kiện tiên quyết] | [Hậu điều kiện] |
 
-### Detailed Use Case
-**Use Case ID:** [UC-01]
-**Goal:** [What the actor achieves]
-**Primary Actor:** [Actor]
-**Supporting Actors/Systems:** [Optional]
-**Preconditions:** [What must already be true]
-**Postconditions:** [What is true after completion]
-**Linked User Stories:** [US-001, US-002]
+### Use Case chi tiết (Detailed Use Case)
+**Mã UC (Use Case ID):** [UC-01]
+**Mục tiêu (Goal):** [Tác nhân đạt được gì]
+**Tác nhân chính (Primary Actor):** [Tác nhân]
+**Tác nhân/Hệ thống hỗ trợ (Supporting Actors/Systems):** [Tùy chọn]
+**Điều kiện tiên quyết (Preconditions):** [Điều kiện phải đúng trước đó]
+**Hậu điều kiện (Postconditions):** [Điều kiện đúng sau khi hoàn tất]
+**User Stories liên kết (Linked User Stories):** [US-001, US-002]
 
-| Step | Actor Action | System Response |
+| Bước (Step) | Hành động tác nhân (Actor Action) | Phản hồi hệ thống (System Response) |
 | --- | --- | --- |
-| 1 | [Actor action] | [System response] |
+| 1 | [Hành động] | [Phản hồi] |
 
-**Alternate Flows**
-- [Variation or exception]
+**Luồng thay thế (Alternate Flows)**
+- [Biến thể hoặc ngoại lệ]
 
-**Business Rules**
-- [Rule reference]
+**Quy tắc nghiệp vụ (Business Rules)**
+- [Tham chiếu quy tắc]
 
-**Linked Screen:** [SCR-01 — Screen Name]
+**Màn hình liên kết (Linked Screen):** [SCR-01 — Tên màn hình]
 
-**Acceptance Notes**
-- [What must be validated]
+**Ghi chú chấp nhận (Acceptance Notes)**
+- [Điều cần kiểm tra]
 
-> **Consistency rule:** Actor actions in this use case must match the corresponding screen's User Actions. System responses must match the screen's field Behaviour Rules. If the use case says "system validates email format", the linked screen's email field must have a matching Validation Rule.
+> **Quy tắc nhất quán:** Hành động tác nhân trong use case này phải khớp với User Actions của màn hình tương ứng. Phản hồi hệ thống phải khớp với Behaviour Rules của các trường trên màn hình. Nếu use case nói "hệ thống kiểm tra định dạng email", trường email trên màn hình liên kết phải có Validation Rule tương ứng.
 
-## Screen Contract Lite
-Capture the minimum screen contract needed to generate wireframes before the final screen descriptions are written.
+## Hợp đồng màn hình rút gọn (Screen Contract Lite)
+Ghi nhận hợp đồng màn hình tối thiểu cần thiết để tạo wireframe trước khi viết mô tả màn hình chi tiết.
 
-| Screen ID | Screen Name | Classification | Parent Screen | Linked Use Cases | Entry / Exit | Key Actions | Required States | Documentation Level |
+| Mã (Screen ID) | Tên (Screen Name) | Phân loại (Classification) | Màn hình cha (Parent Screen) | UC liên kết (Linked Use Cases) | Vào / Ra (Entry / Exit) | Hành động chính (Key Actions) | Trạng thái bắt buộc (Required States) | Mức tài liệu (Documentation Level) |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| SCR-01 | [Screen] | Primary screen | [N/A] | [UC-01, UC-02] | [Entry / Exit] | [Submit, Cancel] | [Loading, Empty, Error, Success] | Detailed |
-| SCR-02 | [Confirmation Modal / Drawer / Dialog] | Primary screen | [SCR-01] | [UC-03] | [Opens from SCR-01 / returns to SCR-01] | [Confirm, Close] | [Default, Loading, Error] | Detailed |
+| SCR-01 | [Màn hình] | Primary screen | [N/A] | [UC-01, UC-02] | [Vào / Ra] | [Submit, Cancel] | [Loading, Empty, Error, Success] | Detailed |
+| SCR-02 | [Modal / Drawer / Dialog] | Primary screen | [SCR-01] | [UC-03] | [Mở từ SCR-01 / trở về SCR-01] | [Confirm, Close] | [Default, Loading, Error] | Detailed |
 
-> This section is the wireframe input contract. It should be sufficient for the UI/UX agent to generate low-fidelity frames before the final screen descriptions are expanded.
+> Phần này là hợp đồng đầu vào cho wireframe. Đủ để UI/UX agent tạo low-fidelity frames trước khi mô tả màn hình chi tiết được mở rộng.
 
-## Screen Inventory
-Capture every UI frame that must exist in the Pencil artifact set, including both primary screens and supporting state frames.
+## Danh mục màn hình (Screen Inventory)
+Ghi nhận mọi UI frame phải tồn tại trong bộ artifact Pencil, bao gồm cả màn hình chính và frame trạng thái hỗ trợ.
 
-| Screen/Frame ID | Screen Name | Classification | Parent Screen | Purpose | Documentation Level |
+| Mã (Screen/Frame ID) | Tên (Screen Name) | Phân loại (Classification) | Màn hình cha (Parent Screen) | Mục đích (Purpose) | Mức tài liệu (Documentation Level) |
 | --- | --- | --- | --- | --- | --- |
-| SCR-01 | [Screen] | Primary screen | [N/A] | [Purpose] | Detailed |
-| SCR-02 | [Confirmation Modal / Drawer / Dialog] | Primary screen | [SCR-01] | [Critical decision, confirmation, or form step that affects flow] | Detailed |
-| SCR-01-EMPTY | [Screen Empty State] | Supporting state | [SCR-01] | [No data / no results / first-use guidance] | Inventory-only |
-| SCR-01-ERROR | [Screen Error State] | Supporting state | [SCR-01] | [Inline validation / blocking error / retry state] | Inventory-only |
-| SCR-01-TOAST-SUCCESS | [Screen Success Toast] | Supporting feedback | [SCR-01] | [Success confirmation after primary action] | Inventory-only |
+| SCR-01 | [Màn hình] | Primary screen | [N/A] | [Mục đích] | Detailed |
+| SCR-02 | [Modal / Drawer / Dialog] | Primary screen | [SCR-01] | [Quyết định quan trọng, xác nhận, hoặc bước form ảnh hưởng luồng] | Detailed |
+| SCR-01-EMPTY | [Trạng thái rỗng] | Supporting state | [SCR-01] | [Không có dữ liệu / không có kết quả / hướng dẫn lần đầu] | Inventory-only |
+| SCR-01-ERROR | [Trạng thái lỗi] | Supporting state | [SCR-01] | [Lỗi inline / lỗi chặn / trạng thái thử lại] | Inventory-only |
+| SCR-01-TOAST-SUCCESS | [Toast thành công] | Supporting feedback | [SCR-01] | [Xác nhận thành công sau hành động chính] | Inventory-only |
 
-> Any modal, dialog, drawer, wizard step, or overlay that has its own display rules, behaviour rules, user actions, or flow impact should be treated as a primary screen and receive its own detailed screen section.
+> Mọi modal, dialog, drawer, wizard step, hoặc overlay có display rules, behaviour rules, user actions, hoặc ảnh hưởng luồng riêng đều phải được coi là primary screen và có mục mô tả chi tiết riêng.
 >
-> Supporting frames do not always need full screen detail sections in the final SRS HTML. They must still exist in the Pencil `.pen` file and be listed here for traceability.
+> Supporting frames không bắt buộc phải có mục chi tiết đầy đủ trong SRS HTML cuối cùng. Chúng vẫn phải tồn tại trong file Pencil `.pen` và được liệt kê ở đây để đảm bảo truy vết.
 
-## Screen Descriptions
-Write full screen detail sections after wireframes are available. Use the use cases, Screen Contract Lite, and generated wireframes together to finalize the screen behavior. Every primary screen, including modal or overlay screens that affect user flow, should have a full screen detail section. Use inventory-only listing for supporting frames unless they need standalone behavioral documentation.
+## Mô tả màn hình (Screen Descriptions)
+Viết mục chi tiết màn hình đầy đủ sau khi có wireframe. Sử dụng use cases, Screen Contract Lite, và wireframe đã tạo cùng nhau để hoàn thiện hành vi màn hình. Mọi primary screen, bao gồm modal hoặc overlay ảnh hưởng luồng người dùng, đều phải có mục chi tiết đầy đủ. Sử dụng liệt kê inventory-only cho supporting frames trừ khi chúng cần tài liệu hành vi độc lập.
 
-### Screen Detail
-**Screen ID:** [SCR-01]
+### Chi tiết màn hình (Screen Detail)
+**Mã màn hình (Screen ID):** [SCR-01]
 **Pencil Artifact:** `designs/[initiative-slug]/[artifact-name].pen`
-**Pencil Frame:** [SCR-01 - Screen Name]
-**Artifact Scope:** [Single screen / multi-screen flow / module pack]
-**Supporting Frames:** [SCR-01-EMPTY - Empty State, SCR-01-ERROR - Inline Validation, SCR-01-TOAST-SUCCESS - Success Toast]
-**Layout Summary:** [Key regions, panels, or sections]
-**Navigation Rules:** [Menu, breadcrumbs, modal, back/next behavior]
-**Linked Use Cases:** [UC-01, UC-02]
-**Linked User Stories:** [US-001, US-002]
+**Pencil Frame:** [SCR-01 - Tên màn hình]
+**Phạm vi artifact (Artifact Scope):** [Single screen / multi-screen flow / module pack]
+**Frame hỗ trợ (Supporting Frames):** [SCR-01-EMPTY - Trạng thái rỗng, SCR-01-ERROR - Lỗi inline, SCR-01-TOAST-SUCCESS - Toast thành công]
+**Tóm tắt bố cục (Layout Summary):** [Các vùng, panel, hoặc section chính]
+**Quy tắc điều hướng (Navigation Rules):** [Menu, breadcrumbs, modal, hành vi back/next]
+**UC liên kết (Linked Use Cases):** [UC-01, UC-02]
+**User Stories liên kết (Linked User Stories):** [US-001, US-002]
 
-> **Consistency rule:** This screen must implement the exact interactions described in its linked use cases. Field names, action labels, and flow sequences must match between UC steps and screen fields/actions. The referenced Pencil frame inside the artifact must reflect this screen's field table and layout.
+> **Quy tắc nhất quán:** Màn hình này phải triển khai đúng các tương tác mô tả trong use cases liên kết. Tên trường, nhãn hành động, và trình tự luồng phải khớp giữa các bước UC và trường/hành động trên màn hình. Pencil frame tham chiếu trong artifact phải phản ánh bảng trường và bố cục của màn hình này.
 >
-> Supporting frames listed above must also be present in the same or linked Pencil artifact when they are implied by the screen's states, validation rules, table/list behavior, or user feedback patterns.
+> Supporting frames liệt kê ở trên cũng phải có mặt trong cùng Pencil artifact hoặc artifact liên kết khi chúng được ngụ ý bởi trạng thái, validation rules, hành vi bảng/danh sách, hoặc feedback patterns của màn hình.
 
-## Wireframe / Mockup Reference
-- Pencil file: `designs/[initiative-slug]/[artifact-name].pen`
-- Target frame: [SCR-01 - Screen Name]
-- Exported image: `designs/[initiative-slug]/exports/[artifact-name]/SCR-01-[screen-name].png`
-- Covered screen IDs in artifact: [SCR-01, SCR-02]
-- Last updated: [YYYY-MM-DD]
+## Tham chiếu Wireframe / Mockup (Wireframe / Mockup Reference)
+- File Pencil: `designs/[initiative-slug]/[artifact-name].pen`
+- Frame mục tiêu: [SCR-01 - Tên màn hình]
+- Ảnh xuất: `designs/[initiative-slug]/exports/[artifact-name]/SCR-01-[screen-name].png`
+- Các mã màn hình trong artifact: [SCR-01, SCR-02]
+- Cập nhật lần cuối: [YYYY-MM-DD]
 
-> A single `.pen` artifact may contain multiple frames. Each SRS screen must point to the exact frame that represents it.
+> Một file `.pen` có thể chứa nhiều frame. Mỗi màn hình SRS phải trỏ đến đúng frame đại diện cho nó.
 
-> In the final HTML export, the PNG image below is embedded inline automatically.
+> Trong bản xuất HTML cuối cùng, ảnh PNG bên dưới được nhúng inline tự động.
 
 ![SCR-01 Wireframe](designs/[initiative-slug]/exports/[artifact-name]/SCR-01-[screen-name].png)
 
-## Wireframe Intent
-Explain what the wireframe is optimizing for, such as data entry speed, guided completion, review-before-submit, or dashboard scanning.
+## Ý đồ Wireframe (Wireframe Intent)
+Giải thích wireframe đang tối ưu cho điều gì: tốc độ nhập dữ liệu, hoàn thành có hướng dẫn, xem lại trước khi gửi, hoặc quét dashboard.
 
-## Screen Regions
-| Region | Purpose | Contents |
+## Vùng màn hình (Screen Regions)
+| Vùng (Region) | Mục đích (Purpose) | Nội dung (Contents) |
 | --- | --- | --- |
-| Header | [Purpose] | [Title, breadcrumb, status] |
-| Main Content | [Purpose] | [Form, table, detail panel] |
-| Action Area | [Purpose] | [Primary and secondary actions] |
+| Header | [Mục đích] | [Tiêu đề, breadcrumb, trạng thái] |
+| Nội dung chính (Main Content) | [Mục đích] | [Form, bảng, panel chi tiết] |
+| Vùng hành động (Action Area) | [Mục đích] | [Hành động chính và phụ] |
 
-## Low-Fidelity Wireframe
-Use the referenced frame inside the Pencil `.pen` artifact as the primary wireframe. Add a lightweight text sketch here only when it improves clarity for reviewers who are reading the markdown alone.
+## Wireframe Low-Fidelity (Low-Fidelity Wireframe)
+Sử dụng frame tham chiếu trong Pencil artifact `.pen` làm wireframe chính. Thêm bản phác thảo text ở đây chỉ khi cải thiện rõ ràng cho reviewer đọc markdown riêng.
 
 ```text
 +--------------------------------------------------+
-| Header: Title / Breadcrumb / Status              |
+| Header: Tiêu đề / Breadcrumb / Trạng thái        |
 +----------------------+---------------------------+
-| Left Panel           | Main Content              |
-| Navigation / Filters | Form fields / table       |
+| Panel trái           | Nội dung chính            |
+| Điều hướng / Bộ lọc  | Trường form / bảng        |
 |                      |                           |
-|                      | [Primary CTA] [Cancel]    |
+|                      | [Hành động chính] [Hủy]   |
 +----------------------+---------------------------+
-| Footer / Help / Audit Info                       |
+| Footer / Trợ giúp / Thông tin kiểm toán          |
 +--------------------------------------------------+
 ```
 
-| Field Name | Field Type | Description |
+| Tên trường (Field Name) | Loại trường (Field Type) | Mô tả (Description) |
 | --- | --- | --- |
-| [Field name] | [Text / Dropdown / Date Picker / Checkbox / Button / Table / etc.] | **Display:** [Display rules — visibility, default value, read-only conditions, formatting] |
-| | | **Behaviour:** [Behaviour rules — on-change actions, auto-fill, cascading, navigation triggers] |
-| | | **Validation:** [Validation rules — required, format, range, cross-field, error messages] |
+| [Tên trường] | [Text / Dropdown / Date Picker / Checkbox / Button / Table / etc.] | **Hiển thị (Display):** [Quy tắc hiển thị — visibility, giá trị mặc định, điều kiện read-only, định dạng] |
+| | | **Hành vi (Behaviour):** [Quy tắc hành vi — on-change actions, auto-fill, cascading, navigation triggers] |
+| | | **Kiểm tra (Validation):** [Quy tắc kiểm tra — required, format, range, cross-field, error messages] |
 
-**User Actions**
-- [Primary action and its behavior]
-- [Secondary action and its behavior]
+**Hành động người dùng (User Actions)**
+- [Hành động chính và hành vi]
+- [Hành động phụ và hành vi]
 
-**States**
-- Loading: [Expected UI state]
-- Empty: [Expected UI state]
-- No results: [Expected UI state if filters or search return nothing]
-- Success: [Expected UI state]
-- Error: [Expected UI state]
-- Toast / banner / inline message: [Expected feedback surfaces and trigger conditions]
-- Disabled/Read-only: [Expected UI state]
+**Trạng thái (States)**
+- Loading: [Trạng thái UI mong đợi]
+- Rỗng (Empty): [Trạng thái UI mong đợi]
+- Không có kết quả (No results): [Trạng thái UI khi bộ lọc hoặc tìm kiếm không trả kết quả]
+- Thành công (Success): [Trạng thái UI mong đợi]
+- Lỗi (Error): [Trạng thái UI mong đợi]
+- Toast / banner / inline message: [Bề mặt phản hồi và điều kiện kích hoạt]
+- Vô hiệu/Chỉ đọc (Disabled/Read-only): [Trạng thái UI mong đợi]
 
-**Permission and Visibility Rules**
-- [Which roles can view or act on which controls]
+**Quy tắc phân quyền và hiển thị (Permission and Visibility Rules)**
+- [Vai trò nào có thể xem hoặc thao tác trên control nào]
 
-**Linked User Stories / Use Cases / Requirements**
+**Liên kết User Stories / Use Cases / Requirements**
 - User stories: [US-001, US-002]
 - Use cases: [UC-01, UC-02]
 - Requirements: [FR-01, FR-02, BR-01]
 
-## Non-Functional Requirements
-| ID | Category | Requirement | Target |
+## Yêu cầu phi chức năng (Non-Functional Requirements)
+| Mã (ID) | Danh mục (Category) | Yêu cầu (Requirement) | Mục tiêu (Target) |
 | --- | --- | --- | --- |
-| NFR-01 | Performance | [Requirement] | [Target] |
+| NFR-01 | Hiệu năng (Performance) | [Yêu cầu] | [Mục tiêu] |
 
-## Data Flow Diagrams
+## Sơ đồ luồng dữ liệu (Data Flow Diagrams)
 ```mermaid
 flowchart LR
-  U[User] --> S[System]
-  S --> D[(Data Store)]
+  U[Người dùng] --> S[Hệ thống]
+  S --> D[(Kho dữ liệu)]
   D --> S
 ```
 
-## Entity Relationship Diagram
+## Sơ đồ thực thể quan hệ (Entity Relationship Diagram)
 ```mermaid
 erDiagram
   ENTITY_ONE ||--o{ ENTITY_TWO : relates_to
@@ -184,29 +184,29 @@ erDiagram
   }
 ```
 
-## API Specifications
+## Đặc tả API (API Specifications)
 - Endpoint:
 - Method:
 - Request schema:
 - Response schema:
-- Error handling:
+- Xử lý lỗi:
 
-## Constraints
-- Technical constraints:
-- Regulatory constraints:
-- Operational constraints:
+## Ràng buộc (Constraints)
+- Ràng buộc kỹ thuật:
+- Ràng buộc pháp lý:
+- Ràng buộc vận hành:
 
-## Test Cases
-| ID | Scenario | Expected Result | Priority |
+## Kịch bản kiểm thử (Test Cases)
+| Mã (ID) | Kịch bản (Scenario) | Kết quả mong đợi (Expected Result) | Ưu tiên (Priority) |
 | --- | --- | --- | --- |
-| TC-01 | [Scenario] | [Expected result] | [Priority] |
+| TC-01 | [Kịch bản] | [Kết quả mong đợi] | [Ưu tiên] |
 
-## Glossary
-| Term | Definition |
+## Bảng thuật ngữ (Glossary)
+| Thuật ngữ (Term) | Định nghĩa (Definition) |
 | --- | --- |
-| [Term] | [Definition] |
+| [Thuật ngữ] | [Định nghĩa] |
 
-## Related Templates
+## Tài liệu liên quan (Related Templates)
 - [FRD Template](./frd-template.md)
 - [User Story Template](./user-story-template.md)
 - [Intake Form Template](./intake-form-template.md)

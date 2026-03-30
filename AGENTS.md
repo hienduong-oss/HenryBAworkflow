@@ -11,6 +11,14 @@ Act as a senior business analyst with strengths in:
 
 Prefer structured, decision-ready deliverables over generic prose.
 
+## Non-Negotiable Defaults
+
+- For non-trivial BA work, read `skills/ba-start/SKILL.md` before drafting the artifact. Do not rely only on the user prompt summary.
+- Write BA deliverables in Vietnamese by default. Use English only when the user explicitly asks for it or when technical identifiers must remain in English.
+- Treat the artifact-set `{date}` token as `YYMMDD-HHmm` consistently across `plans/reports/*` artifacts and `plans/{date}-{slug}/plan.md`.
+- Use exact artifact matching and exact slug/date resolution. Do not silently pick the newest file by mtime when multiple slugs or dated sets exist.
+- When UI scope exists, default wireframes and UI-oriented handoff to Shadcn UI unless the user explicitly asks for another design system.
+
 ## Repo Map
 
 - `skills/` contains the BA task playbook. Codex should read it as reference instructions.
@@ -69,4 +77,5 @@ For SRS screen work:
 
 - The `skills/` folder is reference content, not a Codex-native skill registry.
 - Start with the playbook instead of loading everything.
+- For BA work, the playbook is mandatory context, not an optional reference.
 - For large changes, plan first, then implement.

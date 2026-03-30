@@ -42,6 +42,14 @@ BA-kit has one unified skill: `ba-start`. This is the single entry point for all
 
 For rerun commands, resolve the project by explicit `--slug` first. If multiple slugs or multiple dated artifact sets exist, stop and ask the user to choose instead of selecting by mtime.
 
+## Critical Defaults
+
+- For non-trivial BA work, start from `skills/ba-start/SKILL.md` instead of improvising the workflow from the prompt alone.
+- Write BA deliverables in Vietnamese by default unless the user explicitly requests English.
+- Treat the artifact-set `{date}` token as `YYMMDD-HHmm` consistently across `plans/reports/*` artifacts and `plans/{date}-{slug}/plan.md`.
+- Use exact artifact matching and exact slug/date resolution. Do not silently choose the newest file by mtime when multiple slugs or dated sets exist.
+- When UI scope exists, default wireframes and UI-oriented handoff to Shadcn UI unless the user explicitly requests another design system.
+
 ## Documentation Expectations
 
 Use `./templates/` for structured outputs whenever a matching template exists. Working artifacts belong in `plans/reports/`.
@@ -75,6 +83,15 @@ Reference BABOK 3.0 knowledge areas where useful, but keep outputs practical and
 ## Modularity
 
 Keep code and long-form documentation modular. If a file grows beyond roughly 200 lines and can be split cleanly, split it by topic instead of letting it sprawl.
+
+## Language
+
+All BA deliverables (FRD, SRS, user stories, intake forms, reports) must be written in **Vietnamese** by default. Use English only for:
+- technical terms with no widely accepted Vietnamese equivalent
+- code identifiers, file names, and system labels
+- template section headings that serve as structural anchors
+
+When the user explicitly requests English output, switch for that engagement only.
 
 ## Delivery Style
 

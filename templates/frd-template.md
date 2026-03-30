@@ -1,61 +1,62 @@
-# Functional Requirements Document
+# Tài liệu yêu cầu chức năng (Functional Requirements Document)
 
-**Project:** [Project name]
-**Version:** [v1.0]
-**Owner:** [BA owner]
-**Date:** [YYYY-MM-DD]
+**Dự án (Project):** [Tên dự án]
+**Phiên bản (Version):** [v1.0]
+**Chủ sở hữu (Owner):** [BA owner]
+**Ngày (Date):** [YYYY-MM-DD]
 
-## Functional Overview
-Describe what the solution must do in business terms.
+## Tổng quan chức năng (Functional Overview)
+Mô tả giải pháp cần thực hiện dưới góc độ kinh doanh.
 
-## User Personas
-| Persona | Goals | Pain Points | Success Criteria |
+## Chân dung người dùng (User Personas)
+| Persona | Mục tiêu (Goals) | Điểm đau (Pain Points) | Tiêu chí thành công (Success Criteria) |
 | --- | --- | --- | --- |
-| [Persona] | [Goal] | [Pain point] | [Success criteria] |
+| [Persona] | [Mục tiêu] | [Điểm đau] | [Tiêu chí] |
 
-## Feature List
-| Feature | Priority | Description | Owner |
+## Danh sách tính năng (Feature List)
+| Tính năng (Feature) | Ưu tiên (Priority) | Mô tả (Description) | Chủ sở hữu (Owner) |
 | --- | --- | --- | --- |
-| [Feature] | [MoSCoW] | [Description] | [Owner] |
+| [Tính năng] | [MoSCoW] | [Mô tả] | [Owner] |
 
-## Workflows
-Use Mermaid swimlanes or flowcharts for major user journeys.
+## Luồng nghiệp vụ (Workflows)
+Sử dụng Mermaid swimlanes hoặc flowcharts cho các hành trình người dùng chính.
 
 ```mermaid
 flowchart LR
-  A[Start] --> B[Step 1]
-  B --> C{Decision}
-  C -->|Yes| D[Step 2]
-  C -->|No| E[Alternative path]
-  D --> F[End]
+  A[Bắt đầu] --> B[Bước 1]
+  B --> C{Quyết định}
+  C -->|Có| D[Bước 2]
+  C -->|Không| E[Luồng thay thế]
+  D --> F[Kết thúc]
   E --> F
 ```
 
-## Data Requirements
-- Input data:
-- Output data:
-- Data validation rules:
-- Retention needs:
+## Yêu cầu dữ liệu (Data Requirements)
+- Dữ liệu đầu vào:
+- Dữ liệu đầu ra:
+- Quy tắc kiểm tra dữ liệu:
+- Yêu cầu lưu trữ:
 
-## Business Rules
-| Rule ID | Rule | Rationale | Exception |
+## Quy tắc nghiệp vụ (Business Rules)
+| Mã quy tắc (Rule ID) | Quy tắc (Rule) | Lý do (Rationale) | Ngoại lệ (Exception) |
 | --- | --- | --- | --- |
-| BR-01 | [Rule] | [Rationale] | [Exception] |
+| BR-01 | [Quy tắc] | [Lý do] | [Ngoại lệ] |
 
-## Performance Requirements
-- Response time:
-- Volume expectations:
-- Availability:
+## Yêu cầu hiệu năng (Performance Requirements)
+- Thời gian phản hồi:
+- Khối lượng dự kiến:
+- Tính khả dụng:
 
-## Integration Points
-| System | Purpose | Interface | Dependency |
+## Điểm tích hợp (Integration Points)
+| Hệ thống (System) | Mục đích (Purpose) | Giao diện (Interface) | Phụ thuộc (Dependency) |
 | --- | --- | --- | --- |
-| [System] | [Purpose] | [API/File/Manual] | [Dependency] |
+| [Hệ thống] | [Mục đích] | [API/File/Manual] | [Phụ thuộc] |
 
-## Acceptance Criteria
-- [Criterion]
+## Tiêu chí chấp nhận (Acceptance Criteria)
+- [Tiêu chí]
 
-## Related Templates
+## Tài liệu liên quan (Related Templates)
+- [FRD Template](./frd-template.md)
 - [SRS Template](./srs-template.md)
 - [User Story Template](./user-story-template.md)
 - [Intake Form Template](./intake-form-template.md)

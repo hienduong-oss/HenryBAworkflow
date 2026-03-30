@@ -47,7 +47,8 @@ Related rules:
 
 ## Naming Convention
 
-- `{date}` uses `YYMMDD` format matching `.ck.json` convention.
+- `{date}` uses `YYMMDD-HHmm` format matching `.ck.json` convention.
+- Use the same `{date}` token for the report artifacts and the corresponding `plans/{date}-{slug}/plan.md` directory so a dated artifact set resolves unambiguously.
 - Intake: `plans/reports/intake-{slug}-{date}.md`
 - FRD: `plans/reports/frd-{date}-{slug}.md`
 - SRS: `plans/reports/srs-{date}-{slug}.md`

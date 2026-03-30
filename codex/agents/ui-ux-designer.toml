@@ -23,6 +23,7 @@ Spawned by:
 - Validate wireframes visually before moving on.
 - Treat modals, dialogs, drawers, and similar overlays as primary screens when they have their own display rules, behaviour rules, actions, or flow impact.
 - Create supporting frames when states or feedback are implied by the screen, especially loading, empty, no-results, inline validation, blocking error, toast, banner, and confirmation states.
+- Return both primary screen mappings and supporting-frame mappings so the orchestrator can keep the SRS inventory aligned.
 </do>
 
 <do_not>
@@ -36,7 +37,8 @@ Spawned by:
 2. Load design guidelines once per artifact and use Shadcn UI as the default design system baseline.
 3. Group related screens into a single `.pen` file where practical. Treat overlays with flow impact as primary frames, then derive supporting frames from parent screen states.
 4. Build wireframes with Pencil MCP from the use cases and screen contract.
-5. Validate with screenshots and return the mapping, including inventory-only supporting frames.
+5. Validate with screenshots against the use cases and screen contract.
+6. Return the mapping, including inventory-only supporting frames.
 </workflow>
 
 <outputs>

@@ -22,7 +22,55 @@ Use this skill to run an end-to-end business analysis engagement from raw input 
 /ba-start status --slug <slug>
 ```
 
+## Priority Contract
+
+Read this section first. Only continue to the detailed step sections when you need the exact production instructions for the selected command.
+
+### Fast execution order
+
+1. Parse `ARGUMENTS` before doing any work.
+2. Resolve the subcommand: `intake`, `frd`, `stories`, `srs`, `wireframes`, `package`, or `status`.
+3. Apply output defaults:
+   - write BA deliverables in Vietnamese unless the user explicitly requests English
+   - use `YYMMDD-HHmm` as the artifact-set `{date}` token
+   - default UI-backed wireframes to Shadcn UI unless the user explicitly overrides it
+4. Resolve the target scope with exact matching only:
+   - explicit `--slug <slug>` first
+   - otherwise use a single detected slug only
+   - if multiple slugs exist, stop and ask
+   - if multiple dated sets exist for the slug, stop and ask
+5. Check prerequisites for the chosen command.
+6. If any prerequisite is missing, print the missing exact path, print the exact prior subcommand to run, and stop.
+7. Before mutating `frd`, `stories`, `srs`, `wireframes`, or `package`, if the target output already exists, ask whether to overwrite or stop.
+
+### Command routing summary
+
+| Command | Runs | Must read first | Produces |
+| --- | --- | --- | --- |
+| no subcommand | Full workflow | raw input | intake, FRD, stories, SRS, wireframes, package |
+| `intake` | Steps 1-5 | raw input | intake + plan |
+| `frd` | Step 6 | intake | FRD + FRD HTML |
+| `stories` | Step 7 | FRD | user stories |
+| `srs` | Steps 8-11 | FRD + user stories | grouped SRS + merged SRS + wireframes |
+| `wireframes` | Step 9 only | group-c SRS or merged SRS with Screen Contract Lite | `.pen`, exports, wireframe-state |
+| `package` | Step 12 only | merged SRS + non-missing wireframe-state | SRS HTML + delivery summary |
+| `status` | inspection only | none | checklist output |
+
+### Non-negotiable stop conditions
+
+- Never silently choose a slug or dated set by mtime.
+- Never use broad `*-{slug}*` matching when exact artifact patterns are available.
+- `wireframes` is read-only on upstream BA artifacts. It may regenerate only design outputs and the wireframe-state marker.
+- `package` must block only when wireframe state is `missing`.
+- If no wireframe-state marker exists, treat it as `not-applicable` only when the SRS set has no UI-backed screens or Screen Contract Lite section. Otherwise treat it as `missing`.
+
 ## Shared Routing And State Rules
+
+### Core operating defaults
+
+- Write BA deliverables in Vietnamese by default unless the user explicitly requests English.
+- Treat the artifact-set `{date}` token as `YYMMDD-HHmm` consistently across report filenames and `plans/{date}-{slug}/plan.md`.
+- For UI-backed scope, use Shadcn UI as the default wireframe and UI-handoff design-system baseline unless the user explicitly overrides it.
 
 ### Argument parsing
 

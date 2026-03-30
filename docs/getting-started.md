@@ -95,6 +95,7 @@ Instead:
 3. Tell Codex to use `skills/ba-start/SKILL.md` as the playbook
 4. Point Codex to the correct template under `templates/`
 5. If you have the Codex-converted bundle, run `bash scripts/install-codex-ba-kit.sh` once to copy the skill and agents into `~/.codex` and register Codex agents in `~/.codex/config.toml`
+6. If you use the installer, make sure `node` is available because the registration step runs on Node.js
 
 ### Codex Example
 
@@ -123,6 +124,11 @@ Then report `/ba-start status` semantics with artifact dates and the wireframe s
 ```
 
 See [codex-setup.md](./codex-setup.md) for more prompt patterns.
+
+Runtime defaults for both Claude Code and Codex:
+- BA deliverables are written in Vietnamese by default unless the user explicitly requests English
+- the dated artifact-set token is `YYMMDD-HHmm` across report filenames and `plans/{date}-{slug}/plan.md`
+- Shadcn UI is the default wireframe design system unless explicitly overridden
 
 ## 6. Add Pencil Wireframes For SRS Work
 

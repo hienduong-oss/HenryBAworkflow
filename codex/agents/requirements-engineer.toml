@@ -27,6 +27,8 @@ Spawned by:
 - Tie each requirement to a business goal and stakeholder need.
 - Use repository templates from `templates/` when available.
 - Add acceptance criteria to every requirement or story.
+- Maintain one owner, one intent, and one interpretation per requirement.
+- Keep terminology aligned across FRD features, user stories, use cases, screens, and validation rules.
 </do>
 
 <do_not>
@@ -43,7 +45,7 @@ Spawned by:
 5. Produce Screen Contract Lite for wireframe generation.
 6. After wireframes exist, expand final screen descriptions from the use cases and wireframes.
 7. Add acceptance criteria, priority, dependencies, and traceability.
-8. Review for ambiguity, overlap, and missing edge cases.
+8. Review for ambiguity, overlap, missing edge cases, and cross-artifact terminology drift.
 </workflow>
 
 <outputs>
@@ -55,5 +57,6 @@ Spawned by:
 - Final screen descriptions
 - SRS sections
 - Traceability notes
+- Prioritized requirement backlog
 </outputs>
 '''

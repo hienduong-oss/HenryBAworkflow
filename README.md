@@ -18,6 +18,7 @@ Start here for practical setup and usage: [docs/getting-started.md](./docs/getti
 - Codex with repo-level `AGENTS.md` support
 - A local Claude workspace with access to `~/.claude/`
 - Bash-compatible shell for running `install.sh`
+- Node.js if you want to run `scripts/install-codex-ba-kit.sh`
 
 ## Installation
 
@@ -46,7 +47,7 @@ BA-kit supports Codex through the root [AGENTS.md](./AGENTS.md) file and repo-lo
 - `rules/` and `templates/` provide workflow and artifact structure
 - `designs/` stores Pencil `.pen` files for SRS screen wireframes
 
-Codex does not require `./install.sh` or installation into `~/.claude`. Open the repository with `AGENTS.md` present, then explicitly direct Codex to use the relevant BA playbook from `skills/`.
+Codex does not require `./install.sh` or installation into `~/.claude`. Open the repository with `AGENTS.md` present, then explicitly direct Codex to use the relevant BA playbook from `skills/`. The root `AGENTS.md` now carries the minimum non-negotiable BA defaults, but `skills/ba-start/SKILL.md` is still the required workflow source for non-trivial BA tasks.
 
 If you are using the Codex-converted bundle, install it into the local Codex runtime with:
 
@@ -57,6 +58,11 @@ bash scripts/install-codex-ba-kit.sh
 That script copies the converted assets from `codex/skills/**` and `codex/agents/**` into `~/.codex/skills` and `~/.codex/agents`, then appends any missing agent registrations into `~/.codex/config.toml` without duplicating existing entries.
 
 See [docs/codex-setup.md](./docs/codex-setup.md) for prompt patterns and setup guidance.
+
+Core defaults across Claude Code and Codex:
+- BA deliverables are written in Vietnamese by default unless the user explicitly requests English.
+- The dated artifact-set token uses `YYMMDD-HHmm` consistently across `plans/reports/*` and `plans/{date}-{slug}/plan.md`.
+- When UI scope exists, wireframes default to Shadcn UI unless the user explicitly overrides it.
 
 ## Quick Start
 

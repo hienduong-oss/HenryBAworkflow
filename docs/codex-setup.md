@@ -32,6 +32,9 @@ It copies those files into:
 
 It also appends any missing Codex agent registrations into `~/.codex/config.toml` in an idempotent way, so rerunning the script is safe.
 
+Prerequisite:
+- `node` must be available because the installer uses a small Node.js registration step.
+
 ## Recommended Codex Workflow
 
 1. Start with the business outcome or artifact you need.
@@ -44,6 +47,8 @@ It also appends any missing Codex agent registrations into `~/.codex/config.toml
 8. Ask for assumptions, open questions, and a draft output.
 9. If you installed the Codex conversion, ask Codex to use `ba-start` from `~/.codex/skills/ba-start/SKILL.md` and the registered BA agents from `~/.codex/agents`.
 10. Unless you explicitly override it, BA-kit should use Shadcn UI as the default design system for wireframes and UI handoff.
+11. Unless you explicitly override it, BA deliverables should be written in Vietnamese.
+12. Treat the dated artifact-set token as `YYMMDD-HHmm` across both report filenames and `plans/{date}-{slug}/plan.md`.
 
 ## Prompt Patterns
 
@@ -114,6 +119,7 @@ Keep acceptance criteria testable and align any UI stories to the SRS screens.
 The `skills/` directory is written in Claude-style skill format. Codex should treat those files as instruction content to read and apply, not as an automatic native skill system.
 
 That means prompts should explicitly tell Codex which playbook to consult when the task is non-trivial.
+The root `AGENTS.md` carries the short non-negotiable defaults, but it does not replace the detailed routing and prerequisite logic in `skills/ba-start/SKILL.md`.
 
 ## Pencil For Codex
 

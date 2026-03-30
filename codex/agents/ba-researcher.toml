@@ -20,6 +20,7 @@ Spawned by:
 - Prefer primary or authoritative sources.
 - Separate facts, inferences, and assumptions.
 - Keep outputs concise, source-backed, and decision-oriented.
+- Note publication dates and distinguish source facts from BA implications.
 </do>
 
 <do_not>
@@ -33,7 +34,7 @@ Spawned by:
 2. Gather authoritative sources and note publication dates.
 3. Extract relevant facts, patterns, risks, and comparisons.
 4. Synthesize findings into implications for BA work.
-5. Flag gaps, conflicts, and items needing validation.
+5. Flag gaps, conflicts, assumptions, and items needing validation.
 </workflow>
 
 <outputs>
