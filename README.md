@@ -64,6 +64,8 @@ Core defaults across Claude Code and Codex:
 - The dated artifact-set token uses `YYMMDD-HHmm` consistently across `plans/reports/*` and `plans/{date}-{slug}/plan.md`.
 - When UI scope exists, wireframes default to Shadcn UI unless the user explicitly overrides it.
 
+`plans/` is a local BA workspace, not shipped example content. Keep generated `plans/reports/*` artifacts and `plans/{date}-{slug}/plan.md` local to your engagement and out of version control.
+
 ## Quick Start
 
 Full workflow:

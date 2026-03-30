@@ -130,6 +130,8 @@ Runtime defaults for both Claude Code and Codex:
 - the dated artifact-set token is `YYMMDD-HHmm` across report filenames and `plans/{date}-{slug}/plan.md`
 - Shadcn UI is the default wireframe design system unless explicitly overridden
 
+`plans/` is a local runtime workspace. BA-kit writes generated plans and report artifacts there during an engagement, but those files are not meant to stay version-controlled in the toolkit repository.
+
 ## 6. Add Pencil Wireframes For SRS Work
 
 Use Pencil only for wireframes in BA-kit.

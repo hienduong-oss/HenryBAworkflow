@@ -17,6 +17,11 @@ build/
 coverage/
 tmp/
 temp/
+plans/**
+!plans/
+!plans/README.md
+!plans/reports/
+!plans/reports/.gitkeep
 
 # Environment files
 .env
