@@ -37,6 +37,7 @@ The installer also installs a shared update command:
 
 ```bash
 ba-kit update
+ba-kit status --slug warehouse-rfp
 ```
 
 It checks the registered BA-kit source repo for dirty state or unfinished merge/rebase work, runs `git pull --ff-only`, then reinstalls Claude and Codex assets that were previously installed from that repo.
@@ -150,7 +151,7 @@ For UI-backed work, BA-kit now defaults to the Shadcn UI design system for wiref
 
 BA-kit packages intake, FRD, user stories, and SRS into one shared HTML shell with consistent metadata, visual chrome, and in-browser editing controls. The SRS HTML remains the primary stakeholder handoff, while the other HTML artifacts provide aligned review copies for the same engagement.
 
-`/ba-start status` reports regular artifacts as exists or missing with last-modified dates. Wireframes use explicit states: `completed`, `skipped`, `not-applicable`, or `missing`.
+`/ba-start status` reports regular artifacts as exists or missing with last-modified dates. Wireframes use explicit states: `completed`, `skipped`, `not-applicable`, or `missing`. Non-trivial delegated slices should also surface from trackers under `plans/{date}-{slug}/delegation/`, including likely stalled runs when heartbeats go stale.
 
 ## Configuration
 

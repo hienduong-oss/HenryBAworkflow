@@ -70,12 +70,13 @@ Subcommand targeting rules:
 Delegation is intentionally partitioned. Large SRS work should be split into grouped slices and passed downstream as narrow handoff packets with exact excerpts and trace IDs, not as full merged artifacts. If one delegated slice becomes too large to keep consistent, repartition and rerun only that slice.
 
 Use [`templates/sub-agent-handoff-template.md`](../templates/sub-agent-handoff-template.md) as the default packet structure when delegation is non-trivial.
+For non-trivial delegated work, also create a tracker under `plans/{date}-{slug}/delegation/` so `/ba-start status` can expose `queued`, `running`, `blocked`, `needs-repartition`, `completed`, or likely stalled slices.
 
 ## HTML Editing
 
 Packaged HTML artifacts are meant to be edited in the browser. Update copy, swap images, and add or remove blocks directly in the rendered HTML instead of hand-editing source HTML.
 
-`/ba-start status` reports regular artifacts as exists or missing with last-modified dates. Wireframes are reported as `completed`, `skipped`, `not-applicable`, or `missing` from the explicit wireframe-state marker, and completed runs should expose both the persisted wireframe input pack and wireframe map.
+`/ba-start status` reports regular artifacts as exists or missing with last-modified dates. Wireframes are reported as `completed`, `skipped`, `not-applicable`, or `missing` from the explicit wireframe-state marker, and completed runs should expose both the persisted wireframe input pack and wireframe map. Delegated slices should also appear from their trackers, with likely stalled slices flagged when heartbeats go stale.
 
 ## Expected Quality Bar
 

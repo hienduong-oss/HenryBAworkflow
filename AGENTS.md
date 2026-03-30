@@ -19,8 +19,10 @@ Prefer structured, decision-ready deliverables over generic prose.
 - Use exact artifact matching and exact slug/date resolution. Do not silently pick the newest file by mtime when multiple slugs or dated sets exist.
 - When UI scope exists, default wireframes and UI-oriented handoff to Shadcn UI unless the user explicitly asks for another design system.
 - For `srs`, begin from the resolved FRD and user-stories prerequisites. Do not reread the whole `plans/reports/` suite once slug/date is resolved.
+- For `frd` and `stories`, begin from the resolved intake or FRD prerequisite only. Do not reread the whole `plans/reports/` suite once slug/date is resolved.
 - Treat legacy report suites like `002-intake-form.md` as out-of-contract until they are migrated or rerun explicitly.
 - If context truncation happens mid-run, recover from the resolved command, slug/date, and exact prerequisite artifacts instead of asking the user to restate the task.
+- After the user explicitly approves a mutating rerun step, keep that step locked for the current run and do not fall back to generic "what do you want me to do?" prompts.
 
 ## Repo Map
 
@@ -39,6 +41,7 @@ When asked to produce or update a BA artifact:
 3. Use the matching template from `templates/`
 4. If the artifact has UI-backed scope, reference Pencil wireframes from `designs/` at artifact and frame level
 5. Keep outputs traceable to business goals, stakeholders, and acceptance criteria
+6. For non-trivial delegated work, create a run-status tracker under `plans/{date}-{slug}/delegation/`
 
 ## Routing Guide
 
@@ -52,6 +55,7 @@ Key templates:
 - `templates/user-story-template.md` — Agile user stories
 - `templates/wireframe-input-template.md` — persisted Step 9 input pack
 - `templates/wireframe-map-template.md` — persisted screen-to-frame linkback
+- `templates/delegation-status-template.md` — delegated run heartbeat and stall tracking
 
 ## Quality Bar
 
@@ -83,7 +87,9 @@ For SRS screen work:
 - The `skills/` folder is reference content, not a Codex-native skill registry.
 - Start with the playbook instead of loading everything.
 - For BA work, the playbook is mandatory context, not an optional reference.
-- Use narrow handoff packets for delegated work: objective, target path, write scope, exact excerpts, and trace IDs.
+- Use narrow handoff packets for delegated work: objective, target path, write scope, tracker path, exact excerpts, and trace IDs.
 - Do not dump full merged artifacts, full templates, and full rules into every sub-agent call after the workflow has already been resolved.
 - If a delegated slice is too large or the worker lacks context, repartition and rerun only that slice instead of pushing through with partial context.
+- Require heartbeat updates after each major milestone and at least every 5 minutes during long-running delegated work.
+- If a tracker has no heartbeat for more than 10 minutes and the target artifact has not advanced, treat that slice as likely stalled and recover intentionally instead of waiting blindly.
 - For large changes, plan first, then implement.

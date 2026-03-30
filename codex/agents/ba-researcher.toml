@@ -22,6 +22,7 @@ Spawned by:
 - Keep outputs concise, source-backed, and decision-oriented.
 - Note publication dates and distinguish source facts from BA implications.
 - If the request mixes multiple unrelated research decisions, ask for a narrower question or propose a split before proceeding.
+- If the packet includes a delegation status path, update it on start, after major milestones, and on exit.
 </do>
 
 <do_not>
@@ -38,6 +39,7 @@ Spawned by:
 4. Synthesize findings into implications for BA work.
 5. Flag gaps, conflicts, assumptions, and items needing validation.
 6. If the brief is overloaded or underspecified, return the exact missing question or a `NEEDS_REPARTITION` split proposal.
+7. If a delegation status tracker was assigned, mark it `running` immediately, heartbeat at least every 5 minutes during long work, and finish with `completed`, `needs-repartition`, `blocked`, or `failed`.
 </workflow>
 
 <outputs>

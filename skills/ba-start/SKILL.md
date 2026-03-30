@@ -199,6 +199,52 @@ If exploration consumed too much context or the host truncates part of the conve
    - next exact step
 6. Do not restart broad artifact discovery after the target scope has already been accepted.
 
+### Accepted-scope execution lock
+
+For mutating rerun commands (`frd`, `stories`, `srs`, `wireframes`, `package`):
+
+1. Once the user has explicitly approved the next step, treat the target command as locked for the current run.
+2. After that approval, do not fall back to generic prompts such as:
+   - "What would you like me to help with?"
+   - "What would you like me to do with this document?"
+   - "Please restate what you need"
+3. Continue from the resolved command, slug, dated set, and exact prerequisites on disk unless one of those values is genuinely unknown.
+4. If context pressure occurs after the lock is established, print a short recovery line and resume the exact step instead of reopening discovery.
+5. Reading one prerequisite artifact does not reset the execution lock.
+
+### Delegated run tracking
+
+When a non-trivial BA slice is delegated to a sub-agent, persist a dedicated run-status tracker under:
+
+`plans/{date}-{slug}/delegation/{owner}-{slice}.md`
+
+Rules:
+
+1. The orchestrator creates the tracker before spawning the worker.
+2. Use one tracker file per delegated slice so two workers never edit the same tracker.
+3. The tracker must record:
+   - owner
+   - slice name
+   - target artifact
+   - current status: `queued`, `running`, `completed`, `needs-repartition`, `blocked`, `failed`, or `stalled`
+   - started time
+   - last heartbeat time
+   - stall threshold in minutes
+   - expected outputs
+   - latest milestone or blocker
+4. The delegated packet must include the exact tracker path.
+5. The worker updates the tracker:
+   - immediately on start by changing status to `running`
+   - after each major milestone
+   - at least every 5 minutes during long-running work
+   - on exit with `completed`, `needs-repartition`, `blocked`, or `failed`
+6. If no heartbeat arrives within 10 minutes and the target artifact has not advanced, treat the slice as `stalled` instead of waiting blindly.
+7. On a suspected stall, stop broad waiting behavior and do one of:
+   - inspect the tracker and current target artifact
+   - rerun the same slice with a narrower packet
+   - ask the user whether to retry or stop if the next action is ambiguous
+8. The `status` subcommand should surface active delegation trackers for the selected slug/date and flag likely stalls.
+
 ### Wireframe state model
 
 Persist an explicit wireframe-state marker after every Step 9 run at:
@@ -370,6 +416,10 @@ Run Step 6 only.
 - Require `plans/reports/intake-{slug}-{date}.md`.
 - If the intake artifact is missing, print the exact missing path, tell the user to run `/ba-start intake`, and stop.
 - Trust the user intent. Do not re-check whether the work plan selected FRD.
+- Run a narrow FRD preflight before reading content:
+  - read only `plans/reports/intake-{slug}-{date}.md` and `plans/{date}-{slug}/plan.md` when it exists
+  - do not scan unrelated files in `plans/reports/` once the target slug/date is resolved
+  - if only legacy-named report suites exist for the apparent project, stop with the legacy artifact detection message instead of inferring from them
 
 ### Output
 
@@ -377,6 +427,12 @@ Run Step 6 only.
 - `plans/reports/frd-{date}-{slug}.html`
 
 ### Step 6 - Produce FRD
+
+FRD execution rules:
+
+- Start from the exact intake artifact only, plus the exact plan path when it exists.
+- If the user already confirmed that FRD authoring should proceed, continue from the resolved intake instead of reopening scope discovery.
+- Do not ask what the user wants to do with the document after the FRD step has been accepted.
 
 Produce the FRD using [frd-template.md](../../templates/frd-template.md):
 
@@ -408,6 +464,11 @@ Run Step 7 only.
 - Resolve the slug and dated set using the shared rules.
 - Require `plans/reports/frd-{date}-{slug}.md`.
 - If the FRD artifact is missing, print the exact missing path, tell the user to run `/ba-start frd --slug {slug}`, and stop.
+- Run a narrow stories preflight before reading content:
+  - read only `plans/reports/frd-{date}-{slug}.md`
+  - read `plans/{date}-{slug}/plan.md` only when it exists and only if it adds needed scope context
+  - do not scan unrelated files in `plans/reports/` once the target slug/date is resolved
+  - if only legacy-named report suites exist for the apparent project, stop with the legacy artifact detection message instead of inferring from them
 
 ### Output
 
@@ -415,6 +476,12 @@ Run Step 7 only.
 - `plans/reports/user-stories-{date}-{slug}.html`
 
 ### Step 7 - Produce user stories
+
+Stories execution rules:
+
+- Start from the exact FRD artifact only, plus the exact plan path when it is genuinely needed.
+- If the user already confirmed that user-story generation should proceed, continue from the resolved FRD instead of reopening discovery.
+- Do not ask what the user wants to do with the document after the stories step has been accepted.
 
 Generate Agile user stories from the FRD feature list using [user-story-template.md](../../templates/user-story-template.md):
 
@@ -496,9 +563,11 @@ Sub-agent handoff packet:
 - Every delegated packet must include only:
   - objective and target artifact path
   - exact write scope
+  - delegation status tracker path
   - exact upstream excerpts needed for that slice
   - FR, UC, SCR, or story IDs needed for traceability
   - expected output sections
+  - heartbeat cadence and stall threshold
 - Do not pass full merged artifacts when a section excerpt is sufficient.
 - Do not repeat the full playbook, full rules, and full templates inside every delegated call. The orchestrator should resolve the workflow first, then pass only the relevant constraints.
 - If the handoff packet cannot fit into one concise brief with a few targeted excerpts, repartition before spawning.
@@ -522,6 +591,9 @@ Delegation packet template:
 - Objective: [single concrete goal]
 - Target Artifact: [exact path]
 - Allowed Write Scope: [exact section(s) or file(s)]
+- Delegation Status Path: [plans/{date}-{slug}/delegation/{owner}-{slice}.md]
+- Heartbeat Cadence: [default: every major milestone and at least every 5 minutes]
+- Stall Threshold Minutes: [default: 10]
 - Trace IDs:
   - FR: [...]
   - UC: [...]
@@ -871,6 +943,9 @@ plans/
     wireframe-state-{date}-{slug}.md
   {date}-{slug}/
     plan.md
+    delegation/
+      requirements-engineer-group-a.md
+      ui-ux-designer-auth-flow.md
 designs/
   {slug}/
     auth-flow.pen
@@ -887,7 +962,7 @@ The HTML files are the primary stakeholder deliverables. The Markdown files rema
 
 ## Subcommand: status
 
-Inspect the selected project set and print a checklist with artifact name, exists or missing status, and last-modified date.
+Inspect the selected project set and print a checklist with artifact name, exists or missing status, last-modified date, and any active delegated worker slices.
 
 ### Prerequisites
 
@@ -913,6 +988,11 @@ Date set: {date}
 - [ ] wireframe-input-{date}-{slug}.md — missing
 - [ ] wireframe-map-{date}-{slug}.md — missing
 - [!] wireframes — skipped — 2026-03-26
+
+Delegated slices:
+
+- [~] requirements-engineer-group-b — running — last heartbeat 2026-03-26 15:42
+- [!] ui-ux-designer-auth-flow — likely stalled — last heartbeat 2026-03-26 15:31 (>10m threshold)
 ```
 
 Status rules:
@@ -920,6 +1000,10 @@ Status rules:
 - For regular artifacts, print `exists` or `missing` with the last-modified date when present.
 - For wireframes, print the explicit wireframe state (`completed`, `skipped`, `not-applicable`, or `missing`) plus the marker date.
 - When wireframes are `completed`, also list the detected input pack, wireframe map, `.pen` artifact paths, and export folders under `designs/{slug}/`.
+- For delegated slices under `plans/{date}-{slug}/delegation/`, print:
+  - `queued`, `running`, `completed`, `needs-repartition`, `blocked`, or `failed` directly from the tracker
+  - `likely stalled` when the tracker says `running` or `queued` but the last heartbeat is older than the tracker threshold
+  - the last heartbeat timestamp and latest milestone or blocker when present
 
 ## Deliverables
 
@@ -937,6 +1021,7 @@ Status rules:
 - Wireframe map with persisted screen-to-frame linkback
 - Wireframe-state marker for reruns, status, and packaging decisions
 - Quality review summary
+- Delegated run-status trackers for non-trivial sub-agent slices under `plans/{date}-{slug}/delegation/`
 
 ## Templates
 
@@ -946,6 +1031,7 @@ Status rules:
 - [srs-template.md](../../templates/srs-template.md)
 - [wireframe-input-template.md](../../templates/wireframe-input-template.md)
 - [wireframe-map-template.md](../../templates/wireframe-map-template.md)
+- [delegation-status-template.md](../../templates/delegation-status-template.md)
 - [sub-agent-handoff-template.md](../../templates/sub-agent-handoff-template.md)
 
 ## Agent Delegation

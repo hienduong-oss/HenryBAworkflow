@@ -40,6 +40,7 @@ After installation, update BA-kit with:
 
 ```bash
 ba-kit update
+ba-kit status --slug warehouse-rfp
 ```
 
 Or ask Codex to run:
@@ -66,8 +67,12 @@ Or ask Codex to run:
 14. If a delegated worker reports missing context or `NEEDS_REPARTITION`, split the scope and rerun only that slice.
 15. For non-trivial delegation, use the packet structure from `templates/sub-agent-handoff-template.md` or the equivalent snippet embedded in `ba-start`.
 16. For `srs`, resolve the exact FRD and user-stories artifacts first and begin authoring from those files instead of scanning every report in `plans/reports/`.
-17. If only legacy report names like `002-intake-form.md` exist, stop and migrate or rerun them explicitly; do not infer the current slug/date from legacy filenames.
-18. If context truncation happens after the target workflow was already confirmed, recover from the resolved command and exact artifacts on disk instead of asking the user to restate the original task.
+17. For `frd` and `stories`, resolve the exact intake or FRD prerequisite first and begin authoring from that file instead of scanning every report in `plans/reports/`.
+18. If only legacy report names like `002-intake-form.md` exist, stop and migrate or rerun them explicitly; do not infer the current slug/date from legacy filenames.
+19. If context truncation happens after the target workflow was already confirmed, recover from the resolved command and exact artifacts on disk instead of asking the user to restate the original task.
+20. Once the user explicitly approves a mutating rerun step, keep that step locked for the current run and do not fall back to generic "what do you want me to do with this document?" prompts.
+21. For non-trivial delegated work, create a dedicated tracker under `plans/{date}-{slug}/delegation/` and pass its path into the worker packet.
+22. Treat a delegated slice as likely stalled when its tracker has no heartbeat for more than 10 minutes and the target artifact has not advanced.
 
 ## Prompt Patterns
 
@@ -105,6 +110,7 @@ Keep the package scope narrow: regenerate only the final SRS HTML unless I expli
 Use AGENTS.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start status --slug warehouse-rfp`.
 Print artifact names, exists or missing status, last-modified dates, the explicit wireframe state, and any persisted wireframe input/map artifacts when present.
+Also print any delegation trackers under `plans/{date}-{slug}/delegation/`, including `running`, `blocked`, `needs-repartition`, or likely stalled slices.
 ```
 
 ### Codex Conversion
@@ -154,7 +160,7 @@ Use Pencil only for wireframes in SRS-backed work:
 
 The generated HTML set uses one shared BA-kit document shell. Open the packaged artifacts in a browser to update text, replace images, and add or remove blocks without editing the source HTML manually. SRS HTML remains the primary stakeholder handoff, while intake, FRD, and user-stories HTML provide aligned review copies. The `package` step should stay narrow by default: validate any existing packaged HTML artifacts, but regenerate only the final SRS HTML unless the user explicitly asks for a full HTML repack.
 
-`/ba-start status` should report wireframes using the explicit state marker: `completed`, `skipped`, `not-applicable`, or `missing`, plus the persisted wireframe input pack and wireframe map when they exist.
+`/ba-start status` should report wireframes using the explicit state marker: `completed`, `skipped`, `not-applicable`, or `missing`, plus the persisted wireframe input pack and wireframe map when they exist. It should also surface delegated slice trackers and flag likely stalls from stale heartbeats.
 
 ## Good Outcomes
 

@@ -40,11 +40,15 @@ Related rules:
 
 - Build delegated work as narrow handoff packets, not full-document dumps.
 - Each delegated packet should contain only the objective, target artifact, allowed write scope, exact upstream excerpts, trace IDs, and expected output sections.
+- For non-trivial delegated work, include a dedicated tracker path under `plans/{date}-{slug}/delegation/` so progress is visible outside the live chat session.
 - Do not pass the full playbook, full rule set, and full template into every sub-agent call once the orchestrator has already resolved the workflow.
 - If the delegated packet still requires large merged artifacts to be understandable, repartition the work before spawning.
 - When a delegated scope grows too large to keep terminology and traceability consistent, split it into smaller groups and rerun only the affected slice.
 - If a worker lacks context or receives an overloaded scope, it must stop and return the exact missing inputs or a repartition request instead of guessing.
 - A repartition response should identify the overloaded section, the reason it is too large, the smallest viable split, and the exact upstream inputs needed for the rerun.
+- The orchestrator should create one tracker file per delegated slice, mark it `queued` before spawn, and require the worker to update it to `running` immediately on start.
+- Workers should heartbeat after each major milestone and at least every 5 minutes during long-running work.
+- If a delegated slice shows no heartbeat for more than 10 minutes and the target artifact has not advanced, treat it as likely stalled and recover intentionally instead of waiting blindly.
 
 ## Documentation Rules
 
@@ -52,6 +56,7 @@ Related rules:
 - Keep document titles, headings, and filenames aligned.
 - Use descriptive kebab-case filenames.
 - Final artifacts go in `plans/reports/`. Work plans go in `plans/{date}-{slug}/`.
+- Delegation trackers for active sub-agent slices belong in `plans/{date}-{slug}/delegation/`.
 - Preserve traceability links between source, analysis, and final outputs.
 - Broken links and stale references must be corrected before handoff.
 - For UI-backed SRS work, persist a `wireframe-input-{date}-{slug}.md` artifact before Step 9 and a `wireframe-map-{date}-{slug}.md` artifact after successful wireframe generation.
@@ -81,10 +86,12 @@ Related rules:
 
 - Approve scope before deep analysis.
 - Approve requirements before downstream production.
+- Once a mutating rerun step is explicitly approved, keep that step locked for the current run; do not reopen generic discovery or ask the user to restate the task unless command, slug, date, or overwrite approval became genuinely ambiguous.
 - **Cross-artifact consistency check before packaging:** UC steps, screen fields/actions, and wireframe labels must use identical terminology and describe the same behavior.
 - Wireframe linkage must be screen-to-frame, not screen-to-file only. A single `.pen` file may cover multiple screens.
 - Supporting frames that are not expanded into full screen sections must still be captured in the SRS screen inventory and present in the `.pen` artifact.
 - Modal and overlay screens that affect flow must be treated like first-class screens in traceability, not collapsed into supporting-state inventory entries.
 - Verify quality before handoff.
 - **SRS preflight gate:** once slug/date and prerequisites are resolved, start from the exact FRD and user-stories artifacts instead of rereading the entire `plans/reports/` suite.
+- **FRD/stories preflight gate:** once slug/date and prerequisites are resolved, start from the exact intake or FRD artifact instead of rereading the entire `plans/reports/` suite.
 - **Context-loss recovery gate:** if exploration causes context pressure, recover from resolved command + slug/date + exact artifacts on disk; do not ask the user to restate the task unless the target really became ambiguous.

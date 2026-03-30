@@ -11,9 +11,11 @@ usage() {
   cat <<'EOF'
 Usage:
   ba-kit update
+  ba-kit status [--slug <slug>] [--date <YYMMDD-HHmm>]
 
 Commands:
   update    Fast-forward pull the installed BA-kit source repo and rerun installed runtime installers.
+  status    Inspect BA-kit artifacts and delegated worker trackers from the registered source repo.
 EOF
 }
 
@@ -49,6 +51,253 @@ collect_installations() {
     [[ -n "${runtime}" && -n "${repo}" ]] || continue
     printf '%s\t%s\t%s\n' "${runtime}" "${repo}" "${manifest_path}"
   done
+}
+
+resolve_registered_repo() {
+  local installations unique_repos repo_count repo runtime
+  installations="$(collect_installations)"
+
+  if [[ -z "${installations}" ]]; then
+    fail "No BA-kit installation manifests found under ${MANIFEST_DIR}. Run the installers once before using '${CLI_NAME} status'."
+  fi
+
+  unique_repos="$(
+    while IFS=$'\t' read -r runtime repo _; do
+      [[ -n "${repo:-}" ]] || continue
+      printf '%s\n' "${repo}"
+    done <<<"${installations}" | sort -u
+  )"
+  repo_count="$(printf '%s\n' "${unique_repos}" | sed '/^$/d' | wc -l | tr -d ' ')"
+
+  if [[ "${repo_count}" -ne 1 ]]; then
+    printf 'Multiple BA-kit source repositories are registered. Resolve this manually before running status:\n' >&2
+    print_installations "${installations}"
+    exit 1
+  fi
+
+  printf '%s\n' "$(printf '%s\n' "${unique_repos}" | sed '/^$/d' | head -n 1)"
+}
+
+stat_mtime_epoch() {
+  local path="$1"
+  if stat -f '%m' "${path}" >/dev/null 2>&1; then
+    stat -f '%m' "${path}"
+  else
+    stat -c '%Y' "${path}"
+  fi
+}
+
+stat_mtime_pretty() {
+  local path="$1"
+  if stat -f '%Sm' -t '%Y-%m-%d %H:%M' "${path}" >/dev/null 2>&1; then
+    stat -f '%Sm' -t '%Y-%m-%d %H:%M' "${path}"
+  else
+    date -d "@$(stat -c '%Y' "${path}")" '+%Y-%m-%d %H:%M'
+  fi
+}
+
+read_md_field() {
+  local path="$1"
+  local field="$2"
+
+  awk -v target_field="${field}" '
+    BEGIN {
+      target = "- " target_field
+    }
+    index($0, target ": ") == 1 {
+      print substr($0, length(target) + 3)
+      exit
+    }
+  ' "${path}"
+}
+
+collect_candidate_slugs() {
+  local repo="$1"
+  local path base slug
+
+  shopt -s nullglob
+  for path in \
+    "${repo}"/plans/reports/intake-*-*.md \
+    "${repo}"/plans/reports/frd-*-*.md \
+    "${repo}"/plans/reports/user-stories-*-*.md \
+    "${repo}"/plans/reports/srs-*-*.md \
+    "${repo}"/plans/reports/wireframe-input-*-*.md \
+    "${repo}"/plans/reports/wireframe-map-*-*.md \
+    "${repo}"/plans/reports/wireframe-state-*-*.md; do
+    [[ -f "${path}" ]] || continue
+    base="$(basename "${path}")"
+    case "${base}" in
+      intake-*-*.md)
+        slug="$(printf '%s\n' "${base}" | sed -nE 's/^intake-(.+)-[0-9]{6}-[0-9]{4}\.md$/\1/p')"
+        ;;
+      frd-*-*.md)
+        slug="$(printf '%s\n' "${base}" | sed -nE 's/^frd-[0-9]{6}-[0-9]{4}-(.+)\.md$/\1/p')"
+        ;;
+      user-stories-*-*.md)
+        slug="$(printf '%s\n' "${base}" | sed -nE 's/^user-stories-[0-9]{6}-[0-9]{4}-(.+)\.md$/\1/p')"
+        ;;
+      srs-*-*.md)
+        slug="$(printf '%s\n' "${base}" | sed -nE \
+          -e 's/^srs-[0-9]{6}-[0-9]{4}-(.+)-group-[a-z0-9-]+\.md$/\1/p' \
+          -e 's/^srs-[0-9]{6}-[0-9]{4}-(.+)\.md$/\1/p')"
+        ;;
+      wireframe-input-*-*.md)
+        slug="$(printf '%s\n' "${base}" | sed -nE 's/^wireframe-input-[0-9]{6}-[0-9]{4}-(.+)\.md$/\1/p')"
+        ;;
+      wireframe-map-*-*.md)
+        slug="$(printf '%s\n' "${base}" | sed -nE 's/^wireframe-map-[0-9]{6}-[0-9]{4}-(.+)\.md$/\1/p')"
+        ;;
+      wireframe-state-*-*.md)
+        slug="$(printf '%s\n' "${base}" | sed -nE 's/^wireframe-state-[0-9]{6}-[0-9]{4}-(.+)\.md$/\1/p')"
+        ;;
+    esac
+    [[ -n "${slug}" ]] && printf '%s\n' "${slug}"
+  done | sed '/^$/d' | sort -u
+  shopt -u nullglob
+}
+
+collect_candidate_dates() {
+  local repo="$1"
+  local slug="$2"
+  local path base date
+
+  shopt -s nullglob
+  for path in \
+    "${repo}/plans/reports/intake-${slug}-"*.md \
+    "${repo}/plans/reports/frd-"*-"${slug}.md" \
+    "${repo}/plans/reports/user-stories-"*-"${slug}.md" \
+    "${repo}/plans/reports/srs-"*-"${slug}.md" \
+    "${repo}/plans/reports/wireframe-input-"*-"${slug}.md" \
+    "${repo}/plans/reports/wireframe-map-"*-"${slug}.md" \
+    "${repo}/plans/reports/wireframe-state-"*-"${slug}.md" \
+    "${repo}/plans/"*-"${slug}"/plan.md; do
+    [[ -f "${path}" ]] || continue
+    base="$(basename "${path}")"
+    case "${path}" in
+      */plans/reports/intake-${slug}-*.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^intake-${slug}-([0-9]{6}-[0-9]{4})\\.md$/\\1/p")"
+        ;;
+      */plans/reports/frd-*-${slug}.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^frd-([0-9]{6}-[0-9]{4})-${slug}\\.md$/\\1/p")"
+        ;;
+      */plans/reports/user-stories-*-${slug}.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^user-stories-([0-9]{6}-[0-9]{4})-${slug}\\.md$/\\1/p")"
+        ;;
+      */plans/reports/srs-*-${slug}.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^srs-([0-9]{6}-[0-9]{4})-${slug}\\.md$/\\1/p")"
+        ;;
+      */plans/reports/srs-*-${slug}-group-*.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^srs-([0-9]{6}-[0-9]{4})-${slug}-group-[a-z0-9-]+\\.md$/\\1/p")"
+        ;;
+      */plans/reports/wireframe-input-*-${slug}.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^wireframe-input-([0-9]{6}-[0-9]{4})-${slug}\\.md$/\\1/p")"
+        ;;
+      */plans/reports/wireframe-map-*-${slug}.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^wireframe-map-([0-9]{6}-[0-9]{4})-${slug}\\.md$/\\1/p")"
+        ;;
+      */plans/reports/wireframe-state-*-${slug}.md)
+        date="$(printf '%s\n' "${base}" | sed -nE "s/^wireframe-state-([0-9]{6}-[0-9]{4})-${slug}\\.md$/\\1/p")"
+        ;;
+      */plans/*-${slug}/plan.md)
+        date="$(basename "$(dirname "${path}")")"
+        date="${date%-${slug}}"
+        ;;
+    esac
+    [[ -n "${date}" ]] && printf '%s\n' "${date}"
+  done | sed '/^$/d' | sort -u
+  shopt -u nullglob
+}
+
+print_artifact_status_line() {
+  local path="$1"
+  local label="$2"
+
+  if [[ -f "${path}" ]]; then
+    printf -- "- [x] %s — %s\n" "${label}" "$(stat_mtime_pretty "${path}")"
+  else
+    printf -- "- [ ] %s — missing\n" "${label}"
+  fi
+}
+
+print_wireframe_status_line() {
+  local path="$1"
+
+  if [[ ! -f "${path}" ]]; then
+    printf -- "- [!] wireframes — missing\n"
+    return
+  fi
+
+  local state
+  state="$(read_md_field "${path}" "State")"
+  [[ -n "${state}" ]] || state="unknown"
+  printf -- "- [!] wireframes — %s — %s\n" "${state}" "$(stat_mtime_pretty "${path}")"
+}
+
+delegation_icon() {
+  local display_status="$1"
+
+  case "${display_status}" in
+    "likely stalled")
+      printf '!'
+      ;;
+    running|queued)
+      printf '~'
+      ;;
+    *)
+      printf 'x'
+      ;;
+  esac
+}
+
+print_delegation_status() {
+  local repo="$1"
+  local slug="$2"
+  local date_token="$3"
+  local dir now found path base status threshold age_minutes display_status last_heartbeat note
+
+  dir="${repo}/plans/${date_token}-${slug}/delegation"
+  [[ -d "${dir}" ]] || return 0
+
+  now="$(date +%s)"
+  found=0
+  shopt -s nullglob
+  for path in "${dir}"/*.md; do
+    [[ -f "${path}" ]] || continue
+    if [[ "${found}" -eq 0 ]]; then
+      printf '\nDelegated slices:\n\n'
+      found=1
+    fi
+    base="$(basename "${path}" .md)"
+    status="$(read_md_field "${path}" "Status")"
+    threshold="$(read_md_field "${path}" "Stall Threshold Minutes")"
+    last_heartbeat="$(read_md_field "${path}" "Last Heartbeat At")"
+    note="$(read_md_field "${path}" "Latest Milestone Or Blocker")"
+    [[ -n "${status}" ]] || status="unknown"
+    [[ "${threshold}" =~ ^[0-9]+$ ]] || threshold=10
+    age_minutes="$(( (now - $(stat_mtime_epoch "${path}")) / 60 ))"
+    display_status="${status}"
+    if [[ ( "${status}" == "running" || "${status}" == "queued" ) && "${age_minutes}" -gt "${threshold}" ]]; then
+      display_status="likely stalled"
+    fi
+
+    if [[ -n "${last_heartbeat}" ]]; then
+      printf -- "- [%s] %s — %s — last heartbeat %s" \
+        "$(delegation_icon "${display_status}")" \
+        "${base}" "${display_status}" "${last_heartbeat}"
+    else
+      printf -- "- [%s] %s — %s — tracker updated %s" \
+        "$(delegation_icon "${display_status}")" \
+        "${base}" "${display_status}" "$(stat_mtime_pretty "${path}")"
+    fi
+    if [[ "${display_status}" == "likely stalled" ]]; then
+      printf ' (>%sm threshold)' "${threshold}"
+    fi
+    if [[ -n "${note}" ]]; then
+      printf ' — %s' "${note}"
+    fi
+    printf '\n'
+  done
+  shopt -u nullglob
 }
 
 print_installations() {
@@ -166,6 +415,71 @@ update_command() {
   printf 'Update complete. Before: %s | After: %s\n' "${before}" "${after}"
 }
 
+status_command() {
+  local slug="" date_token="" repo slugs slug_count dates date_count
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --slug)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --slug"
+        slug="$2"
+        shift 2
+        ;;
+      --date)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --date"
+        date_token="$2"
+        shift 2
+        ;;
+      *)
+        fail "Unsupported argument for 'status': $1"
+        ;;
+    esac
+  done
+
+  repo="$(resolve_registered_repo)"
+
+  if [[ -z "${slug}" ]]; then
+    slugs="$(collect_candidate_slugs "${repo}")"
+    slug_count="$(printf '%s\n' "${slugs}" | sed '/^$/d' | wc -l | tr -d ' ')"
+    if [[ "${slug_count}" -eq 0 ]]; then
+      fail "No BA-kit artifacts found under ${repo}/plans/reports"
+    elif [[ "${slug_count}" -gt 1 ]]; then
+      printf 'Multiple slugs found. Rerun with --slug. Candidates:\n%s\n' "${slugs}" >&2
+      exit 1
+    fi
+    slug="$(printf '%s\n' "${slugs}" | sed '/^$/d' | head -n 1)"
+  fi
+
+  if [[ -z "${date_token}" ]]; then
+    dates="$(collect_candidate_dates "${repo}" "${slug}")"
+    date_count="$(printf '%s\n' "${dates}" | sed '/^$/d' | wc -l | tr -d ' ')"
+    if [[ "${date_count}" -eq 0 ]]; then
+      fail "No dated artifact set found for slug '${slug}' under ${repo}/plans"
+    elif [[ "${date_count}" -gt 1 ]]; then
+      printf 'Multiple dated sets found for slug %s. Rerun with --date. Candidates:\n%s\n' "${slug}" "${dates}" >&2
+      exit 1
+    fi
+    date_token="$(printf '%s\n' "${dates}" | sed '/^$/d' | head -n 1)"
+  fi
+
+  printf 'Project: %s\n' "${slug}"
+  printf 'Date set: %s\n\n' "${date_token}"
+
+  print_artifact_status_line "${repo}/plans/reports/intake-${slug}-${date_token}.md" "intake-${slug}-${date_token}.md"
+  print_artifact_status_line "${repo}/plans/reports/intake-${slug}-${date_token}.html" "intake-${slug}-${date_token}.html"
+  print_artifact_status_line "${repo}/plans/${date_token}-${slug}/plan.md" "plans/${date_token}-${slug}/plan.md"
+  print_artifact_status_line "${repo}/plans/reports/frd-${date_token}-${slug}.md" "frd-${date_token}-${slug}.md"
+  print_artifact_status_line "${repo}/plans/reports/frd-${date_token}-${slug}.html" "frd-${date_token}-${slug}.html"
+  print_artifact_status_line "${repo}/plans/reports/user-stories-${date_token}-${slug}.md" "user-stories-${date_token}-${slug}.md"
+  print_artifact_status_line "${repo}/plans/reports/user-stories-${date_token}-${slug}.html" "user-stories-${date_token}-${slug}.html"
+  print_artifact_status_line "${repo}/plans/reports/srs-${date_token}-${slug}.md" "srs-${date_token}-${slug}.md"
+  print_artifact_status_line "${repo}/plans/reports/srs-${date_token}-${slug}.html" "srs-${date_token}-${slug}.html"
+  print_artifact_status_line "${repo}/plans/reports/wireframe-input-${date_token}-${slug}.md" "wireframe-input-${date_token}-${slug}.md"
+  print_artifact_status_line "${repo}/plans/reports/wireframe-map-${date_token}-${slug}.md" "wireframe-map-${date_token}-${slug}.md"
+  print_wireframe_status_line "${repo}/plans/reports/wireframe-state-${date_token}-${slug}.md"
+  print_delegation_status "${repo}" "${slug}" "${date_token}"
+}
+
 main() {
   local command="${1:-}"
   shift || true
@@ -174,6 +488,9 @@ main() {
     update)
       [[ "$#" -eq 0 ]] || fail "Unsupported arguments for 'update'"
       update_command
+      ;;
+    status)
+      status_command "$@"
       ;;
     ""|-h|--help|help)
       usage

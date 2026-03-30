@@ -52,8 +52,11 @@ For rerun commands, resolve the project by explicit `--slug` first. If multiple 
 - Use exact artifact matching and exact slug/date resolution. Do not silently choose the newest file by mtime when multiple slugs or dated sets exist.
 - When UI scope exists, default wireframes and UI-oriented handoff to Shadcn UI unless the user explicitly requests another design system.
 - For `srs`, run a narrow preflight: resolve the exact FRD and user-stories artifacts first, then begin authoring without scanning the full `plans/reports/` suite.
+- For `frd` and `stories`, run a narrow preflight from the exact intake or FRD artifact instead of scanning the full `plans/reports/` suite.
 - If a previous report set uses legacy names like `002-intake-form.md`, treat it as a legacy suite and stop for explicit migration or rerun; do not silently infer the current slug/date from it.
 - If context gets truncated after the user already confirmed the target workflow, recover from the resolved command, slug/date, and exact artifacts on disk instead of asking the user to restate the original request.
+- After the user explicitly approves a mutating rerun step, keep that step locked for the current run and do not fall back to generic prompts like "What would you like me to do with this document?".
+- For non-trivial delegated work, create a run-status tracker under `plans/{date}-{slug}/delegation/` before spawning the worker and use it to expose `queued`, `running`, `completed`, `blocked`, `needs-repartition`, `failed`, or likely stalled slices.
 
 ## Documentation Expectations
 
@@ -84,8 +87,10 @@ Preferred ownership:
 Delegation hardening:
 - Pass narrow artifact slices, not full upstream documents, to sub-agents.
 - Include objective, target path, write scope, exact excerpts, and trace IDs in the handoff.
+- Include a dedicated delegation tracker path in the handoff and require heartbeat updates after each major milestone and at least every 5 minutes during long-running work.
 - If a delegated slice is too large to keep consistent, repartition before spawning.
 - If a sub-agent reports missing context or `NEEDS_REPARTITION`, stop and rerun only the affected slice with a smaller packet.
+- If a worker tracker has no heartbeat for more than 10 minutes and the target artifact has not advanced, treat it as likely stalled instead of assuming it is still healthy.
 
 ## Methodology
 

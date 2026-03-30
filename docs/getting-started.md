@@ -38,9 +38,11 @@ To update later, run one command:
 
 ```bash
 ba-kit update
+ba-kit status --slug warehouse-rfp
 ```
 
 This checks the registered BA-kit source repo, blocks when the repo has local changes or unfinished merge/rebase state, runs `git pull --ff-only`, then reruns the installers for any previously installed runtimes.
+`ba-kit status` reads the registered source repo, prints the current artifact set, and flags likely stalled delegated slices from stale tracker heartbeats.
 
 ## 4. Use BA-kit In Claude Code
 
@@ -94,7 +96,11 @@ For rerun commands:
 - if one slug has multiple dated artifact sets, BA-kit should stop and ask which set to use
 - use `/ba-start status --slug <slug>` to inspect completion before rerunning a downstream step
 - for `srs`, start from the exact resolved FRD and user-stories artifacts instead of rereading the whole `plans/reports/` directory
+- for `frd` and `stories`, start from the exact resolved intake or FRD artifact instead of rereading the whole `plans/reports/` directory
 - if you only have old reports named like `002-intake-form.md`, treat them as a legacy suite and rerun or migrate them before expecting the current `/ba-start` contract to resume from them
+- for non-trivial delegated work, expect BA-kit to create trackers under `plans/{date}-{slug}/delegation/`
+- treat a delegation tracker with no heartbeat for more than 10 minutes as likely stalled and inspect or rerun that slice instead of waiting blindly
+- once you explicitly approve a mutating rerun step, BA-kit should continue that step instead of reverting to generic prompts about what to do with the document
 
 ## 5. Use BA-kit In Codex
 
