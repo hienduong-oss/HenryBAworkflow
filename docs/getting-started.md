@@ -30,8 +30,17 @@ What this installs:
 - agents to `~/.claude/agents/`
 - rules to `~/.claude/rules/ba-kit/`
 - templates to `~/.claude/templates/`
+- the shared update command to `~/.local/bin/ba-kit`
 
 Then restart Claude Code if it is already open.
+
+To update later, run one command:
+
+```bash
+ba-kit update
+```
+
+This checks the registered BA-kit source repo, blocks when the repo has local changes or unfinished merge/rebase state, runs `git pull --ff-only`, then reruns the installers for any previously installed runtimes.
 
 ## 4. Use BA-kit In Claude Code
 
@@ -96,6 +105,7 @@ Instead:
 4. Point Codex to the correct template under `templates/`
 5. If you have the Codex-converted bundle, run `bash scripts/install-codex-ba-kit.sh` once to copy the skill and agents into `~/.codex` and register Codex agents in `~/.codex/config.toml`
 6. If you use the installer, make sure `node` is available because the registration step runs on Node.js
+7. The installer also records the source repo for the shared update command `ba-kit update`
 
 ### Codex Example
 
@@ -132,6 +142,26 @@ Runtime defaults for both Claude Code and Codex:
 - Shadcn UI is the default wireframe design system unless explicitly overridden
 
 `plans/` is a local runtime workspace. BA-kit writes generated plans and report artifacts there during an engagement, but those files are not meant to stay version-controlled in the toolkit repository.
+
+## 5.1 Update BA-kit In One Command
+
+Once you have installed BA-kit for Claude Code, Codex, or both, update it with:
+
+```bash
+ba-kit update
+```
+
+Or from inside the agents:
+
+```text
+/ba-kit-update
+```
+
+Expected behavior:
+- read the registered source repo from the local install manifests
+- fail fast if the repo has local edits, conflict state, or multiple conflicting source repos
+- run `git pull --ff-only`
+- rerun `install.sh` and/or `scripts/install-codex-ba-kit.sh` for the runtimes already installed from that repo
 
 ## 6. Add Pencil Wireframes For SRS Work
 

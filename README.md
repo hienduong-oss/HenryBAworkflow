@@ -4,7 +4,7 @@ BA-kit is a business analysis toolkit for agentic coding environments. It packag
 
 ## What It Includes
 
-- 1 unified BA skill (`ba-start`) covering the full intake-to-deliverable lifecycle with resumable subcommands
+- 1 unified BA workflow skill (`ba-start`) plus 1 maintenance skill (`ba-kit-update`)
 - 4 agent roles for structured delegation
 - 2 workflow and quality rule files
 - 6 reusable document and wireframe workflow templates
@@ -33,6 +33,14 @@ Start here for practical setup and usage: [docs/getting-started.md](./docs/getti
 
 3. Restart Claude Code if it is already running.
 
+The installer also installs a shared update command:
+
+```bash
+ba-kit update
+```
+
+It checks the registered BA-kit source repo for dirty state or unfinished merge/rebase work, runs `git pull --ff-only`, then reinstalls Claude and Codex assets that were previously installed from that repo.
+
 The installer copies:
 - the BA skill directory under `skills/` to `~/.claude/skills/`
 - `agents/` to `~/.claude/agents/`
@@ -56,6 +64,12 @@ bash scripts/install-codex-ba-kit.sh
 ```
 
 That script copies the converted assets from `codex/skills/**` and `codex/agents/**` into `~/.codex/skills` and `~/.codex/agents`, then appends any missing agent registrations into `~/.codex/config.toml` without duplicating existing entries.
+
+The Codex installer also refreshes the shared `ba-kit` update command and records the source repo so future updates can be done with:
+
+```bash
+ba-kit update
+```
 
 See [docs/codex-setup.md](./docs/codex-setup.md) for prompt patterns and setup guidance.
 
@@ -109,6 +123,7 @@ If one slug has multiple dated artifact sets, `/ba-start` should stop and ask wh
 | Skill | Purpose |
 | --- | --- |
 | `ba-start` | Single BA entry point with full workflow plus `intake`, `frd`, `stories`, `srs`, `wireframes`, `package`, and `status` subcommands |
+| `ba-kit-update` | Maintenance entry point that runs `ba-kit update` to pull and reinstall BA-kit |
 
 ## Agent Roles
 

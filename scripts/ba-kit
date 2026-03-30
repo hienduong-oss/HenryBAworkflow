@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+CLI_NAME="ba-kit"
+DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
+STATE_DIR="${DATA_HOME}/ba-kit"
+MANIFEST_DIR="${STATE_DIR}/installations"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ba-kit update
+
+Commands:
+  update    Fast-forward pull the installed BA-kit source repo and rerun installed runtime installers.
+EOF
+}
+
+fail() {
+  printf 'Error: %s\n' "$1" >&2
+  exit 1
+}
+
+read_manifest_value() {
+  local manifest_path="$1"
+  local key="$2"
+
+  awk -F= -v target_key="${key}" '
+    $1 == target_key {
+      sub(/^[[:space:]]+/, "", $2)
+      sub(/[[:space:]]+$/, "", $2)
+      print $2
+      exit
+    }
+  ' "${manifest_path}"
+}
+
+collect_installations() {
+  if [[ ! -d "${MANIFEST_DIR}" ]]; then
+    return 0
+  fi
+
+  local manifest_path runtime repo
+  for manifest_path in "${MANIFEST_DIR}"/*.env; do
+    [[ -f "${manifest_path}" ]] || continue
+    runtime="$(read_manifest_value "${manifest_path}" "BA_KIT_RUNTIME")"
+    repo="$(read_manifest_value "${manifest_path}" "BA_KIT_SOURCE_REPO")"
+    [[ -n "${runtime}" && -n "${repo}" ]] || continue
+    printf '%s\t%s\t%s\n' "${runtime}" "${repo}" "${manifest_path}"
+  done
+}
+
+print_installations() {
+  local installations="$1"
+  local line runtime repo manifest_path
+
+  while IFS=$'\t' read -r runtime repo manifest_path; do
+    [[ -n "${runtime:-}" ]] || continue
+    printf '  - runtime=%s repo=%s manifest=%s\n' "${runtime}" "${repo}" "${manifest_path}" >&2
+  done <<<"${installations}"
+}
+
+git_path_exists() {
+  local repo="$1"
+  local git_path_name="$2"
+  local resolved
+
+  resolved="$(git -C "${repo}" rev-parse --git-path "${git_path_name}")"
+  [[ -e "${resolved}" ]]
+}
+
+ensure_repo_ready() {
+  local repo="$1"
+
+  git -C "${repo}" rev-parse --is-inside-work-tree >/dev/null 2>&1 || fail "Source path is not a git repository: ${repo}"
+
+  if git_path_exists "${repo}" "MERGE_HEAD"; then
+    fail "Repository has an unfinished merge: ${repo}"
+  fi
+  if git_path_exists "${repo}" "CHERRY_PICK_HEAD"; then
+    fail "Repository has an unfinished cherry-pick: ${repo}"
+  fi
+  if git_path_exists "${repo}" "REVERT_HEAD"; then
+    fail "Repository has an unfinished revert: ${repo}"
+  fi
+  if git_path_exists "${repo}" "rebase-apply"; then
+    fail "Repository has an unfinished rebase: ${repo}"
+  fi
+  if git_path_exists "${repo}" "rebase-merge"; then
+    fail "Repository has an unfinished rebase: ${repo}"
+  fi
+
+  if [[ -n "$(git -C "${repo}" status --short)" ]]; then
+    printf 'Repository has local changes and cannot be updated safely:\n' >&2
+    git -C "${repo}" status --short >&2
+    exit 1
+  fi
+
+  if ! git -C "${repo}" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' >/dev/null 2>&1; then
+    fail "Current branch has no upstream configured in ${repo}"
+  fi
+}
+
+run_installer() {
+  local repo="$1"
+  local runtime="$2"
+
+  case "${runtime}" in
+    claude)
+      [[ -x "${repo}/install.sh" ]] || fail "Claude installer missing: ${repo}/install.sh"
+      (cd "${repo}" && ./install.sh)
+      ;;
+    codex)
+      [[ -x "${repo}/scripts/install-codex-ba-kit.sh" ]] || fail "Codex installer missing: ${repo}/scripts/install-codex-ba-kit.sh"
+      (cd "${repo}" && ./scripts/install-codex-ba-kit.sh)
+      ;;
+    *)
+      fail "Unsupported runtime in installation manifest: ${runtime}"
+      ;;
+  esac
+}
+
+update_command() {
+  local installations unique_repos repo_count repo before after branch upstream runtime
+  installations="$(collect_installations)"
+
+  if [[ -z "${installations}" ]]; then
+    fail "No BA-kit installation manifests found under ${MANIFEST_DIR}. Run the installers once before using 'ba-kit update'."
+  fi
+
+  unique_repos="$(
+    while IFS=$'\t' read -r runtime repo _; do
+      [[ -n "${repo:-}" ]] || continue
+      printf '%s\n' "${repo}"
+    done <<<"${installations}" | sort -u
+  )"
+  repo_count="$(printf '%s\n' "${unique_repos}" | sed '/^$/d' | wc -l | tr -d ' ')"
+
+  if [[ "${repo_count}" -ne 1 ]]; then
+    printf 'Multiple BA-kit source repositories are registered. Resolve this manually before updating:\n' >&2
+    print_installations "${installations}"
+    exit 1
+  fi
+
+  repo="$(printf '%s\n' "${unique_repos}" | sed '/^$/d' | head -n 1)"
+  ensure_repo_ready "${repo}"
+
+  branch="$(git -C "${repo}" rev-parse --abbrev-ref HEAD)"
+  upstream="$(git -C "${repo}" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}')"
+  before="$(git -C "${repo}" rev-parse --short HEAD)"
+
+  printf 'Updating BA-kit from %s\n' "${repo}"
+  printf 'Branch: %s | Upstream: %s | Before: %s\n' "${branch}" "${upstream}" "${before}"
+  git -C "${repo}" pull --ff-only
+  after="$(git -C "${repo}" rev-parse --short HEAD)"
+
+  printf 'Reinstalling runtimes:\n'
+  while IFS=$'\t' read -r runtime manifest_repo _; do
+    [[ -n "${runtime:-}" ]] || continue
+    [[ "${manifest_repo}" == "${repo}" ]] || continue
+    printf '  - %s\n' "${runtime}"
+    run_installer "${repo}" "${runtime}"
+  done <<<"${installations}"
+
+  printf 'Update complete. Before: %s | After: %s\n' "${before}" "${after}"
+}
+
+main() {
+  local command="${1:-}"
+  shift || true
+
+  case "${command}" in
+    update)
+      [[ "$#" -eq 0 ]] || fail "Unsupported arguments for 'update'"
+      update_command
+      ;;
+    ""|-h|--help|help)
+      usage
+      ;;
+    *)
+      fail "Unknown command: ${command}"
+      ;;
+  esac
+}
+
+main "$@"

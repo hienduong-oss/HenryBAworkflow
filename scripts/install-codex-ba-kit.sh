@@ -10,6 +10,8 @@ TARGET_HOME="${HOME}/.codex"
 TARGET_SKILLS="${TARGET_HOME}/skills"
 TARGET_AGENTS="${TARGET_HOME}/agents"
 TARGET_CONFIG="${TARGET_HOME}/config.toml"
+LOCAL_BIN_TARGET="${HOME}/.local/bin"
+STATE_TARGET="${HOME}/.local/share/ba-kit/installations"
 
 if [[ ! -d "${SOURCE_SKILLS}" ]] && [[ ! -d "${SOURCE_AGENTS}" ]]; then
   echo "BA-kit Codex conversion not found."
@@ -17,6 +19,22 @@ if [[ ! -d "${SOURCE_SKILLS}" ]] && [[ ! -d "${SOURCE_AGENTS}" ]]; then
   echo "Set BA_KIT_CODEX_SOURCE_ROOT if your converted assets live elsewhere."
   exit 1
 fi
+
+install_cli() {
+  mkdir -p "${LOCAL_BIN_TARGET}"
+  cp "${ROOT_DIR}/scripts/ba-kit" "${LOCAL_BIN_TARGET}/ba-kit"
+  chmod +x "${LOCAL_BIN_TARGET}/ba-kit"
+}
+
+write_manifest() {
+  mkdir -p "${STATE_TARGET}"
+  cat > "${STATE_TARGET}/codex.env" <<EOF
+BA_KIT_RUNTIME=codex
+BA_KIT_SOURCE_REPO=${ROOT_DIR}
+BA_KIT_INSTALLED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+BA_KIT_INSTALLER=scripts/install-codex-ba-kit.sh
+EOF
+}
 
 node - "${SOURCE_SKILLS}" "${SOURCE_AGENTS}" "${TARGET_HOME}" "${TARGET_SKILLS}" "${TARGET_AGENTS}" "${TARGET_CONFIG}" <<'NODE'
 const fs = require("node:fs");
@@ -122,3 +140,7 @@ if (registrations.length > 0) {
   console.log(`No new agent registrations were needed in ${targetConfig}`);
 }
 NODE
+
+install_cli
+write_manifest
+echo "Installed update CLI to ${LOCAL_BIN_TARGET}/ba-kit"

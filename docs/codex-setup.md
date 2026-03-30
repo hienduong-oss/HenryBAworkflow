@@ -31,9 +31,22 @@ It copies those files into:
 - `~/.codex/agents`
 
 It also appends any missing Codex agent registrations into `~/.codex/config.toml` in an idempotent way, so rerunning the script is safe.
+It also refreshes the shared `ba-kit` update command in `~/.local/bin/ba-kit` and records the source repo for future one-command updates.
 
 Prerequisite:
 - `node` must be available because the installer uses a small Node.js registration step.
+
+After installation, update BA-kit with:
+
+```bash
+ba-kit update
+```
+
+Or ask Codex to run:
+
+```text
+/ba-kit-update
+```
 
 ## Recommended Codex Workflow
 
