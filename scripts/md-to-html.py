@@ -243,7 +243,10 @@ def embed_image(img_path: str, base_dir: Path) -> str:
     mime = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
             "webp": "image/webp"}.get(suffix.lstrip("."), "image/png")
     data = base64.b64encode(full_path.read_bytes()).decode()
-    return f'<img src="data:{mime};base64,{data}" alt="{escape(full_path.stem)}" class="wireframe">'
+    return (
+        f'<img src="data:{mime};base64,{data}" alt="{escape(full_path.stem)}" '
+        f'class="wireframe" loading="lazy" decoding="async">'
+    )
 
 
 def md_to_html(md: str, base_dir: Path) -> str:
@@ -625,7 +628,40 @@ code { font-family: 'SF Mono', Consolas, monospace; font-size: 0.9em; }
 blockquote { border-left: 4px solid var(--accent); padding: 0.5em 1em; margin: 1em 0; background: #f0f4ff; font-style: italic; }
 ul, ol { margin: 0.5em 0 0.5em 1.5em; }
 li { margin: 0.2em 0; }
-img.wireframe { max-width: 100%; border: 1px solid var(--border); border-radius: 8px; margin: 1em 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+pre.mermaid,
+.mermaid {
+    padding: 20px;
+    border: 1px solid rgba(15, 52, 96, 0.1);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 1));
+    overflow-x: auto;
+}
+.mermaid svg {
+    display: block;
+    max-width: 100%;
+    height: auto !important;
+    margin: 0 auto;
+}
+.mermaid-render-error {
+    color: #92400e;
+    background: #fffbeb;
+    border-color: rgba(146, 64, 14, 0.24);
+}
+img.wireframe {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(100%, 760px);
+    max-height: min(68vh, 960px);
+    margin: 1.25em auto;
+    padding: 12px;
+    object-fit: contain;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    cursor: zoom-in;
+}
 .missing-image { color: #d32f2f; font-style: italic; padding: 1em; background: #fff3f3; border: 1px dashed #d32f2f; border-radius: 4px; }
 .toc { background: #f8f9fa; border: 1px solid var(--border); border-radius: 8px; padding: 1.5em; margin-bottom: 2em; }
 .toc h2 { margin-top: 0; font-size: 1.2em; }
@@ -664,6 +700,49 @@ img.wireframe { max-width: 100%; border: 1px solid var(--border); border-radius:
 .editor-hidden {
     display: none !important;
 }
+.wireframe-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1600;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.74);
+    backdrop-filter: blur(8px);
+}
+.wireframe-lightbox.is-open {
+    display: flex;
+}
+.wireframe-lightbox__dialog {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    width: min(96vw, 1440px);
+    max-height: 94vh;
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 30px 80px rgba(15, 23, 42, 0.28);
+}
+.wireframe-lightbox__image {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: calc(94vh - 96px);
+    margin: 0 auto;
+    object-fit: contain;
+}
+.wireframe-lightbox__caption {
+    font-size: 0.92rem;
+    color: var(--muted);
+    text-align: center;
+}
+.wireframe-lightbox__close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+}
 @media print {
     body { background: #fff; }
     .editor-shell { max-width: none; padding: 0; }
@@ -671,11 +750,42 @@ img.wireframe { max-width: 100%; border: 1px solid var(--border); border-radius:
     .doc-hero { padding: 20px; box-shadow: none; }
     .document-surface { max-width: none; padding: 0; border: none; border-radius: 0; box-shadow: none; }
     .editor-toolbar { display: none !important; }
+    .wireframe-lightbox { display: none !important; }
     .toc { page-break-after: always; }
     .page-break { page-break-before: always; }
     table { page-break-inside: avoid; }
-    img.wireframe { page-break-inside: avoid; max-height: 80vh; }
+    img.wireframe { page-break-inside: avoid; max-width: 100%; max-height: 80vh; }
 }
+"""
+
+
+MERMAID_BOOTSTRAP_JS = r"""
+const MermaidRenderer = (() => {
+  async function init() {
+    if (!window.mermaid) return;
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'loose',
+      theme: 'neutral',
+      fontFamily: 'inherit',
+    });
+
+    try {
+      await mermaid.run({ querySelector: 'pre.mermaid' });
+    } catch (error) {
+      console.error('Failed to render Mermaid diagrams.', error);
+      document.querySelectorAll('pre.mermaid').forEach((node) => {
+        node.classList.add('mermaid-render-error');
+      });
+    }
+  }
+
+  return { init };
+})();
+
+window.addEventListener('DOMContentLoaded', () => {
+  MermaidRenderer.init();
+});
 """
 
 
@@ -695,6 +805,31 @@ const EditorApp = (() => {
 
   function getStatus() {
     return qs('#editor-status');
+  }
+
+  function getLightbox() {
+    return qs('#wireframe-lightbox');
+  }
+
+  function closeLightbox() {
+    const lightbox = getLightbox();
+    if (!lightbox) return;
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden', 'true');
+  }
+
+  function openLightbox(imageNode) {
+    if (!(imageNode instanceof HTMLImageElement)) return;
+    const lightbox = getLightbox();
+    if (!lightbox) return;
+    const preview = qs('#wireframe-lightbox-image');
+    const caption = qs('#wireframe-lightbox-caption');
+    if (!preview || !caption) return;
+    preview.src = imageNode.currentSrc || imageNode.src;
+    preview.alt = imageNode.alt || 'Wireframe preview';
+    caption.textContent = imageNode.alt || 'Wireframe preview';
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden', 'false');
   }
 
   function ensureEditableBlocks() {
@@ -840,6 +975,10 @@ const EditorApp = (() => {
     clone.querySelectorAll('[contenteditable]').forEach((node) => node.removeAttribute('contenteditable'));
     clone.querySelectorAll('[spellcheck]').forEach((node) => node.removeAttribute('spellcheck'));
     clone.querySelectorAll('body').forEach((body) => body.classList.remove('editing-active'));
+    clone.querySelectorAll('.wireframe-lightbox').forEach((node) => {
+      node.classList.remove('is-open');
+      node.setAttribute('aria-hidden', 'true');
+    });
     return clone;
   }
 
@@ -882,6 +1021,8 @@ const EditorApp = (() => {
           getStatus().textContent = 'Table of contents refreshed.';
         } else if (action === 'download-html') {
           downloadEditedHtml();
+        } else if (action === 'close-lightbox') {
+          closeLightbox();
         }
         event.preventDefault();
         return;
@@ -890,7 +1031,21 @@ const EditorApp = (() => {
       const block = closestBlock(event.target);
       if (block && block.closest('#document-surface')) {
         selectBlock(block);
+        if (!editMode && block.tagName === 'IMG' && block.classList.contains('wireframe')) {
+          openLightbox(block);
+        }
       }
+
+      const lightbox = event.target.closest('#wireframe-lightbox');
+      if (lightbox && event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener('dblclick', (event) => {
+      const image = event.target.closest('img.wireframe');
+      if (!image || !image.closest('#document-surface')) return;
+      openLightbox(image);
     });
 
     qs('#editor-image-input')?.addEventListener('change', (event) => {
@@ -898,6 +1053,12 @@ const EditorApp = (() => {
       const [file] = input.files || [];
       addImageFromFile(file, input.dataset.replace === 'true');
       input.value = '';
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        closeLightbox();
+      }
     });
   }
 
@@ -966,7 +1127,6 @@ def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: b
 <title>{escape(title)}</title>
 <style>{CSS}</style>
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-<script>mermaid.initialize({{startOnLoad:true}});</script>
 {editor_script}
 </head>
 <body data-doc-type="{doc_type}">
@@ -974,7 +1134,15 @@ def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: b
 {document_shell}{editor_toolbar}{editor_input}  <main id="document-surface" class="document-surface">
 {body}
   </main>
+  <div id="wireframe-lightbox" class="wireframe-lightbox" aria-hidden="true">
+    <div class="wireframe-lightbox__dialog" role="dialog" aria-modal="true" aria-label="Wireframe preview">
+      <button class="editor-button wireframe-lightbox__close" data-action="close-lightbox" type="button">Close</button>
+      <img id="wireframe-lightbox-image" class="wireframe-lightbox__image" alt="">
+      <div id="wireframe-lightbox-caption" class="wireframe-lightbox__caption"></div>
+    </div>
+  </div>
 </div>
+<script>{MERMAID_BOOTSTRAP_JS}</script>
 </body>
 </html>"""
 

@@ -211,6 +211,10 @@ assert probe.has_nested_ul_ol, "Missing unordered list with nested ordered list"
 assert srs_html.count('<pre class="mermaid">') == 1, "Unexpected Mermaid block count"
 assert srs_html.count('</code></pre>') == 1, "Unexpected fenced code closing count"
 assert 'Risks &amp; Constraints &lt;Review&gt;' in srs_html, "TOC/body heading escaping regression"
+assert "startOnLoad: false" in srs_html, "Missing explicit Mermaid bootstrap"
+assert "mermaid.run({ querySelector: 'pre.mermaid' })" in srs_html, "Missing Mermaid render call"
+assert "wireframe-lightbox" in srs_html, "Missing wireframe preview lightbox"
+assert "max-height: min(68vh, 960px);" in srs_html, "Missing constrained wireframe image sizing"
 PY
 
 grep -q '<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>' "$SRS_HTML"
