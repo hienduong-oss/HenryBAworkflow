@@ -78,9 +78,10 @@ Default `/ba-start` handles the full BA lifecycle:
 4. Requirements backbone production
 5. Gated FRD and user story generation
 6. Selective SRS production
-7. Wireframe generation from the use cases and screen contract when justified
-8. Final screen description production
-9. HTML packaging for the emitted artifact set
+7. Design decision capture and project runtime `DESIGN.md` creation when wireframes are justified
+8. Wireframe generation from the use cases, screen contract, and approved `DESIGN.md`
+9. Final screen description production
+10. HTML packaging for the emitted artifact set
 
 ### Claude Example
 
@@ -94,7 +95,7 @@ When prompted, provide the file path or paste your requirements text. The skill 
 2. Identify gaps (missing stakeholders, unclear scope, no success criteria)
 3. Ask 3-8 clarifying questions
 4. Generate a scoped work plan
-5. Produce a requirements backbone, then emit FRD, user stories, use cases, Screen Contract Lite, wireframes, final screen descriptions, and FRD/SRS HTML output only when their gates are open
+5. Produce a requirements backbone, then emit FRD, user stories, use cases, Screen Contract Lite, project runtime `DESIGN.md`, wireframes, final screen descriptions, and FRD/SRS HTML output only when their gates are open
 
 For rerun commands:
 - pass `--slug <slug>` when more than one project exists
@@ -125,7 +126,7 @@ Instead:
 ```text
 Use AGENTS.md and skills/ba-start/SKILL.md.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
-Include use cases, Screen Contract Lite, final screen descriptions, linked requirements, test cases, and wireframes.
+Include use cases, Screen Contract Lite, a project runtime `DESIGN.md`, final screen descriptions, linked requirements, test cases, and wireframes.
 Reference Pencil artifacts under designs/customer-portal/ and map each SRS screen to its target frame.
 ```
 
@@ -134,7 +135,7 @@ If the Codex conversion is installed, you can point Codex directly at the bundle
 ```text
 Use ~/.codex/skills/ba-start/SKILL.md and the registered BA agents under ~/.codex/agents.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
-Produce an intake form, a requirements backbone, gated FRD/stories/SRS artifacts, wireframes when justified, final screen descriptions, and browser-editable FRD/SRS HTML when those artifacts are emitted.
+Produce an intake form, a requirements backbone, gated FRD/stories/SRS artifacts, a project runtime `DESIGN.md`, wireframes when justified, final screen descriptions, and browser-editable FRD/SRS HTML when those artifacts are emitted.
 ```
 
 For partial reruns in Codex, be explicit about the target slug and dated set when ambiguity exists. Example:
@@ -143,6 +144,7 @@ For partial reruns in Codex, be explicit about the target slug and dated set whe
 Use AGENTS.md and skills/ba-start/SKILL.md.
 Run only the wireframe rerun path for slug warehouse-rfp.
 If multiple dated sets exist for that slug, stop and ask me which date to use.
+Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask me to refresh it before generating wireframes.
 Use the persisted `wireframe-input-{date}-{slug}.md` when it exists, or rebuild it from exact fallback sources before generating wireframes.
 Then report `/ba-start status` semantics with artifact dates, wireframe state, and any wireframe input/map artifacts.
 ```
@@ -152,7 +154,7 @@ See [codex-setup.md](./codex-setup.md) for more prompt patterns.
 Runtime defaults for both Claude Code and Codex:
 - BA deliverables are written in Vietnamese by default unless the user explicitly requests English
 - the dated artifact-set token is `YYMMDD-HHmm` across report filenames and `plans/{date}-{slug}/plan.md`
-- Shadcn UI is the default wireframe design system unless explicitly overridden
+- Shadcn UI is the default wireframe component baseline unless explicitly overridden by the approved project `DESIGN.md`
 
 `plans/` is a local runtime workspace. BA-kit writes generated plans and report artifacts there during an engagement, but those files are not meant to stay version-controlled in the toolkit repository.
 
@@ -182,6 +184,14 @@ Expected behavior:
 
 Use Pencil only for wireframes in BA-kit.
 
+Before an AI agent generates or reruns wireframes, capture or confirm the project-specific design decisions and persist them to:
+
+```text
+designs/[initiative-slug]/DESIGN.md
+```
+
+This `DESIGN.md` is a project-specific runtime artifact, not a BA-kit product artifact. It becomes the system design document for the wireframe agent and summarizes the approved visual tone, colors, typography, component feel, layout principles, responsive behavior, and anti-patterns for that initiative.
+
 Store `.pen` files under:
 
 ```text
@@ -191,6 +201,7 @@ designs/[initiative-slug]/
 Example:
 
 ```text
+designs/customer-portal/DESIGN.md
 designs/customer-portal/auth-flow.pen
 designs/customer-portal/dashboard-core.pen
 designs/customer-portal/exports/auth-flow/SCR-01-login.png
@@ -202,13 +213,14 @@ Rules:
 - keep screen IDs aligned between the SRS and Pencil frame names
 - link each SRS screen to both the `.pen` artifact and the specific frame it uses
 - use the `.pen` file as the wireframe source of truth
-- use Shadcn UI as the default design system baseline unless you explicitly request another system
+- use the approved `DESIGN.md` as the wireframe system document
+- use Shadcn UI as the default component baseline only when `DESIGN.md` does not specify a different direction
 - keep the SRS focused on behavior, validation, states, navigation, and traceability
 - treat the packaged HTML suite as the editable stakeholder copy: update text, swap images, and add or remove blocks directly in the browser without editing the source HTML
 
-## 7. Deliverables
+## 7. Deliverables And Runtime Artifacts
 
-A full `/ba-start` engagement produces:
+A full `/ba-start` engagement produces final BA deliverables plus runtime artifacts used during downstream design execution:
 
 | Deliverable | Template | Location |
 | --- | --- | --- |
@@ -218,6 +230,7 @@ A full `/ba-start` engagement produces:
 | FRD HTML | `scripts/md-to-html.py` | `plans/reports/final/frd-{date}-{slug}.html` with rendered Mermaid diagrams |
 | SRS | `srs-template.md` | `plans/reports/final/srs-{date}-{slug}.md` |
 | User stories | `user-story-template.md` | `plans/reports/final/user-stories-{date}-{slug}.md` |
+| Project runtime DESIGN.md (bán thành phẩm) | `design-md-template.md` | `designs/{slug}/DESIGN.md` |
 | Wireframe input pack | `wireframe-input-template.md` | `plans/reports/drafts/wireframe-input-{date}-{slug}.md` |
 | Wireframes | Pencil MCP | `designs/{slug}/{artifact-name}.pen` plus `designs/{slug}/exports/{artifact-name}/SCR-xx-{name}.png` |
 | Wireframe map | `wireframe-map-template.md` | `plans/reports/drafts/wireframe-map-{date}-{slug}.md` |
@@ -246,7 +259,8 @@ Packaged HTML keeps Mermaid diagrams visualized in-browser and constrains embedd
 - Start with `/ba-start` and let the skill guide you through the lifecycle
 - Use subcommands when a later step must be rerun without redoing intake and FRD work
 - Always provide raw input (file or text) when starting an engagement
-- For UI scope, provide the `.pen` artifact path and target frames explicitly, or let the skill generate and map them
+- For UI scope, provide the project `DESIGN.md` direction explicitly, or let the skill ask for decisions and generate it before wireframing
+- Provide the `.pen` artifact path and target frames explicitly when they already exist, or let the skill generate and map them
 - Use `--slug` for rerun commands whenever more than one project may exist
 - Treat `/ba-start status` as the checkpoint view: it prints artifact dates plus wireframe state (`completed`, `skipped`, `not-applicable`, `missing`) and any persisted wireframe input/map artifacts
 - Ask for assumptions and open questions before asking for finalization

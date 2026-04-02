@@ -55,6 +55,12 @@
 | --- | --- | --- | --- | --- |
 | SCR-01 | [Màn hình] | [Low / Medium / High] | [Yes / No / Critical-only] | [Ghi chú] |
 
+## Hướng thiết kế UI cần chốt trước wireframe (UI Design Direction Before Wireframes)
+
+- Có cần `designs/{slug}/DESIGN.md`: [Yes / No]
+- Hướng tham chiếu ban đầu: [Tham chiếu DESIGN.md / brand / custom brief]
+- Quyết định người dùng cần chốt trước Step 9: [Màu sắc, typography, density, component feel, responsive priority, anti-patterns]
+
 ## Gating quyết định artifact (Artifact Emission Gates)
 
 - FRD: [Required / Optional] + lý do

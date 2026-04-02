@@ -10,7 +10,7 @@ BA-kit can work with Codex as a repo-native BA operating guide. The root [AGENTS
 - `skills/` as reference playbooks for BA task types
 - `rules/` as BA quality and workflow constraints
 - `templates/` as deliverable structures
-- `designs/` for Pencil wireframe artifacts referenced by SRS screen sections
+- `designs/` for project-specific runtime `DESIGN.md` files and Pencil wireframe artifacts referenced by SRS screen sections
 
 ## Codex Conversion Install
 
@@ -58,25 +58,26 @@ Or ask Codex to run:
 1. Start with the business outcome or artifact you need.
 2. Tell Codex to use the BA playbook.
 3. Point it at the target template.
-4. If UI is involved, point it at the relevant Pencil `.pen` artifacts and frame mappings in `designs/`.
+4. If UI is involved, point it at the relevant project `DESIGN.md` and any existing Pencil `.pen` artifacts and frame mappings in `designs/`.
 5. Use `/ba-start` for full workflow runs and the matching subcommand for reruns.
 6. For rerun commands, pass `--slug <slug>` when more than one project may exist.
 7. If one slug has multiple dated artifact sets, Codex should stop and ask which date to use instead of silently taking the latest set.
 8. Ask for assumptions, open questions, and a draft output.
 9. If you installed the Codex conversion, ask Codex to use `ba-start` from `~/.codex/skills/ba-start/SKILL.md` and the registered BA agents from `~/.codex/agents`.
-10. Unless you explicitly override it, BA-kit should use Shadcn UI as the default design system for wireframes and UI handoff.
-11. Unless you explicitly override it, BA deliverables should be written in Vietnamese.
-12. Treat the dated artifact-set token as `YYMMDD-HHmm` across both report filenames and `plans/{date}-{slug}/plan.md`.
-13. When delegating, pass only narrow artifact slices and exact excerpts, not full upstream documents.
-14. If a delegated worker reports missing context or `NEEDS_REPARTITION`, split the scope and rerun only that slice.
-15. For non-trivial delegation, use the packet structure from `templates/sub-agent-handoff-template.md` or the equivalent snippet embedded in `ba-start`.
-16. For `srs`, resolve the exact backbone and user-stories artifacts first and pull the FRD only when it exists or is required instead of scanning every report in `plans/reports/final/` and `plans/reports/drafts/`.
-17. For `frd` and `stories`, resolve the exact backbone prerequisite first and begin authoring from that file instead of scanning every report in `plans/reports/final/`.
-18. If only legacy report names like `002-intake-form.md` exist, stop and migrate or rerun them explicitly; do not infer the current slug/date from legacy filenames.
-19. If context truncation happens after the target workflow was already confirmed, recover from the resolved command and exact artifacts on disk instead of asking the user to restate the original task.
-20. Once the user explicitly approves a mutating rerun step, keep that step locked for the current run and do not fall back to generic "what do you want me to do with this document?" prompts.
-21. For non-trivial delegated work, create a dedicated tracker under `plans/{date}-{slug}/delegation/` and pass its path into the worker packet.
-22. Treat a delegated slice as likely stalled when its tracker has no heartbeat for more than 10 minutes and the target artifact has not advanced.
+10. Unless you explicitly override it, BA-kit should use Shadcn UI as the default component baseline for wireframes and UI handoff.
+11. Before AI wireframes are generated, BA-kit should ask for or confirm the design decisions needed to persist the project runtime artifact `designs/{slug}/DESIGN.md`, then use that file as the system design document.
+12. Unless you explicitly override it, BA deliverables should be written in Vietnamese.
+13. Treat the dated artifact-set token as `YYMMDD-HHmm` across both report filenames and `plans/{date}-{slug}/plan.md`.
+14. When delegating, pass only narrow artifact slices and exact excerpts, not full upstream documents.
+15. If a delegated worker reports missing context or `NEEDS_REPARTITION`, split the scope and rerun only that slice.
+16. For non-trivial delegation, use the packet structure from `templates/sub-agent-handoff-template.md` or the equivalent snippet embedded in `ba-start`.
+17. For `srs`, resolve the exact backbone and user-stories artifacts first and pull the FRD only when it exists or is required instead of scanning every report in `plans/reports/final/` and `plans/reports/drafts/`.
+18. For `frd` and `stories`, resolve the exact backbone prerequisite first and begin authoring from that file instead of scanning every report in `plans/reports/final/`.
+19. If only legacy report names like `002-intake-form.md` exist, stop and migrate or rerun them explicitly; do not infer the current slug/date from legacy filenames.
+20. If context truncation happens after the target workflow was already confirmed, recover from the resolved command and exact artifacts on disk instead of asking the user to restate the original task.
+21. Once the user explicitly approves a mutating rerun step, keep that step locked for the current run and do not fall back to generic "what do you want me to do with this document?" prompts.
+22. For non-trivial delegated work, create a dedicated tracker under `plans/{date}-{slug}/delegation/` and pass its path into the worker packet.
+23. Treat a delegated slice as likely stalled when its tracker has no heartbeat for more than 10 minutes and the target artifact has not advanced.
 
 ## Prompt Patterns
 
@@ -87,6 +88,7 @@ Use AGENTS.md and skills/ba-start/SKILL.md.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
 Default to `hybrid` mode for a solo IT BA.
 Build the requirements backbone first, then emit FRD, user stories, use case specifications, Screen Contract Lite, wireframes, final screen descriptions, and FRD/SRS HTML only when each artifact is justified.
+If wireframes are needed, ask me for design decisions and persist `designs/{slug}/DESIGN.md` before Step 9.
 ```
 
 ### Step-Level Rerun
@@ -95,6 +97,7 @@ Build the requirements backbone first, then emit FRD, user stories, use case spe
 Use AGENTS.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start wireframes --slug warehouse-rfp`.
 Use the existing Screen Contract Lite artifacts only.
+Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask to refresh it before generating wireframes.
 If more than one dated set exists for `warehouse-rfp`, stop and ask me which date to use.
 Do not regenerate intake, FRD, or user stories.
 ```
@@ -135,7 +138,7 @@ Do not silently choose a slug or dated set by mtime.
 Use the installed ba-start skill from ~/.codex/skills/ba-start/SKILL.md.
 Use the registered Codex BA agents from ~/.codex/agents when the skill delegates work.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
-Produce an intake form, requirements backbone, gated FRD/stories/SRS artifacts, wireframes when justified, final screen descriptions, and the FRD/SRS HTML deliverables required by the selected mode.
+Produce an intake form, requirements backbone, gated FRD/stories/SRS artifacts, project runtime `DESIGN.md`, wireframes when justified, final screen descriptions, and the FRD/SRS HTML deliverables required by the selected mode.
 ```
 
 ### Formal Requirements Only
@@ -167,6 +170,7 @@ For delegated BA work, resolve the workflow once in the orchestrator, then pass 
 ## Pencil For Codex
 
 Use Pencil only for wireframes in SRS-backed work:
+- persist or reuse `designs/{slug}/DESIGN.md` before generating wireframes
 - store `.pen` files under `designs/`
 - allow one `.pen` file to contain multiple frames
 - reference both the artifact path and the target frame directly from the SRS

@@ -5,6 +5,7 @@
 - Slug: [initiative-slug]
 - Date: [YYMMDD-HHmm]
 - App type: [web-app | mobile-app]
+- System design document: `designs/{slug}/DESIGN.md`
 - Source FRD: `plans/reports/final/frd-{date}-{slug}.md`
 - Source user stories: `plans/reports/final/user-stories-{date}-{slug}.md`
 - Source use cases: `plans/reports/drafts/srs-{date}-{slug}-group-b.md`
@@ -12,10 +13,22 @@
 
 ## Quy tắc tạo wireframe (Wireframe Generation Rules)
 
-- Design system mặc định: Shadcn UI
+- Design system mặc định nếu `DESIGN.md` chưa ghi khác: Shadcn UI
+- Phải đọc `designs/{slug}/DESIGN.md` như system document trước khi tạo wireframe
 - Mọi modal, drawer, dialog, wizard step, hoặc overlay có ảnh hưởng luồng phải được coi là primary screen
 - Supporting states phải được suy ra từ states, validation rules, table/list behavior, và feedback surfaces
 - Không tự phát minh hành vi khi use case hoặc Screen Contract Lite chưa đủ
+- Nếu `DESIGN.md` chưa tồn tại hoặc chưa được người dùng chốt, phải dừng trước khi tạo wireframe
+
+## Tóm tắt quyết định thiết kế đã chốt (Approved Design Decisions Snapshot)
+
+- Reference direction: [Nguồn tham chiếu hoặc phong cách tự định nghĩa]
+- Visual tone: [Ví dụ: enterprise, operational, premium, playful]
+- Color direction: [Tóm tắt]
+- Typography direction: [Tóm tắt]
+- Component feel: [Tóm tắt]
+- Responsive priority: [Desktop-first | Mobile-first | Balanced]
+- Hard constraints / anti-patterns: [Tóm tắt]
 
 ## Use Case Excerpts
 
@@ -54,4 +67,5 @@
 
 - Stop if linked use case excerpts are missing for any primary screen
 - Stop if Screen Contract Lite is incomplete for a primary screen
+- Stop if the project `DESIGN.md` is missing, stale, or still awaiting user approval
 - Stop if assigned screen set is too large to keep frame mapping and state coverage consistent

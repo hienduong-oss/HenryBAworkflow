@@ -18,7 +18,8 @@ Prefer structured, decision-ready deliverables over generic prose.
 - Treat the artifact-set `{date}` token as `YYMMDD-HHmm` consistently across `plans/reports/final/*`, `plans/reports/drafts/*`, and `plans/{date}-{slug}/plan.md`.
 - Use exact artifact matching and exact slug/date resolution. Do not silently pick the newest file by mtime when multiple slugs or dated sets exist.
 - Optimize for Solo IT BA by default: build the requirements backbone first, then emit only the downstream artifacts justified by the selected mode. Default mode is `hybrid`.
-- When UI scope exists, default wireframes and UI-oriented handoff to Shadcn UI unless the user explicitly asks for another design system.
+- When UI scope exists, default the project `DESIGN.md` baseline to Shadcn UI unless the user explicitly asks for another design system or the approved `DESIGN.md` overrides it.
+- Before any AI agent generates wireframes for UI-backed scope, ask the user to make or approve the design decisions needed to persist a project-specific `designs/{slug}/DESIGN.md`. Treat that file as the system design document for wireframe generation.
 - For `srs`, begin from the resolved backbone and user-stories prerequisites, and pull the FRD only when it exists or is explicitly required. Do not reread the whole `plans/reports/final/` and `plans/reports/drafts/` suite once slug/date is resolved.
 - For `frd` and `stories`, begin from the resolved backbone prerequisite only. Do not reread the whole `plans/reports/final/` suite once slug/date is resolved.
 - Treat legacy report suites like `002-intake-form.md` as out-of-contract until they are migrated or rerun explicitly.
@@ -30,7 +31,7 @@ Prefer structured, decision-ready deliverables over generic prose.
 - `skills/` contains the BA task playbook. Codex should read it as reference instructions.
 - `rules/` contains BA workflow and quality rules.
 - `templates/` contains the default deliverable structures.
-- `designs/` contains Pencil `.pen` wireframe artifacts referenced from SRS screen sections.
+- `designs/` contains project-specific runtime `DESIGN.md` files plus Pencil `.pen` wireframe artifacts referenced from SRS screen sections.
 - `docs/` contains setup and methodology guidance.
 - `agents/` describes specialization boundaries for BA sub-roles and can be used as delegation guidance.
 
@@ -40,7 +41,7 @@ When asked to produce or update a BA artifact:
 1. Read the playbook in `skills/ba-start/SKILL.md`
 2. Read the rule files in `rules/`
 3. Use the matching template from `templates/`
-4. If the artifact has UI-backed scope, reference Pencil wireframes from `designs/` at artifact and frame level
+4. If the artifact has UI-backed scope, resolve or create the runtime project `DESIGN.md` in `designs/{slug}/` before wireframe generation, then reference Pencil wireframes at artifact and frame level
 5. Keep outputs traceable to business goals, stakeholders, and acceptance criteria
 6. For non-trivial delegated work, create a run-status tracker under `plans/{date}-{slug}/delegation/`
 
@@ -54,6 +55,7 @@ Key templates:
 - `templates/requirements-backbone-template.md` — persisted source-of-truth after scope lock
 - `templates/frd-template.md` — functional requirements
 - `templates/srs-template.md` — software requirements specification
+- `templates/design-md-template.md` — project-specific design system document for AI wireframe generation
 - `templates/user-story-template.md` — Agile user stories
 - `templates/wireframe-input-template.md` — persisted Step 9 input pack
 - `templates/wireframe-map-template.md` — persisted screen-to-frame linkback
@@ -65,18 +67,21 @@ Key templates:
 - Backbone decisions explain why each downstream artifact exists or is skipped.
 - Use cases cover critical primary and alternate flows.
 - Screen descriptions include navigation, validation, states, and linked requirements when UI exists.
+- Approved runtime `DESIGN.md` decisions are reflected in generated wireframes when UI exists.
 - Recommendations tie back to business goals, risks, or value.
 - Diagrams use Mermaid unless an external design artifact is explicitly referenced.
 
 ## Pencil Wireframes
 
 For SRS screen work:
+- persist a project runtime `DESIGN.md` under `designs/[initiative-slug]/DESIGN.md` before generating or rerunning wireframes
 - store `.pen` files under `designs/[initiative-slug]/` by flow, module, or artifact scope
 - allow one `.pen` file to contain multiple frames; each frame should represent one screen or state/view
 - link each SRS screen to both the Pencil artifact path and the specific frame name or ID
 - keep screen IDs aligned between the SRS and Pencil frame names, not only filenames
 - treat the `.pen` file as the low-fidelity wireframe source of truth
 - keep the markdown SRS focused on behavior, validation, roles, states, and traceability
+- treat `designs/[initiative-slug]/DESIGN.md` as the system design document that governs style, density, components, and responsive direction for the wireframe agent
 
 ## Deliverable Style
 

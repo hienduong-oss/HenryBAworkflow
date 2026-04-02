@@ -23,6 +23,7 @@ Related rules:
 
 ## Cross-Artifact Consistency
 - Use cases, screen descriptions, and wireframes must describe the **same** behavior using **identical** terminology.
+- When wireframes are AI-generated, an approved project `DESIGN.md` must exist and the resulting frames must follow it consistently.
 - Screen Contract Lite must be sufficient to generate wireframes before final screen descriptions are written.
 - UC actor actions must match screen User Actions — same wording, same sequence.
 - UC system responses must match screen field Behaviour Rules.
@@ -44,6 +45,7 @@ Related rules:
 - User story acceptance criteria must be covered by UC postconditions and screen Validation Rules.
 - FRD features must be fully traceable through user stories into SRS requirements.
 - Final screen descriptions must be derived from and remain consistent with both the generated wireframes and the upstream use cases.
+- Wireframe styling, density, and component treatment must remain consistent with the approved `designs/{slug}/DESIGN.md`.
 - When inconsistency is found, the upstream artifact (user story > use case > screen > wireframe) is the source of truth.
 
 ## Quality Checks

@@ -17,8 +17,9 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 6. Emit downstream artifacts from the backbone only when their gates are met
 7. Produce behavioral specifications only for complex or risky flows
 8. Produce technical specification slices only when integrations, NFR risk, or handoff needs justify them
-9. Generate wireframes only for critical or explicitly requested screens
-10. Run quality review and package only the artifacts actually emitted for the engagement
+9. Capture user-approved design decisions and persist a project `DESIGN.md` before AI wireframe generation
+10. Generate wireframes only for critical or explicitly requested screens
+11. Run quality review and package only the artifacts actually emitted for the engagement
 
 ## Agent Delegation
 
@@ -61,7 +62,7 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 - Delegation trackers for active sub-agent slices belong in `plans/{date}-{slug}/delegation/`.
 - Preserve traceability links between source, analysis, and final outputs.
 - Broken links and stale references must be corrected before handoff.
-- For UI-backed SRS work, persist a `wireframe-input-{date}-{slug}.md` artifact under `plans/reports/drafts/` before Step 9 and a `wireframe-map-{date}-{slug}.md` artifact under `plans/reports/drafts/` after successful wireframe generation.
+- For UI-backed SRS work, persist a project-specific runtime `designs/{slug}/DESIGN.md` before Step 9 wireframe generation, a `wireframe-input-{date}-{slug}.md` artifact under `plans/reports/drafts/` before Step 9, and a `wireframe-map-{date}-{slug}.md` artifact under `plans/reports/drafts/` after successful wireframe generation.
 - Persist the backbone as `plans/reports/final/backbone-{date}-{slug}.md`. This is the default authoring source for downstream artifact emission.
 - Do not infer current-playbook state from legacy report filenames such as `002-intake-form.md`; legacy suites must be migrated or rerun explicitly before they enter the current exact-pattern lifecycle.
 
@@ -76,6 +77,7 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 - User stories: `plans/reports/final/user-stories-{date}-{slug}.md`
 - SRS draft groups and wireframe runtime artifacts: `plans/reports/drafts/`
 - Wireframes: `designs/{slug}/{artifact-name}.pen` plus frame-level screen mapping in the SRS
+- Project runtime design system document: `designs/{slug}/DESIGN.md`
 - Supporting wireframe frames: use the parent screen ID prefix plus a stable suffix such as `SCR-01-EMPTY`, `SCR-01-ERROR`, or `SCR-01-TOAST-SUCCESS`
 - Modal/drawer/dialog overlays that affect flow should get their own primary `SCR-xx` IDs, not supporting-state suffix IDs
 
@@ -96,6 +98,7 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 
 - Approve scope before deep analysis.
 - Build and review the backbone before emitting FRD, stories, SRS, or wireframes.
+- Before AI-generated wireframes, ask for or confirm project design decisions and persist them in `designs/{slug}/DESIGN.md`.
 - Approve requirements before downstream production.
 - Once a mutating rerun step is explicitly approved, keep that step locked for the current run; do not reopen generic discovery or ask the user to restate the task unless command, slug, date, or overwrite approval became genuinely ambiguous.
 - `lite` mode should stop at intake + backbone + stories unless the user explicitly asks for more.

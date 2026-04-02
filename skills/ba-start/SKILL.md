@@ -35,7 +35,7 @@ Read this section first. Only continue to the detailed step sections when you ne
    - write BA deliverables in Vietnamese unless the user explicitly requests English
    - use `YYMMDD-HHmm` as the artifact-set `{date}` token
    - default the engagement mode to `hybrid` unless the user explicitly selects `lite` or `formal`
-   - default UI-backed wireframes to Shadcn UI unless the user explicitly overrides it
+   - default the project `DESIGN.md` baseline to Shadcn UI unless the user explicitly overrides it
 4. Resolve the target scope with exact matching only:
    - explicit `--slug <slug>` first
    - otherwise use a single detected slug only
@@ -54,8 +54,8 @@ Read this section first. Only continue to the detailed step sections when you ne
 | `backbone` | Step 5 | intake | requirements backbone |
 | `frd` | Step 6 | backbone | FRD + FRD HTML |
 | `stories` | Step 7 | backbone | user stories |
-| `srs` | Steps 8-11 | backbone + user stories | grouped SRS + wireframe-input + merged SRS + gated wireframes |
-| `wireframes` | Step 9 only | wireframe-input or exact wireframe source set | `.pen`, exports, wireframe-map, wireframe-state |
+| `srs` | Steps 8-11 | backbone + user stories | grouped SRS + wireframe-input + project runtime DESIGN.md + merged SRS + gated wireframes |
+| `wireframes` | Step 9 only | wireframe-input or exact wireframe source set | `designs/{slug}/DESIGN.md`, `.pen`, exports, wireframe-map, wireframe-state |
 | `package` | Step 12 only | emitted artifact set + non-missing wireframe-state when SRS screens exist | FRD/SRS HTML + delivery summary |
 | `status` | inspection only | none | checklist output |
 
@@ -64,7 +64,7 @@ Read this section first. Only continue to the detailed step sections when you ne
 - Never silently choose a slug or dated set by mtime.
 - Never use broad `*-{slug}*` matching when exact artifact patterns are available.
 - The backbone is the primary authoring source after intake. Do not re-derive downstream artifacts from raw intake when the backbone exists.
-- `wireframes` is read-only on upstream BA artifacts. It may regenerate only design outputs, `wireframe-map`, and the wireframe-state marker.
+- `wireframes` is read-only on upstream BA artifacts. It may regenerate only runtime design outputs, `designs/{slug}/DESIGN.md`, `wireframe-map`, and the wireframe-state marker.
 - `package` must block only when wireframe state is `missing`.
 - If no wireframe-state marker exists, treat it as `not-applicable` only when the SRS set has no UI-backed screens or Screen Contract Lite section. Otherwise treat it as `missing`.
 
@@ -75,7 +75,7 @@ Read this section first. Only continue to the detailed step sections when you ne
 - Write BA deliverables in Vietnamese by default unless the user explicitly requests English.
 - Treat the artifact-set `{date}` token as `YYMMDD-HHmm` consistently across report filenames and `plans/{date}-{slug}/plan.md`.
 - Default the engagement mode to `hybrid` for solo IT BA work. Use `lite` only when speed matters more than formal artifacts, and `formal` only when governance or handoff needs justify the full set.
-- For UI-backed scope, use Shadcn UI as the default wireframe and UI-handoff design-system baseline unless the user explicitly overrides it.
+- For UI-backed scope, use Shadcn UI as the default component baseline only when the approved project `DESIGN.md` does not override it.
 
 ### Argument parsing
 
@@ -169,7 +169,7 @@ Before mutating `backbone`, `frd`, `stories`, `srs`, `wireframes`, `package`, or
 | `frd` | `plans/reports/final/backbone-{date}-{slug}.md` | `plans/reports/final/frd-{date}-{slug}.md`, `plans/reports/final/frd-{date}-{slug}.html` |
 | `stories` | `plans/reports/final/backbone-{date}-{slug}.md` | `plans/reports/final/user-stories-{date}-{slug}.md` |
 | `srs` | `plans/reports/final/backbone-{date}-{slug}.md`, `plans/reports/final/user-stories-{date}-{slug}.md` | `plans/reports/final/srs-{date}-{slug}.md`, `plans/reports/drafts/wireframe-input-{date}-{slug}.md`, and any supporting `plans/reports/drafts/srs-{date}-{slug}-group-*.md` files |
-| `wireframes` | `plans/reports/drafts/wireframe-input-{date}-{slug}.md` or exact fallback sources for pack generation | `designs/{slug}/*.pen`, `designs/{slug}/exports/**`, `plans/reports/drafts/wireframe-map-{date}-{slug}.md`, `plans/reports/drafts/wireframe-state-{date}-{slug}.md` |
+| `wireframes` | `plans/reports/drafts/wireframe-input-{date}-{slug}.md` or exact fallback sources for pack generation | `designs/{slug}/DESIGN.md`, `designs/{slug}/*.pen`, `designs/{slug}/exports/**`, `plans/reports/drafts/wireframe-map-{date}-{slug}.md`, `plans/reports/drafts/wireframe-state-{date}-{slug}.md` |
 | `package` | emitted downstream artifacts for the selected mode; wireframes may be completed, skipped, or not-applicable | packaged HTML artifacts, delivery summary |
 | `status` | None | Checklist output only |
 
@@ -415,7 +415,7 @@ Execution order:
 
 `Intake -> Backbone -> Mode-gated downstream artifacts -> Quality Review`
 
-UI design system default: unless the user explicitly asks for another system, use Shadcn UI as the default component and layout baseline for wireframes and UI-oriented handoff artifacts.
+UI design system default: unless the user explicitly asks for another system, use Shadcn UI as the default component and layout baseline only until the approved project `DESIGN.md` overrides those choices.
 
 Save the work plan to `plans/{date}-{slug}/plan.md`.
 
@@ -732,11 +732,39 @@ Save to `plans/reports/drafts/wireframe-input-{date}-{slug}.md`.
 The wireframe input pack must contain:
 
 - artifact set information and app type
+- target project runtime design document path
 - exact use case excerpts needed for each primary screen
 - Screen Contract Lite
 - Screen Inventory
+- approved runtime design decision snapshot or explicit gaps that still require user choice
 - proposed artifact grouping plan
 - stop conditions for missing context or overloaded screen sets
+
+#### Step 8.2 - Capture design decisions and persist project runtime DESIGN.md
+
+Before any AI agent generates wireframes, ask the user to make or approve the design decisions that will define the project-specific runtime `DESIGN.md`.
+
+Decision intake must cover:
+
+- reference direction: existing brand guidance, a custom brief, or a named external `DESIGN.md` inspiration
+- visual tone and density
+- color direction and contrast expectations
+- typography direction
+- component feel: borders, radius, formality, dashboard density, navigation style
+- layout and responsive priority
+- hard constraints and explicit anti-patterns
+
+If `designs/{slug}/DESIGN.md` already exists, ask whether to:
+
+- reuse the approved file as-is
+- refresh it from new decisions
+- stop
+
+If no file exists, or the user asks to refresh it:
+
+- synthesize `designs/{slug}/DESIGN.md` from the approved decisions using `templates/design-md-template.md`
+- keep Shadcn UI as the default component baseline only when the approved `DESIGN.md` does not specify a different direction
+- stop before Step 9 if design decisions remain unresolved
 
 #### Group D - Technical
 
@@ -754,7 +782,7 @@ Technical slice gate:
 
 - Produce Group D only when integrations, NFR exposure, data modelling, API handoff, or vendor/governance needs justify it.
 
-### Step 9 - Generate wireframes from use cases and Screen Contract Lite
+### Step 9 - Generate wireframes from use cases, Screen Contract Lite, and approved runtime DESIGN.md
 
 Run the Step 9 workflow exactly as defined in the `wireframes` subcommand below, but treat it as part of the SRS pipeline and keep the same `{date}` set.
 
@@ -839,7 +867,7 @@ Failure handling: if a grouped pass fails, retry once. If it still fails, comple
 
 ## Subcommand: wireframes
 
-Run Step 9 only. This path must be read-only on upstream artifacts and regenerate only design outputs, `wireframe-map`, and the explicit wireframe-state marker.
+Run Step 9 only. This path must be read-only on upstream artifacts and regenerate only runtime design outputs, the project `DESIGN.md`, `wireframe-map`, and the explicit wireframe-state marker.
 
 ### Prerequisites
 
@@ -853,6 +881,7 @@ Run Step 9 only. This path must be read-only on upstream artifacts and regenerat
 
 ### Output
 
+- `designs/{slug}/DESIGN.md`
 - `designs/{slug}/{artifact-name}.pen`
 - `designs/{slug}/exports/{artifact-name}/SCR-xx-name.png`
 - `plans/reports/drafts/wireframe-map-{date}-{slug}.md`
@@ -872,8 +901,34 @@ Parse the input pack to build the generation plan:
 - group related screens into one or more Pencil artifacts by flow, module, or journey
 - treat modal, dialog, and drawer overlays with flow impact as primary screens
 - for each primary screen, derive required supporting frames from the documented states, validation rules, table or list behavior, and feedback surfaces
+- carry forward the runtime design-document target path `designs/{slug}/DESIGN.md`
 
-### Step 9.2 - Ask for wireframe preference
+### Step 9.2 - Ask for or refresh project runtime DESIGN.md
+
+Before any wireframe generation starts:
+
+- check whether `designs/{slug}/DESIGN.md` already exists
+- if it exists, ask whether to reuse it or refresh it from new decisions
+- if it does not exist, ask the user to make the design decisions needed to create it
+
+Minimum decision set:
+
+- reference direction or inspiration source
+- visual tone
+- color direction
+- typography direction
+- component feel
+- layout/responsive priority
+- explicit anti-patterns
+
+After the user answers:
+
+- persist or refresh `designs/{slug}/DESIGN.md`
+- summarize the approved choices in `plans/reports/drafts/wireframe-input-{date}-{slug}.md`
+- treat the resulting `DESIGN.md` as a project runtime artifact and semi-finished handoff input for the wireframe agent, not as a final BA deliverable
+- stop if the user declines to approve a design direction
+
+### Step 9.3 - Ask for wireframe preference
 
 If Step 9 runs as part of the full `/ba-start` or `/ba-start srs` pipeline and the user has not explicitly asked to skip or manually choose screens, default to:
 
@@ -905,21 +960,22 @@ If wireframes are expected but generation fails before completion:
 - persist the marker with `State: missing`
 - stop and report the failure
 
-### Step 9.3 - Generate Pencil wireframes and mapping
+### Step 9.4 - Generate Pencil wireframes and mapping
 
 For each approved screen group:
 
 1. Read the linked use case excerpts, Screen Contract Lite entries, and Screen Inventory rows from the wireframe input pack.
-2. Verify that the wireframe intent matches the same actions, flow steps, and required states.
-3. Use `web-app` or `mobile-app` guidelines as appropriate.
-4. Use Shadcn UI as the default design-system baseline unless the user explicitly overrides it.
-5. Create or update one `.pen` artifact per approved screen group.
-6. Create one frame per primary screen and one frame per required supporting state or view.
-7. Validate screenshots against the Use Cases and Screen Contract Lite.
-8. Record screen-to-artifact-to-frame mapping, including supporting frames and export targets, for every generated artifact.
-9. Save each artifact to `designs/{slug}/{artifact-name}.pen`.
+2. Read `designs/{slug}/DESIGN.md` and treat it as the system design document for the current wireframe run.
+3. Verify that the wireframe intent matches the same actions, flow steps, required states, and approved design decisions.
+4. Use `web-app` or `mobile-app` guidelines as appropriate.
+5. Use Shadcn UI as the default component baseline only when `DESIGN.md` does not override it.
+6. Create or update one `.pen` artifact per approved screen group.
+7. Create one frame per primary screen and one frame per required supporting state or view.
+8. Validate screenshots against the Use Cases, Screen Contract Lite, and approved `DESIGN.md`.
+9. Record screen-to-artifact-to-frame mapping, including supporting frames and export targets, for every generated artifact.
+10. Save each artifact to `designs/{slug}/{artifact-name}.pen`.
 
-### Step 9.4 - Export wireframes to PNG
+### Step 9.5 - Export wireframes to PNG
 
 Export each relevant primary frame to PNG for embedding in the final SRS HTML:
 
@@ -931,7 +987,7 @@ After successful export:
 
 - persist `plans/reports/drafts/wireframe-map-{date}-{slug}.md` with the final artifact, frame, and export mapping
 - persist `plans/reports/drafts/wireframe-state-{date}-{slug}.md` with `State: completed`
-- list the input-pack, mapping, artifact, and export paths in the marker
+- list the input-pack, project `DESIGN.md`, mapping, artifact, and export paths in the marker
 
 ## Subcommand: package
 
@@ -1030,6 +1086,7 @@ plans/
       ui-ux-designer-auth-flow.md
 designs/
   {slug}/
+    DESIGN.md
     auth-flow.pen
     checkout.pen
     exports/
@@ -1068,6 +1125,7 @@ Date set: {date}
 - [ ] final/srs-{date}-{slug}.md — missing
 - [ ] drafts/wireframe-input-{date}-{slug}.md — missing
 - [ ] drafts/wireframe-map-{date}-{slug}.md — missing
+- [ ] designs/{slug}/DESIGN.md — missing
 - [!] wireframes — skipped — 2026-03-26
 
 Delegated slices:
@@ -1080,13 +1138,13 @@ Status rules:
 
 - For regular artifacts, print `exists` or `missing` with the last-modified date when present.
 - For wireframes, print the explicit wireframe state (`completed`, `skipped`, `not-applicable`, or `missing`) plus the marker date.
-- When wireframes are `completed`, also list the detected input pack, wireframe map, `.pen` artifact paths, and export folders under `designs/{slug}/`.
+- When wireframes are `completed`, also list the detected project runtime `DESIGN.md`, input pack, wireframe map, `.pen` artifact paths, and export folders under `designs/{slug}/`.
 - For delegated slices under `plans/{date}-{slug}/delegation/`, print:
   - `queued`, `running`, `completed`, `needs-repartition`, `blocked`, or `failed` directly from the tracker
   - `likely stalled` when the tracker says `running` or `queued` but the last heartbeat is older than the tracker threshold
   - the last heartbeat timestamp and latest milestone or blocker when present
 
-## Deliverables
+## Outputs And Runtime Artifacts
 
 - Normalized intake form
 - Gap analysis summary
@@ -1095,6 +1153,7 @@ Status rules:
 - FRD in Markdown and HTML
 - User stories in Markdown
 - SRS working fragments for grouped production
+- Project-specific runtime `DESIGN.md` as a semi-finished handoff input for AI wireframe generation
 - Wireframe input pack for resumable Step 9 generation
 - Unified SRS with use cases, wireframe-backed screen descriptions, NFRs, and test cases
 - SRS HTML with embedded wireframes and rendered diagrams
@@ -1111,6 +1170,7 @@ Status rules:
 - [frd-template.md](../../templates/frd-template.md)
 - [user-story-template.md](../../templates/user-story-template.md)
 - [srs-template.md](../../templates/srs-template.md)
+- [design-md-template.md](../../templates/design-md-template.md)
 - [wireframe-input-template.md](../../templates/wireframe-input-template.md)
 - [wireframe-map-template.md](../../templates/wireframe-map-template.md)
 - [delegation-status-template.md](../../templates/delegation-status-template.md)
@@ -1137,6 +1197,7 @@ Status rules:
 - SRS covers only the slices justified by the selected mode and artifact gates.
 - Every FR, UC, and SCR links to at least one user story.
 - Screen Contract Lite exists for every primary screen before wireframes are generated.
+- An approved project `DESIGN.md` exists before AI wireframes are generated.
 - Screen field tables use the Display/Behaviour/Validation description format.
 - Cross-artifact consistency is enforced across UC steps, screen fields, actions, and wireframe labels.
 - `hybrid` mode defaults to critical-screen wireframes first; `formal` mode covers the full approved set.
@@ -1144,7 +1205,7 @@ Status rules:
 - Every UC actor action has a matching screen User Action.
 - Every UC system response has a matching screen Behaviour Rule.
 - Wireframes match their SRS screen descriptions field by field.
-- Wireframes use Shadcn UI by default unless the user explicitly requests another system.
+- Wireframes use the approved `DESIGN.md` as the system design document, with Shadcn UI only as the fallback component baseline.
 - SRS screens link to `.pen` artifacts and frame references unless wireframes were explicitly skipped or not applicable.
 - Screen IDs stay aligned between SRS and Pencil frame names.
 - Modal, drawer, and dialog overlays with flow impact are modeled as primary screens.

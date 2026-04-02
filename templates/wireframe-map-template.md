@@ -4,6 +4,7 @@
 
 - Slug: [initiative-slug]
 - Date: [YYMMDD-HHmm]
+- Source DESIGN.md: `designs/{slug}/DESIGN.md`
 - Source input pack: `plans/reports/drafts/wireframe-input-{date}-{slug}.md`
 - State marker: `plans/reports/drafts/wireframe-state-{date}-{slug}.md`
 
@@ -31,3 +32,4 @@
 - Every required supporting state inferred during wireframing is listed
 - Every exported PNG path matches the actual artifact/frame naming
 - Frame names preserve screen IDs for SRS linkback
+- Wireframe outputs remain aligned with the approved `DESIGN.md`
