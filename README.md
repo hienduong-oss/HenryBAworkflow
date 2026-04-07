@@ -1,12 +1,13 @@
 # BA-kit
 
-BA-kit is a business analysis toolkit for agentic coding environments. It packages a single end-to-end BA skill, focused agent roles, workflow rules, and reusable templates so discovery, requirements, and handoff work follow a consistent solo-IT-BA-friendly operating model in Claude Code and Codex.
+BA-kit is a business analysis toolkit for agentic coding environments. It packages a two-layer command model (freeform router + lifecycle engine), focused agent roles, workflow rules, shared core references, and reusable templates so discovery, requirements, and handoff work follow a consistent solo-IT-BA-friendly operating model in Claude Code and Codex.
 
 ## What It Includes
 
-- 1 unified BA workflow skill (`ba-start`) plus 2 maintenance skills (`ba-kit-update`, `ba-notion`)
+- 6 BA skills: `ba-do` (freeform router), `ba-start` (lifecycle engine), `ba-impact` (change triage), `ba-next` (next-step advisor), `ba-kit-update`, `ba-notion`
 - 4 agent roles for structured delegation
 - 2 workflow and quality rule files
+- shared core workflows and artifact contract reference (`core/`)
 - reusable document and wireframe workflow templates, including a requirements backbone
 - Project instructions and configuration for BA engagements
 
@@ -19,14 +20,17 @@ BA-kit is meant to be used as a BA workstation, not just a template repo.
 A solo BA typically uses it like this:
 
 1. Start with raw input: BRD draft, RFP, meeting notes, process notes, screenshots, or pasted requirements.
-2. Run `/ba-start` or `/ba-start intake ...` to normalize the input and surface gaps.
-3. Lock scope and build the `backbone` as the single source of truth for the engagement.
-4. Emit only the artifacts the engagement actually needs:
+2. Run `/ba-do <description>` for freeform requests — it routes to the right BA-kit command automatically.
+3. Or run `/ba-start` directly when the lifecycle step is already known.
+4. Lock scope and build the `backbone` as the single source of truth for the engagement.
+5. Emit only the artifacts the engagement actually needs:
    - `lite`: intake + backbone + stories
    - `hybrid` default: backbone + stories + selective FRD/SRS + critical wireframes
    - `formal`: full FRD + SRS + wireframes + packaged handoff
-5. Use rerun commands like `frd`, `stories`, `srs`, `wireframes`, and `package` only when that slice needs to be refreshed.
-6. Use `status` to see what exists, what is missing, and whether any delegated slice is stalled.
+6. When a requirement changes mid-engagement, run `/ba-impact` to triage before editing artifacts.
+7. Use `/ba-next` to see the recommended next command based on current artifact state.
+8. Use rerun commands like `frd`, `stories`, `srs`, `wireframes`, and `package` only when that slice needs to be refreshed.
+9. Use `status` to see what exists, what is missing, and whether any delegated slice is stalled.
 
 The intended working style is:
 
@@ -45,8 +49,11 @@ The intended working style is:
 ### Core Commands For A BA
 
 ```text
+/ba-do <description>
 /ba-start
 /ba-start intake docs/raw/warehouse-rfp.pdf
+/ba-impact --slug warehouse-rfp
+/ba-next --slug warehouse-rfp
 /ba-start backbone --slug warehouse-rfp
 /ba-start stories --slug warehouse-rfp
 /ba-start srs --slug warehouse-rfp
@@ -62,7 +69,7 @@ The intended working style is:
 - requirements backbone
 - FRD and user stories when needed
 - selective or full SRS depending on mode
-- Pencil wireframes for critical or approved screens
+- wireframes for critical or approved screens
 - FRD/SRS HTML deliverables for stakeholder review
 
 ## Dependencies
@@ -76,13 +83,15 @@ Use this as the practical dependency checklist.
 | Bash-compatible shell | Running `install.sh`, `ba-kit update`, and helper scripts | Yes |
 | Python 3 | HTML packaging via `scripts/md-to-html.py` | Required for packaging |
 | Node.js | Running `scripts/install-codex-ba-kit.sh` and Codex agent registration | Required only for Codex converted install |
-| Pencil / Pencil MCP runtime | Generating `.pen` wireframes and PNG exports in the `wireframes` step | Required only for wireframes |
+| Pencil / Pencil MCP runtime | Generating `.pen` wireframes and PNG exports in the `wireframes` step | Required only for Pencil wireframes |
+| Google Stitch MCP runtime | Generating wireframes via Google Stitch in the `wireframes` step | Required only for Stitch wireframes |
 | Notion MCP runtime | Publishing BA artifacts into Notion via `/ba-notion` | Required only for Notion publishing |
 
 Notes:
 
-- If you do not need wireframes, BA-kit can still run intake, backbone, stories, FRD, and non-wireframe SRS work without Pencil.
-- If your BA workflow includes UI-backed screens and you want BA-kit to generate wireframes, your agent runtime must expose Pencil tooling. In practice this means a Pencil MCP or equivalent Pencil-backed runtime, not just the `designs/` folder.
+- If you do not need wireframes, BA-kit can still run intake, backbone, stories, FRD, and non-wireframe SRS work without a wireframe runtime.
+- If your BA workflow includes UI-backed screens and you want BA-kit to generate wireframes, your agent runtime must expose a supported wireframe tool (Pencil MCP or Google Stitch MCP).
+- BA-kit detects available wireframe tooling at runtime and adapts its generation strategy accordingly.
 - If you skip packaging, Python 3 is not required for the analysis steps themselves.
 - If you do not publish into Notion, a Notion MCP runtime is not required.
 
@@ -94,7 +103,7 @@ Notes:
 - Bash-compatible shell for running installers and helper commands
 - Python 3 if you want HTML packaging
 - Node.js if you want to run `scripts/install-codex-ba-kit.sh`
-- Pencil / Pencil MCP if you want generated wireframes
+- Pencil / Pencil MCP or Google Stitch MCP if you want generated wireframes
 
 ## Installation
 
@@ -121,10 +130,11 @@ It checks the registered BA-kit source repo for dirty state or unfinished merge/
 `ba-kit doctor` and `ba-kit status` also surface update availability when the registered upstream has newer commits.
 
 The installer copies:
-- the BA skill directory under `skills/` to `~/.claude/skills/`
+- the BA skill directories under `skills/` to `~/.claude/skills/`
 - `agents/` to `~/.claude/agents/`
 - `rules/` to `~/.claude/rules/ba-kit/`
 - `templates/` to `~/.claude/templates/`
+- `core/` workflows and references to `~/.claude/ba-kit/`
 
 ## Use With Codex
 
@@ -132,7 +142,7 @@ BA-kit supports Codex through the root [AGENTS.md](./AGENTS.md) file and repo-lo
 - Codex should read [AGENTS.md](./AGENTS.md) for persistent repository instructions
 - `skills/` acts as BA reference playbooks
 - `rules/` and `templates/` provide workflow and artifact structure
-- `designs/` stores Pencil `.pen` files for SRS screen wireframes
+- `designs/` stores wireframe artifacts for SRS screen wireframes
 
 Codex does not require `./install.sh` or installation into `~/.claude`. Open the repository with `AGENTS.md` present, then explicitly direct Codex to use the relevant BA playbook from `skills/`. The root `AGENTS.md` now carries the minimum non-negotiable BA defaults, but `skills/ba-start/SKILL.md` is still the required workflow source for non-trivial BA tasks.
 
@@ -157,11 +167,17 @@ Core defaults across Claude Code and Codex:
 - BA deliverables are written in Vietnamese by default unless the user explicitly requests English.
 - The dated artifact-set token uses `YYMMDD-HHmm` consistently across `plans/reports/final/*`, `plans/reports/drafts/*`, and `plans/{date}-{slug}/plan.md`.
 - The default engagement mode is `hybrid`: build the backbone first, then emit only the downstream artifacts the engagement actually needs.
-- When UI scope exists, wireframes default to Shadcn UI unless the user explicitly overrides it.
+- When UI scope exists, the project `DESIGN.md` controls the design system baseline; Shadcn UI is the default when no override is specified.
 
 `plans/` is a local BA workspace, not shipped example content. Keep generated `plans/reports/final/*`, `plans/reports/drafts/*`, and `plans/{date}-{slug}/plan.md` local to your engagement and out of version control.
 
 ## Workflow And Commands
+
+Freeform entry:
+
+```text
+/ba-do <description>
+```
 
 Full workflow:
 
@@ -169,10 +185,18 @@ Full workflow:
 /ba-start
 ```
 
+Change triage and next-step advisor:
+
+```text
+/ba-impact --slug warehouse-rfp
+/ba-next --slug warehouse-rfp
+```
+
 Resumable subcommands:
 
 ```text
 /ba-start intake docs/raw/warehouse-rfp.pdf
+/ba-start impact --slug warehouse-rfp
 /ba-start backbone --slug warehouse-rfp
 /ba-start frd --slug warehouse-rfp
 /ba-start stories --slug warehouse-rfp
@@ -189,9 +213,11 @@ Default `/ba-start` still runs the full lifecycle:
 4. Requirements backbone production
 5. Gated FRD and user story generation
 6. Selective SRS production
-7. Wireframe generation from use cases and screen contract when justified
+7. Project `DESIGN.md` approval and wireframe generation when justified
 8. Final screen description production
 9. Unified browser-editable HTML packaging for the emitted artifacts
+
+Use `/ba-impact` at any point to triage a requirement change before mutating artifacts. Use `/ba-next` to see the recommended next command.
 
 For rerun commands, resolution order is:
 1. Explicit `--slug <slug>`
@@ -200,11 +226,14 @@ For rerun commands, resolution order is:
 
 If one slug has multiple dated artifact sets, `/ba-start` should stop and ask which dated set to use instead of silently taking the latest one.
 
-## Skill
+## Skills
 
 | Skill | Purpose |
 | --- | --- |
-| `ba-start` | Single BA entry point with full workflow plus `intake`, `backbone`, `frd`, `stories`, `srs`, `wireframes`, `package`, and `status` subcommands |
+| `ba-do` | Freeform natural-language router — dispatches to the right BA-kit command automatically |
+| `ba-start` | Lifecycle engine with full workflow plus `intake`, `impact`, `backbone`, `frd`, `stories`, `srs`, `wireframes`, `package`, and `status` subcommands |
+| `ba-impact` | Change-impact triage — analyzes requirement changes without mutating artifacts and recommends next commands |
+| `ba-next` | Next-step advisor — inspects the current artifact set and recommends the next BA command |
 | `ba-kit-update` | Maintenance entry point that runs `ba-kit update` to pull and reinstall BA-kit |
 | `ba-notion` | Maintenance entry point that publishes BA markdown artifacts into Notion via MCP with create, append, overwrite, or fill-gaps behavior |
 
@@ -213,7 +242,7 @@ If one slug has multiple dated artifact sets, `/ba-start` should stop and ask wh
 | Agent | Focus |
 | --- | --- |
 | `requirements-engineer` | Requirements elicitation, structuring, validation |
-| `ui-ux-designer` | Pencil wireframe generation from SRS screens |
+| `ui-ux-designer` | Wireframe generation from SRS screens |
 | `ba-documentation-manager` | Deliverable quality, consistency, and packaging |
 | `ba-researcher` | Domain, market, and solution research |
 
@@ -228,9 +257,9 @@ Templates live in `./templates/` and cover:
 - Wireframe input packs for resumable Step 9 generation
 - Wireframe maps for persisted SRS linkback
 
-Wireframe artifacts for SRS screen sections live under `./designs/` as Pencil `.pen` files. See [designs/README.md](./designs/README.md) for the naming convention.
+Wireframe artifacts for SRS screen sections live under `./designs/`. See [designs/README.md](./designs/README.md) for the naming convention.
 
-For UI-backed work, BA-kit now defaults to the Shadcn UI design system for wireframes and UI-oriented handoff unless you explicitly request another system.
+For UI-backed work, the project `DESIGN.md` (`designs/{slug}/DESIGN.md`) controls the design system baseline. Shadcn UI is the default when no override is specified.
 
 BA-kit packages FRD and SRS into one shared HTML shell with consistent metadata, visual chrome, and in-browser editing controls. SRS HTML remains the primary stakeholder handoff, and FRD HTML provides the aligned functional review copy for the same engagement.
 
@@ -246,15 +275,15 @@ BA-kit uses [`.ck.json`](./.ck.json) to define project paths, plan naming, metho
 
 ### New Product Discovery
 
-Use `/ba-start` with a raw requirements document to produce an intake form, a requirements backbone, user stories with AC, selective FRD/SRS slices, and wireframes only where they help review or handoff. Use `/ba-start status --slug <slug>` to inspect progress after an interrupted session.
+Use `/ba-start` with a raw requirements document to produce an intake form, a requirements backbone, user stories with AC, selective FRD/SRS slices, and wireframes only where they help review or handoff. Use `/ba-start status --slug <slug>` to inspect progress after an interrupted session. Or simply use `/ba-do` with a natural-language description and let BA-kit route to the right command.
 
 ### ERP Process Improvement
 
-Use `/ba-start` with process descriptions as input. The skill produces FRD with workflows, user stories for the delivery team, and SRS with technical specs.
+Use `/ba-start` with process descriptions as input. The skill produces FRD with workflows, user stories for the delivery team, and SRS with technical specs. When a process rule changes mid-engagement, use `/ba-impact` to triage before editing artifacts.
 
 ### Regulated Workflow Change
 
-Use `/ba-start` with regulatory context. The SRS captures compliance constraints, the FRD covers business rules, and user stories include acceptance criteria tied to regulations.
+Use `/ba-start` with regulatory context. The SRS captures compliance constraints, the FRD covers business rules, and user stories include acceptance criteria tied to regulations. Use `/ba-next` to see the recommended next step at any point.
 
 ## Contributing
 
@@ -264,7 +293,7 @@ Keep additions aligned with BA-kit principles:
 - traceability over ambiguity
 - Mermaid for diagrams
 
-When changing the skill, also update templates or rules if the workflow contract changes. See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution expectations and validation steps.
+When changing skills, also update templates, core references, or rules if the workflow contract changes. See [CONTRIBUTING.md](./CONTRIBUTING.md) for contribution expectations and validation steps.
 
 ## Compatibility And Disclaimer
 
