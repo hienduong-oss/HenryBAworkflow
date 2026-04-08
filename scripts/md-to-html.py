@@ -1151,9 +1151,36 @@ def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: b
     return out_path
 
 
+def aggregate_modules(modules_dir: Path, base_dir: Optional[Path], editor_enabled: bool):
+    """Aggregate FRD and SRS modules into unified HTML files."""
+    compiled_dir = modules_dir.parent / "04_compiled"
+    compiled_dir.mkdir(parents=True, exist_ok=True)
+    
+    for doc_type in ["frd", "srs"]:
+        md_files = sorted(modules_dir.rglob(f"{doc_type}.md"))
+        if not md_files:
+            continue
+            
+        combined_md = []
+        # Keep track of multiple copies of frontmatter/metadata.
+        # We process them so we only keep the first file's metadata table.
+        # But for MVP, concatenating them works because the parser reads 
+        # the first valid title and sets the rest.
+        for file in md_files:
+            module_name = file.parent.name
+            combined_md.append(f"## Module: {module_name.title().replace('-', ' ')}\n")
+            combined_md.append(file.read_text(encoding="utf-8"))
+            
+        temp_md_path = compiled_dir / f"compiled-{doc_type}.md"
+        temp_md_path.write_text("\n<br>\n".join(combined_md), encoding="utf-8")
+        
+        out = convert(temp_md_path, base_dir=base_dir, editor_enabled=editor_enabled)
+        temp_md_path.unlink()  # Cleanup the temporary concatenated markdown file
+        print(f"Generated aggregate: {out}")
+
 def main():
     parser = argparse.ArgumentParser(description="Convert BA markdown to HTML with Mermaid diagrams and embedded images")
-    parser.add_argument("input", help="Path to markdown file (FRD, SRS, or any BA document)")
+    parser.add_argument("input", help="Path to markdown file or 03_modules directory (for aggregate)")
     parser.add_argument(
         "--base-dir",
         help="Project root used to resolve relative image references",
@@ -1163,19 +1190,29 @@ def main():
         action="store_true",
         help="Generate read-only HTML without the in-browser editing toolbar",
     )
+    parser.add_argument(
+        "--aggregate",
+        action="store_true",
+        help="Crawl a directory and compile matching module deliverables into a unified html file under 04_compiled",
+    )
     args = parser.parse_args()
 
-    md_path = Path(args.input)
-    if not md_path.exists():
-        print(f"Error: {md_path} not found", file=sys.stderr)
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"Error: {input_path} not found", file=sys.stderr)
         sys.exit(1)
 
-    out = convert(
-        md_path,
-        base_dir=Path(args.base_dir).resolve() if args.base_dir else None,
-        editor_enabled=not args.no_editor,
-    )
-    print(f"Generated: {out}")
+    base = Path(args.base_dir).resolve() if args.base_dir else None
+
+    if args.aggregate:
+        aggregate_modules(input_path, base_dir=base, editor_enabled=not args.no_editor)
+    else:
+        out = convert(
+            input_path,
+            base_dir=base,
+            editor_enabled=not args.no_editor,
+        )
+        print(f"Generated: {out}")
 
 
 if __name__ == "__main__":

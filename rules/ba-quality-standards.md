@@ -49,6 +49,13 @@ Related rules:
 - Wireframe styling, density, and component treatment must remain consistent with the approved `designs/{slug}/DESIGN.md`.
 - When inconsistency is found, the upstream artifact (user story > use case > screen > wireframe) is the source of truth.
 
+## Cross-Module Consistency (Teamwork Rules)
+- **Information Architecture (IA) & UX Baseline Conflict:** Để ngăn chặn xung đột logical khi nhiều BA làm wireframe ở các module khác nhau, danh sách Portals, Global Navigation (Menu) và phong cách UX định hướng bắt buộc phải được "khoá" (locked) ở bước chạy cấp hệ thống (System-Level) bên trong `02_backbone/feature-map.md` và file `designs/{slug}/DESIGN.md` tập trung.
+- Mọi nhánh thư mục feature (ví dụ `03_modules/payment`) KHÔNG ĐƯỢC tự ý định nghĩa thêm Global Menu hay thay đổi phong cách UX. Mọi yêu cầu thay đổi UX/Menu phải được PR ngược về file `02_backbone` hoặc `DESIGN.md` để cả team review.
+- When working on a module feature branch (e.g., `03_modules/auth`), do not redefine global actors, feature maps, or system-level rules. Reference them strictly from `02_backbone`.
+- `Rule Codes` (`CR-***`) and `Message Codes` (`MSG-***`) must be unique across all modules. If redefining a shared rule, escalate to the `02_backbone` or manage naming boundaries carefully to avoid collisions when modules are compiled together.
+- Pull Requests should be checked for overlap or contradiction with other active modules, especially around Shared Screens or Integrations.
+
 ## Quality Checks
 - SMART: specific, measurable, achievable, relevant, time-bound.
 - INVEST for user stories where applicable.

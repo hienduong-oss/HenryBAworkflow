@@ -14,6 +14,42 @@ Hệ thống được thiết kế hoàn hảo để chạy nguyên bản (nativ
 
 ---
 
+## Cơ Chế Làm Việc Nhóm (Teamwork & Modular Architecture)
+
+Nền tảng BA-kit hoàn toàn hỗ trợ **Làm việc nhóm bằng Git** để giải quyết bài toán Framework bị chồng chéo khi có nhiều BA/Agent cùng phân tích một dự án. Hệ thống quản lý tài liệu được chia thành hai cấp độ (Tiers): **System-Level** và **Module-Level**.
+
+### 1. Phân chia thư mục
+
+Toàn bộ báo cáo không ghi chung bừa bãi vào một chỗ nữa, mà tuân thủ định dạng module:
+```text
+plans/
+  {slug}-{date}/
+    01_intake/      (System-Level: Dùng chung)
+    02_backbone/    (System-Level: Dùng chung)
+    03_modules/     (Module-Level: Sandbox của từng BA)
+      auth-flow/    (FRD, SRS tự do của BA 1)
+      payment-gw/   (FRD, SRS tự do của BA 2)
+    04_compiled/    (HTML Assembly chung)
+```
+
+### 2. Quy Tắc Giao Việc Bằng Git (Branching)
+
+* Bắt đầu một Dự án, Lead BA hoặc AI sẽ chạy các bước tạo System-Level trước: `/ba-start intake` và `/ba-start backbone` thẳng trên nhánh `main`.
+* Các BA (hoặc Agents) khác khi bắt đầu làm tính năng nào thì tạo nhánh Git mới `feature/{module_slug}`.
+* Trái tim của cơ chế là tham số **`--module`**. Mọi lệnh thực thi phân tích chi tiết đều phải trỏ vào phân hệ:
+  ```bash
+  /ba-start srs --slug my-app --module auth-flow
+  /ba-start wireframes --slug my-app --module auth-flow
+  ```
+
+### 3. Quy Tắc Khoá Logic (System-Lock Rule)
+
+**Điều Tối Kỵ:** Khi làm việc chia nhánh, các Module phân hệ tuyệt đối **KHÔNG ĐƯỢC** tự ý sinh ra các Menu Navigation Cấp Toàn Cục (Global), đẻ thêm Portal Actor, hay tự vẽ ra Guideline UX mới (Light mode/Dark mode).
+* Toàn bộ Danh sách Portals, Master Navigation, và định hướng UX/UI Framework bắt buộc phải được quy hoạch ngay từ cấp độ `02_backbone` và file `designs/{slug}/DESIGN.md` trước khi các nhánh module được phép Generate Wireframe.
+* Mọi nhu cầu sinh thêm UX dùng chung đều phải Pull Request ngược về file Hệ thống để cả Team cùng Review. Hệ thống BA-kit sẽ coi `02_backbone` là nguồn duy nhất (Source of truth) khi quét kiểm tra xung đột (Cross-check Audit).
+
+---
+
 ## Hướng Dẫn Cài Đặt Chi Tiết Cho 3 Môi Trường
 
 BA-kit hoạt động tốt nhất khi được gắn đúng cách vào nền tảng bạn sử dụng. Lưu ý, có 2 kiểu sử dụng chung:

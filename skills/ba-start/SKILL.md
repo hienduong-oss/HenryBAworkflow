@@ -85,7 +85,7 @@ Read this section first. Only continue to the detailed step sections when you ne
 Parse `ARGUMENTS` before doing any work.
 
 1. Read tokens left to right.
-2. Extract `--slug <slug>` and `--mode <lite|hybrid|formal>` if present.
+2. Extract `--slug <slug>`, `--module <module_slug>`, and `--mode <lite|hybrid|formal>` if present.
 3. The first remaining token that matches one of these values is the subcommand:
    - `intake`
    - `impact`
@@ -148,7 +148,7 @@ Do not mutate artifacts directly from a bare requirement or correction statement
 Subcommands that operate on an existing project must resolve the target project slug in this order:
 
 1. Use the explicit `--slug <slug>` value when provided.
-2. Otherwise inspect `plans/reports/final/` and `plans/reports/drafts/` for exact BA-kit artifact patterns and collect unique candidate slugs.
+2. Otherwise inspect `plans/` for `plans/{slug}-{date}` modular artifact pattern folders and collect unique candidate slugs.
 3. If exactly one candidate slug exists, use it.
 4. If multiple candidate slugs exist, print the candidate list, ask the user to choose a slug or rerun with `--slug`, and stop.
 
@@ -158,18 +158,10 @@ For mutating subcommands (`backbone`, `frd`, `stories`, `srs`, `wireframes`, `pa
 
 After resolving the slug, resolve the target dated artifact set.
 
-1. Inspect exact filenames for the selected slug:
-   - `plans/reports/final/intake-{slug}-{date}.md`
-   - `plans/reports/final/backbone-{date}-{slug}.md`
-   - `plans/reports/final/frd-{date}-{slug}.md`
-   - `plans/reports/final/user-stories-{date}-{slug}.md`
-   - `plans/reports/final/srs-{date}-{slug}.md`
-   - `plans/reports/drafts/srs-{date}-{slug}-group-c.md`
-   - `plans/reports/drafts/wireframe-input-{date}-{slug}.md`
-   - `plans/reports/drafts/wireframe-map-{date}-{slug}.md`
-   - `plans/reports/drafts/wireframe-state-{date}-{slug}.md`
-   - `plans/{date}-{slug}/plan.md`
-2. Build candidate `{date}` sets from exact filename matches only.
+1. Inspect folder names for the selected slug:
+   - `plans/{slug}-{date}/`
+   - Verify content via `01_intake/intake.md` or `02_backbone/backbone.md`.
+2. Build candidate `{date}` sets from exact folder matches only.
 3. If exactly one dated set exists for the slug, use it.
 4. If multiple dated sets exist for that slug and the command is `impact`, `backbone`, `frd`, `stories`, `srs`, `wireframes`, `package`, or `status`, print the available dates, ask the user to choose the target dated set, and stop until the user chooses.
 5. Never silently select the latest dated set by mtime.
@@ -182,28 +174,25 @@ Use exact filename patterns, not broad `*-{slug}*` matching. Print the specific 
 
 Before mutating `backbone`, `frd`, `stories`, `srs`, `wireframes`, `package`, or `status`:
 
-1. Check whether `plans/reports/`, `plans/reports/final/`, or `plans/reports/drafts/` contains legacy BA-kit report names such as:
-   - `plans/reports/002-intake-form.md`
-   - `plans/reports/002-gap-analysis.md`
-   - `plans/reports/002-*.md`
-2. If legacy reports are present but the current exact-pattern artifacts for the selected slug/date are missing, stop and report:
-   - that a legacy artifact suite was detected
-   - that the current playbook will not infer slug/date or prerequisite state from legacy filenames
-   - the exact next action: rerun `intake`, migrate the old reports manually, or point the agent at the current-contract artifacts
-3. Do not mix legacy-named reports with the current exact-pattern lifecycle in one silent pass.
+1. Check whether `plans/reports/`, `plans/reports/final/`, or `plans/reports/drafts/` exists (the old generic monolithic paths).
+2. If legacy reports are present but the current Modular Tree directories (`plans/{slug}-{date}/...`) are missing, stop and report:
+   - that a legacy monolithic artifact suite was detected
+   - that the current modular playbook will not infer slug/date or prerequisite state from legacy single-file architectures
+   - the exact next action: rerun `intake`, migrate the old reports manually to `01_intake` and `02_backbone`
+3. Do not mix legacy-named monolithic reports with the current exact-pattern Modular lifecycle.
 
 ### Prerequisite reference
 
 | Command | Requires | Produces |
 | --- | --- | --- |
-| `intake` | Raw input (file or pasted text) | `plans/reports/final/intake-{slug}-{date}.md`, `plans/{date}-{slug}/plan.md` |
-| `impact` | resolved slug/date, change input, `plans/reports/final/intake-{slug}-{date}.md` | impact summary + exact next commands only |
-| `backbone` | `plans/reports/final/intake-{slug}-{date}.md` | `plans/reports/final/backbone-{date}-{slug}.md` |
-| `frd` | `plans/reports/final/backbone-{date}-{slug}.md` | `plans/reports/final/frd-{date}-{slug}.md`, `plans/reports/final/frd-{date}-{slug}.html` |
-| `stories` | `plans/reports/final/backbone-{date}-{slug}.md` | `plans/reports/final/user-stories-{date}-{slug}.md` |
-| `srs` | `plans/reports/final/backbone-{date}-{slug}.md`, `plans/reports/final/user-stories-{date}-{slug}.md` | `plans/reports/final/srs-{date}-{slug}.md`, `plans/reports/drafts/wireframe-input-{date}-{slug}.md`, and any supporting `plans/reports/drafts/srs-{date}-{slug}-group-*.md` files |
-| `wireframes` | `plans/reports/drafts/wireframe-input-{date}-{slug}.md` or exact fallback sources for pack generation | `designs/{slug}/DESIGN.md`, `designs/{slug}/*.pen`, `designs/{slug}/exports/**`, `plans/reports/drafts/wireframe-map-{date}-{slug}.md`, `plans/reports/drafts/wireframe-state-{date}-{slug}.md` |
-| `package` | emitted downstream artifacts for the selected mode; wireframes may be completed, skipped, or not-applicable | packaged HTML artifacts, delivery summary |
+| `intake` | Raw input (file or pasted text) | `plans/{slug}-{date}/01_intake/intake.md`, `plans/{slug}-{date}/01_intake/plan.md` |
+| `impact` | resolved slug/date, change input, `01_intake/intake.md` | impact summary + exact next commands only |
+| `backbone` | `plans/{slug}-{date}/01_intake/intake.md` | `plans/{slug}-{date}/02_backbone/backbone.md` |
+| `frd` | `plans/{slug}-{date}/02_backbone/backbone.md` and `--module <module_slug>` if Teamwork is used | `plans/{slug}-{date}/03_modules/{module_slug}/frd.md` |
+| `stories` | `plans/{slug}-{date}/02_backbone/backbone.md` and `--module <module_slug>` | `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md` |
+| `srs` | `backbone.md`, `user-stories.md` and `--module <module_slug>` | `plans/{slug}-{date}/03_modules/{module_slug}/srs.md`, `wireframe-input.md`, and supporting group files |
+| `wireframes` | `03_modules/{module_slug}/wireframe-input.md` | `designs/{slug}/{artifact-name}.pen`, `03_modules/{module_slug}/wireframe-map.md`, `wireframe-state.md` |
+| `package` | emitted downstream artifacts from all available modules | compiled HTML artifacts under `plans/{slug}-{date}/04_compiled/` |
 | `status` | None | Checklist output only |
 
 ### Missing prerequisite behavior
@@ -376,7 +365,7 @@ Read the source material and extract content into the [intake-form-template.md](
 - Constraints, assumptions, compliance needs
 - Open questions identified during parsing
 
-Save the completed intake form to `plans/reports/final/intake-{slug}-{date}.md`.
+Save the completed intake form to `plans/{slug}-{date}/01_intake/intake.md`.
 
 ### Step 3 - Gap analysis
 
@@ -480,19 +469,19 @@ The goal is to decide:
 - Require a change input:
   - a direct file path as the free argument, or
   - pasted change text in the conversation
-- Require `plans/reports/final/intake-{slug}-{date}.md`.
+- Require `plans/{slug}-{date}/01_intake/intake.md`.
 - If the intake artifact is missing, print the exact missing path, tell the user to run `/ba-start intake`, and stop.
 - Read the backbone when it exists:
-  - `plans/reports/final/backbone-{date}-{slug}.md`
-- Read downstream artifacts only when they exist and only when they are relevant to the suspected impact:
-  - `plans/reports/final/frd-{date}-{slug}.md`
-  - `plans/reports/final/user-stories-{date}-{slug}.md`
-  - `plans/reports/final/srs-{date}-{slug}.md`
-  - `plans/reports/drafts/wireframe-input-{date}-{slug}.md`
-  - `plans/reports/drafts/wireframe-map-{date}-{slug}.md`
-  - `plans/reports/drafts/wireframe-state-{date}-{slug}.md`
-  - `plans/{date}-{slug}/plan.md` when it exists and adds gate context
-- Do not scan unrelated report files once slug/date is resolved.
+  - `plans/{slug}-{date}/02_backbone/backbone.md`
+- Read downstream artifacts (inside `03_modules/{module_slug}`) only when they exist and only when they are relevant to the suspected impact:
+  - `plans/{slug}-{date}/03_modules/{module_slug}/frd.md`
+  - `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md`
+  - `plans/{slug}-{date}/03_modules/{module_slug}/srs.md`
+  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md`
+  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md`
+  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md`
+  - `plans/{slug}-{date}/01_intake/plan.md` when it exists and adds gate context
+- Do not scan unrelated module folders once slug/date/module is resolved.
 - If only legacy-named report suites exist for the apparent project, stop with the legacy artifact detection message instead of inferring from them.
 
 ### Output
@@ -585,15 +574,15 @@ Run Step 5 only.
 ### Prerequisites
 
 - Resolve the slug and dated set using the shared rules.
-- Require `plans/reports/final/intake-{slug}-{date}.md`.
+- Require `plans/{slug}-{date}/01_intake/intake.md`.
 - If the intake artifact is missing, print the exact missing path, tell the user to run `/ba-start intake`, and stop.
 - Run a narrow backbone preflight before reading content:
-  - read only `plans/reports/final/intake-{slug}-{date}.md` and `plans/{date}-{slug}/plan.md` when it exists
-  - do not scan unrelated files in `plans/reports/final/` once the target slug/date is resolved
+  - read only `plans/{slug}-{date}/01_intake/intake.md` and `plans/{slug}-{date}/01_intake/plan.md` when it exists
+  - do not scan other folders once the target slug/date is resolved
 
 ### Output
 
-- `plans/reports/final/backbone-{date}-{slug}.md`
+- `plans/{slug}-{date}/02_backbone/backbone.md`
 
 ### Step 5 - Build the requirements backbone
 
@@ -624,18 +613,17 @@ Run Step 6 only.
 ### Prerequisites
 
 - Resolve the slug and dated set using the shared rules.
-- Require `plans/reports/final/backbone-{date}-{slug}.md`.
+- Require `plans/{slug}-{date}/02_backbone/backbone.md`.
 - If the backbone artifact is missing, print the exact missing path, tell the user to run `/ba-start backbone --slug {slug}`, and stop.
 - Trust the user intent. Do not re-check whether the work plan selected FRD.
 - Run a narrow FRD preflight before reading content:
-  - read only `plans/reports/final/backbone-{date}-{slug}.md` and `plans/{date}-{slug}/plan.md` when it exists
-  - do not scan unrelated files in `plans/reports/final/` once the target slug/date is resolved
+  - read only `plans/{slug}-{date}/02_backbone/backbone.md` and `plans/{slug}-{date}/01_intake/plan.md` when it exists
+  - do not scan unrelated module folders once the target slug/date/module is resolved
   - if only legacy-named report suites exist for the apparent project, stop with the legacy artifact detection message instead of inferring from them
 
 ### Output
 
-- `plans/reports/final/frd-{date}-{slug}.md`
-- `plans/reports/final/frd-{date}-{slug}.html`
+- `plans/{slug}-{date}/03_modules/{module_slug}/frd.md`
 
 ### Step 6 - Produce FRD
 
@@ -658,15 +646,7 @@ Produce the FRD from the backbone using [frd-template.md](../../templates/frd-te
 - Integration points
 - Acceptance criteria
 
-Save to `plans/reports/final/frd-{date}-{slug}.md`.
-
-Export FRD to HTML for rendered Mermaid workflows:
-
-```bash
-python scripts/md-to-html.py plans/reports/final/frd-{date}-{slug}.md
-```
-
-Output: `plans/reports/final/frd-{date}-{slug}.html`
+Save to `plans/{slug}-{date}/03_modules/{module_slug}/frd.md`.
 
 ## Subcommand: stories
 
@@ -675,18 +655,18 @@ Run Step 7 only.
 ### Prerequisites
 
 - Resolve the slug and dated set using the shared rules.
-- Require `plans/reports/final/backbone-{date}-{slug}.md`.
+- Require `plans/{slug}-{date}/02_backbone/backbone.md`.
 - If the backbone artifact is missing, print the exact missing path, tell the user to run `/ba-start backbone --slug {slug}`, and stop.
 - Run a narrow stories preflight before reading content:
-  - read only `plans/reports/final/backbone-{date}-{slug}.md`
-  - read `plans/{date}-{slug}/plan.md` only when it exists and only if it adds needed scope context
-  - read `plans/reports/final/frd-{date}-{slug}.md` only when it already exists and adds needed vocabulary or workflow structure
-  - do not scan unrelated files in `plans/reports/final/` once the target slug/date is resolved
+  - read only `plans/{slug}-{date}/02_backbone/backbone.md`
+  - read `plans/{slug}-{date}/01_intake/plan.md` only when it exists and only if it adds needed scope context
+  - read `plans/{slug}-{date}/03_modules/{module_slug}/frd.md` only when it already exists and adds needed vocabulary or workflow structure
+  - do not scan other module folders once the target slug/date/module is resolved
   - if only legacy-named report suites exist for the apparent project, stop with the legacy artifact detection message instead of inferring from them
 
 ### Output
 
-- `plans/reports/final/user-stories-{date}-{slug}.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md`
 
 ### Step 7 - Produce user stories
 
@@ -706,7 +686,7 @@ Generate Agile user stories from the backbone feature map and FR draft using [us
 
 User stories with their acceptance criteria become the primary input for SRS, wireframes, and downstream artifacts. Every SRS functional requirement, use case, and screen description should trace back to one or more user stories.
 
-Save to `plans/reports/final/user-stories-{date}-{slug}.md`.
+Save to `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md`.
 
 Do not package user stories to HTML by default. Keep them as markdown unless the user explicitly asks for an ad hoc conversion.
 
@@ -718,24 +698,24 @@ Run Steps 8-11 only. This path applies mode gates instead of assuming a full-det
 
 - Resolve the slug and dated set using the shared rules.
 - Require:
-  - `plans/reports/final/backbone-{date}-{slug}.md`
-  - `plans/reports/final/user-stories-{date}-{slug}.md`
+  - `plans/{slug}-{date}/02_backbone/backbone.md`
+  - `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md`
 - If a required artifact is missing, print the exact missing path, tell the user which subcommand to run first, and stop.
 - Run an SRS preflight before reading content:
-  - read only the resolved backbone, user stories, optional FRD, and `plans/{date}-{slug}/plan.md` when it exists
-  - do not scan unrelated files in `plans/reports/final/` and `plans/reports/drafts/` once the target slug/date is resolved
+  - read only the resolved backbone, user stories, optional FRD from the module, and `plans/{slug}-{date}/01_intake/plan.md` when it exists
+  - do not scan other module folders once the target slug/date/module is resolved
   - if only legacy-named report suites exist for the apparent project, stop with the legacy artifact detection message instead of inferring from them
 
 ### Output
 
-- `plans/reports/drafts/srs-{date}-{slug}-group-a.md`
-- `plans/reports/drafts/srs-{date}-{slug}-group-b.md`
-- `plans/reports/drafts/srs-{date}-{slug}-group-c.md`
-- `plans/reports/drafts/srs-{date}-{slug}-group-d.md`
-- `plans/reports/drafts/srs-{date}-{slug}-group-e.md`
-- `plans/reports/drafts/srs-{date}-{slug}-group-f.md`
-- `plans/reports/final/srs-{date}-{slug}.md`
-- `plans/reports/drafts/wireframe-input-{date}-{slug}.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-a.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-b.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-c.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-d.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-e.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-f.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md`
 - Any wireframe artifacts and the wireframe-state marker produced during Step 9
 
 ### Step 8 - Produce SRS core, use cases, and Screen Contract Lite
@@ -803,9 +783,9 @@ Delegation packet template:
 
 - Owner: [requirements-engineer | ui-ux-designer | ba-documentation-manager | ba-researcher]
 - Objective: [single concrete goal]
-- Target Artifact: [exact path]
+- Target Artifact: [exact module path]
 - Allowed Write Scope: [exact section(s) or file(s)]
-- Delegation Status Path: [plans/{date}-{slug}/delegation/{owner}-{slice}.md]
+- Delegation Status Path: `plans/{slug}-{date}/delegation/{owner}-{slice}.md`
 - Heartbeat Cadence: [default: every major milestone and at least every 5 minutes]
 - Stall Threshold Minutes: [default: 10]
 - Trace IDs:
@@ -848,7 +828,7 @@ Sections:
 - Overall Description
 - Functional Requirements table
 
-Output: `plans/reports/drafts/srs-{date}-{slug}-group-a.md`
+Output: `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-a.md`
 
 #### Group B - Behavioral
 
@@ -856,7 +836,7 @@ Sections:
 
 - Use Case Specifications
 
-Output: `plans/reports/drafts/srs-{date}-{slug}-group-b.md`
+Output: `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-b.md`
 
 Consistency rules:
 
@@ -870,7 +850,7 @@ Sections:
 - Screen Contract Lite
 - Screen Inventory
 
-Output: `plans/reports/drafts/srs-{date}-{slug}-group-c.md`
+Output: `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-c.md`
 
 Consistency rules:
 
@@ -884,11 +864,11 @@ After Group B and Group C are complete, assemble a persisted wireframe input art
 
 Source inputs:
 
-- `plans/reports/drafts/srs-{date}-{slug}-group-b.md`
-- `plans/reports/drafts/srs-{date}-{slug}-group-c.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-b.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/srs-group-c.md`
 - relevant FRD and user-story excerpts needed for traceability
 
-Save to `plans/reports/drafts/wireframe-input-{date}-{slug}.md`.
+Save to `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md`.
 
 The wireframe input pack must contain:
 
@@ -1200,19 +1180,16 @@ Run a final packaging and quality pass:
 
 ### Step 12.1 - Generate packaged HTML for the emitted engagement
 
-When the engagement includes a merged SRS, convert it to HTML with wireframe images embedded inline:
-
-Convert the merged SRS markdown to HTML with wireframe images embedded inline:
+When the engagement includes multiple modules with FRD/SRS, aggregate and convert them to HTML with wireframe images embedded inline:
 
 ```bash
-python scripts/md-to-html.py plans/reports/final/frd-{date}-{slug}.md
-python scripts/md-to-html.py plans/reports/final/srs-{date}-{slug}.md
+python scripts/md-to-html.py plans/{slug}-{date}/03_modules/ --aggregate
 ```
 
 Output:
 
-- `plans/reports/final/frd-{date}-{slug}.html` when FRD exists
-- `plans/reports/final/srs-{date}-{slug}.html` when SRS exists
+- `plans/{slug}-{date}/04_compiled/compiled-frd.html`
+- `plans/{slug}-{date}/04_compiled/compiled-srs.html`
 
 When the engagement does not include an SRS, package only the artifacts that were actually emitted and requested for stakeholder handoff.
 
@@ -1227,44 +1204,39 @@ The final HTML should present:
 
 ```text
 plans/
-  reports/
-    final/
-      intake-{slug}-{date}.md
-      backbone-{date}-{slug}.md
-      frd-{date}-{slug}.md
-      frd-{date}-{slug}.html
-      user-stories-{date}-{slug}.md
-      srs-{date}-{slug}.md
-      srs-{date}-{slug}.html
-    drafts/
-      srs-{date}-{slug}-group-a.md
-      srs-{date}-{slug}-group-b.md
-      srs-{date}-{slug}-group-c.md
-      srs-{date}-{slug}-group-d.md
-      srs-{date}-{slug}-group-e.md
-      srs-{date}-{slug}-group-f.md
-      wireframe-input-{date}-{slug}.md
-      wireframe-map-{date}-{slug}.md
-      wireframe-state-{date}-{slug}.md
-  {date}-{slug}/
-    plan.md
+  {slug}-{date}/
+    01_intake/
+      intake.md
+      plan.md
+    02_backbone/
+      backbone.md
+    03_modules/
+      auth-flow/
+        frd.md
+        user-stories.md
+        srs.md
+        srs-group-a.md
+        wireframe-input.md
+        wireframe-map.md
+        wireframe-state.md
+      checkout/
+        srs.md
+        srs-group-a.md
+    04_compiled/
+      compiled-frd.html
+      compiled-srs.html
     delegation/
-      requirements-engineer-group-a.md
-      ui-ux-designer-auth-flow.md
+      requirements-engineer-auth-flow.md
 designs/
   {slug}/
     DESIGN.md
     auth-flow.pen
-    checkout.pen
     exports/
       auth-flow/
         SCR-01-login.png
-        SCR-02-otp.png
-      checkout/
-        SCR-05-review-order.png
 ```
 
-The HTML files are produced only for FRD and SRS. All other BA artifacts remain markdown sources. Draft SRS slices and wireframe runtime files stay under `plans/reports/drafts/`, separate from final deliverables.
+The HTML files are produced only for FRD and SRS inside `04_compiled`. All other BA artifacts remain markdown sources scoped to their specific module inside `03_modules/`. System-level agreements remain locked in `01_intake` and `02_backbone`.
 
 ## Subcommand: status
 
@@ -1282,23 +1254,30 @@ Print a checklist like this:
 ```text
 Project: {slug}
 Date set: {date}
+Module: auth-flow
 
-- [x] final/intake-{slug}-{date}.md — 2026-03-26
-- [x] plans/{date}-{slug}/plan.md — 2026-03-26
-- [x] final/backbone-{date}-{slug}.md — 2026-03-26
-- [x] final/frd-{date}-{slug}.md — 2026-03-26
-- [x] final/frd-{date}-{slug}.html — 2026-03-26
-- [ ] final/user-stories-{date}-{slug}.md — missing
-- [ ] final/srs-{date}-{slug}.md — missing
-- [ ] drafts/wireframe-input-{date}-{slug}.md — missing
-- [ ] drafts/wireframe-map-{date}-{slug}.md — missing
+[System Paths]
+- [x] 01_intake/intake.md — 2026-03-26
+- [x] 01_intake/plan.md — 2026-03-26
+- [x] 02_backbone/backbone.md — 2026-03-26
+
+[Module: auth-flow]
+- [x] 03_modules/auth-flow/frd.md — 2026-03-26
+- [x] 03_modules/auth-flow/user-stories.md — 2026-03-26
+- [ ] 03_modules/auth-flow/srs.md — missing
+- [ ] 03_modules/auth-flow/wireframe-input.md — missing
+
+[Compiled]
+- [x] 04_compiled/compiled-frd.html — 2026-03-26
+- [x] 04_compiled/compiled-srs.html — 2026-03-26
+
+[Designs]
 - [ ] designs/{slug}/DESIGN.md — missing
 - [!] wireframes — skipped — 2026-03-26
 
 Delegated slices:
 
-- [~] requirements-engineer-group-b — running — last heartbeat 2026-03-26 15:42
-- [!] ui-ux-designer-auth-flow — likely stalled — last heartbeat 2026-03-26 15:31 (>10m threshold)
+- [~] auth-flow/requirements-engineer-group-b — running — last heartbeat 15:42
 ```
 
 Status rules:

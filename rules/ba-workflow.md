@@ -38,6 +38,7 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 - Merge outputs through the documentation manager or orchestrator.
 - Escalate unresolved ambiguity before finalizing downstream work.
 - Default to inline solo execution unless delegation materially reduces cycle time or improves quality.
+- For Teamwork/Git-based branching: do not execute module-level tasks (`frd`, `srs`, `stories`, `wireframes`) outside of your explicitly assigned module feature branch. Do not scan or alter other modules unless assembling the compiled document.
 
 ## Delegation Hardening
 
@@ -57,26 +58,29 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 ## Documentation Rules
 
 - Use templates from `templates/` whenever a matching template exists.
-- Keep document titles, headings, and filenames aligned.
-- Use descriptive kebab-case filenames.
-- Final deliverables go in `plans/reports/final/`. Draft and intermediate artifacts go in `plans/reports/drafts/`. Work plans go in `plans/{date}-{slug}/`.
-- Delegation trackers for active sub-agent slices belong in `plans/{date}-{slug}/delegation/`.
+- Document titles, headings, and filenames MUST align with the new Modular Architecture (System-level vs Module-level separation).
+- Use descriptive kebab-case filenames for module slugs.
+- System-level artifacts (Intake/Backbone) go in `plans/{slug}-{date}/01_intake/` and `plans/{slug}-{date}/02_backbone/`.
+- Module-level (Feature) artifacts go in `plans/{slug}-{date}/03_modules/{module_slug}/`.
+- Compiled, auto-merged artifacts go in `plans/{slug}-{date}/04_compiled/`.
+- Delegation trackers for active sub-agent slices belong in `plans/{slug}-{date}/delegation/`.
 - Preserve traceability links between source, analysis, and final outputs.
 - Broken links and stale references must be corrected before handoff.
-- For UI-backed SRS work, persist a project-specific runtime `designs/{slug}/DESIGN.md` before Step 9 wireframe generation, a `wireframe-input-{date}-{slug}.md` artifact under `plans/reports/drafts/` before Step 9, and a `wireframe-map-{date}-{slug}.md` artifact under `plans/reports/drafts/` after successful wireframe generation.
-- Persist the backbone as `plans/reports/final/backbone-{date}-{slug}.md`. This is the default authoring source for downstream artifact emission.
-- Do not infer current-playbook state from legacy report filenames such as `002-intake-form.md`; legacy suites must be migrated or rerun explicitly before they enter the current exact-pattern lifecycle.
+- For UI-backed SRS work, persist a project-specific runtime `designs/{slug}/DESIGN.md` before Step 9 wireframe generation.
+- The `wireframe-input.md` and `wireframe-map.md` artifacts belong inside the specific module folder: `plans/{slug}-{date}/03_modules/{module_slug}/`.
+- Persist the backbone as `plans/{slug}-{date}/02_backbone/backbone.md`. This is the default authoring source for downstream artifact emission.
+- *Breaking Change:* Legacy report filenames (e.g., `plans/reports/final/*` or `002-intake-form.md`) are completely unsupported in the modular architecture. They must be migrated manually.
 
 ## Naming Convention
 
-- `{date}` uses `YYMMDD-HHmm` format matching `ba-kit.config.json` convention.
-- Use the same `{date}` token for the report artifacts and the corresponding `plans/{date}-{slug}/plan.md` directory so a dated artifact set resolves unambiguously.
-- Intake: `plans/reports/final/intake-{slug}-{date}.md`
-- Backbone: `plans/reports/final/backbone-{date}-{slug}.md`
-- FRD: `plans/reports/final/frd-{date}-{slug}.md` plus `plans/reports/final/frd-{date}-{slug}.html`
-- SRS: `plans/reports/final/srs-{date}-{slug}.md` plus `plans/reports/final/srs-{date}-{slug}.html`
-- User stories: `plans/reports/final/user-stories-{date}-{slug}.md`
-- SRS draft groups and wireframe runtime artifacts: `plans/reports/drafts/`
+- **Root Folder:** `plans/{slug}-{date}/` (Replacing the old `{date}` token logic to maintain a single unified project root)
+- **Intake:** `plans/{slug}-{date}/01_intake/intake.md`
+- **Backbone:** `plans/{slug}-{date}/02_backbone/backbone.md`
+- **Module Folders:** `plans/{slug}-{date}/03_modules/{module_slug}/`
+- **FRD (Module):** `.../03_modules/{module_slug}/frd.md`
+- **SRS (Module):** `.../03_modules/{module_slug}/srs.md`
+- **User stories (Module):** `.../03_modules/{module_slug}/user-stories.md`
+- **Compiled Outputs:** `plans/{slug}-{date}/04_compiled/compiled-frd.html` and `compiled-srs.html`
 - Wireframes: `designs/{slug}/{artifact-name}.pen` plus frame-level screen mapping in the SRS
 - Project runtime design system document: `designs/{slug}/DESIGN.md`
 - Supporting wireframe frames: use the parent screen ID prefix plus a stable suffix such as `SCR-01-EMPTY`, `SCR-01-ERROR`, or `SCR-01-TOAST-SUCCESS`
