@@ -1082,16 +1082,16 @@ def default_base_dir(md_path: Path) -> Path:
     return md_path.parent.parent.parent
 
 
-def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: bool = True) -> Path:
+def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: bool = False) -> Path:
     """Convert any BA markdown to HTML with embedded images and Mermaid support."""
     if base_dir is None:
         base_dir = default_base_dir(md_path)
     md = md_path.read_text(encoding="utf-8")
 
     # Convert wireframe file references to embedded images
-    # Pattern: `designs/.../*.png`
+    # Pattern: `path/to/image.png`
     md = re.sub(
-        r"`(designs/[^`]+\.png)`",
+        r"`([^`]+\.png)`",
         r"![\1](\1)",
         md,
     )
@@ -1151,7 +1151,7 @@ def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: b
     return out_path
 
 
-def aggregate_modules(modules_dir: Path, base_dir: Optional[Path], editor_enabled: bool):
+def aggregate_modules(modules_dir: Path, base_dir: Optional[Path], editor_enabled: bool = False):
     """Aggregate FRD and SRS modules into unified HTML files."""
     compiled_dir = modules_dir.parent / "04_compiled"
     compiled_dir.mkdir(parents=True, exist_ok=True)
@@ -1186,9 +1186,9 @@ def main():
         help="Project root used to resolve relative image references",
     )
     parser.add_argument(
-        "--no-editor",
+        "--with-editor",
         action="store_true",
-        help="Generate read-only HTML without the in-browser editing toolbar",
+        help="Generate HTML with the in-browser editing toolbar",
     )
     parser.add_argument(
         "--aggregate",
@@ -1205,12 +1205,12 @@ def main():
     base = Path(args.base_dir).resolve() if args.base_dir else None
 
     if args.aggregate:
-        aggregate_modules(input_path, base_dir=base, editor_enabled=not args.no_editor)
+        aggregate_modules(input_path, base_dir=base, editor_enabled=args.with_editor)
     else:
         out = convert(
             input_path,
             base_dir=base,
-            editor_enabled=not args.no_editor,
+            editor_enabled=args.with_editor,
         )
         print(f"Generated: {out}")
 
