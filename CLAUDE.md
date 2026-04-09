@@ -17,6 +17,7 @@ For non-trivial BA work, start from `skills/ba-start/SKILL.md` instead of improv
 - Default to `hybrid` mode for solo IT BA work.
 - Route requirement changes through `impact` before mutating downstream artifacts unless the edit is clearly wording-only.
 - Keep the accepted rerun step locked once the user explicitly approves it.
+- Use **incremental section-by-section writes** for large artifacts to avoid output token truncation.
 
 ## Artifact Model
 

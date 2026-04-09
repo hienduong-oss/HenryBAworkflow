@@ -21,6 +21,7 @@ Usage:
   ba-kit source-extract <file> [--slug <slug>] [--date <YYMMDD-HHmm>] [--chunk-chars <n>] [--copy-raw] [--promote]
   ba-kit design-snapshot [--slug <slug>] [--design-doc <path>]
   ba-kit stitch-state <init|show|upsert> --slug <slug> [options]
+  ba-kit chunk-write --file <target_file>
   ba-kit status [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
 
 Commands:
@@ -33,6 +34,7 @@ Commands:
   source-extract  Extract a source file into staged cache and optionally promote it into 00_source.
   design-snapshot Generate designs/{slug}/.design-snapshot.md from designs/{slug}/DESIGN.md.
   stitch-state    Manage designs/{slug}/stitch-state.json for Stitch-backed runs.
+  chunk-write     Append incoming STDIN safely to <target_file> for large artifact mitigation.
   status          Inspect BA-kit modular artifacts and delegated worker trackers from the registered source repo.
 EOF
 }
@@ -1374,6 +1376,39 @@ stitch_state_command() {
       ;;
   esac
 }
+chunk_write_command() {
+  local target_file=""
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --file)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --file"
+        target_file="$2"
+        shift 2
+        ;;
+      *)
+        fail "Unknown argument: $1"
+        ;;
+    esac
+  done
+
+  [[ -n "${target_file}" ]] || fail "Missing required argument: --file"
+
+  mkdir -p "$(dirname "${target_file}")"
+
+  # Consume standard input and append to the target file
+  # This helper bypasses typical text editor tooling token limits
+  local buffer=""
+  while IFS= read -r line; do
+    printf "%s\\n" "$line" >> "${target_file}"
+  done
+  # read the last line if it's missing a newline
+  if [[ -n "$line" ]]; then
+    printf "%s" "$line" >> "${target_file}"
+  fi
+
+  printf "Successfully chunk-appended to %s\\n" "${target_file}"
+}
 
 main() {
   local command="${1:-}"
@@ -1407,6 +1442,9 @@ main() {
       ;;
     stitch-state)
       stitch_state_command "$@"
+      ;;
+    chunk-write)
+      chunk_write_command "$@"
       ;;
     status)
       status_command "$@"

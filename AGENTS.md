@@ -26,6 +26,7 @@ For non-trivial BA work, read `skills/ba-start/SKILL.md` first, then the contrac
 - Use Shadcn UI only as the fallback baseline when the approved runtime `DESIGN.md` does not override it.
 - Treat the backbone as the primary authoring source once it exists.
 - Route requirement changes through `impact` first unless the edit is clearly wording-only.
+- Use **incremental section-by-section writes** for large artifacts to avoid output token truncation.
 
 ## Repo Map
 

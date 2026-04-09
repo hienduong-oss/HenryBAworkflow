@@ -34,6 +34,7 @@ If a message could match both `impact` and a direct edit, prefer `impact` unless
 - Treat the backbone as the source of truth after intake.
 - Keep module-scoped artifacts inside `plans/{slug}-{date}/03_modules/{module_slug}/`.
 - Never use built-in image generation for wireframes; persist `.pen` artifacts and runtime `DESIGN.md` instead.
+- Use **incremental section-by-section writes** for large artifacts to avoid output token truncation.
 
 ## Delivery Expectations
 

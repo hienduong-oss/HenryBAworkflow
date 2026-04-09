@@ -42,6 +42,7 @@ Example:
 ## Constraints
 
 - [template, rule, or design-system constraint only if relevant]
+- **Large Artifact Write Protocol**: When generating artifacts exceeding ~150 lines (e.g., FRD, Stories, SRS), you MUST use **incremental writes**. Write the skeleton first, then append groups sequentially. Do NOT assemble and flush the entire artifact into a single Write call.
 
 ## Expected Output
 

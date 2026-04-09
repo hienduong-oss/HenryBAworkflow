@@ -156,3 +156,12 @@ Packet rules:
 - Read only the exact upstream artifacts needed by the active step.
 - Use `templates/manifest.json` or CLI extraction helpers instead of loading full templates when only one group is needed.
 - Reuse summaries and excerpts instead of rereading large raw sources when normalized artifacts already exist.
+
+## Large Artifact Write Protocol
+
+When generating artifacts that exceed ~150 lines (e.g., `backbone`, `frd`, `stories`, `srs`), you MUST use **incremental writes**.
+Writing entire documents in memory and flushing in one call causes `<max_tokens>` truncation and infinite retry loops.
+
+1. **Write the skeleton first**: Create the target file with the template structure (headings, boilerplate, front matter) using a single write.
+2. **Append group content sequentially**: For each logic group (e.g., one Epic, one Use Case), generate the fragment and append it into the correct section of the file. Complete one group before starting the next.
+3. **Never attempt to assemble and flush the full artifact in memory**.
