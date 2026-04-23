@@ -11,5 +11,5 @@
   * [Claude Code](runtimes/claude-code.md)
   * [Codex](runtimes/codex.md)
   * [Antigravity](runtimes/antigravity.md)
-* [Setup](setup/README.md)
-  * [Đồng bộ với GitBook](setup/gitbook-sync.md)
+* [Collaboration](collaboration/README.md)
+  * [Làm việc theo module với GitHub](collaboration/module-delivery-workflow.md)

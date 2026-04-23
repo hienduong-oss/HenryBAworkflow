@@ -59,3 +59,4 @@ BA-kit bổ sung đúng lớp đó bằng workflow, template, rule và agent bou
 - [Tổng quan sản phẩm](foundations/product-overview.md)
 - [Bắt đầu nhanh](getting-started.md)
 - [Cách BA-kit hoạt động](foundations/how-it-works.md)
+- [Làm việc theo module với GitHub](collaboration/module-delivery-workflow.md)
