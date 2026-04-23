@@ -22,7 +22,14 @@
       "failed"
     ],
     "heartbeat_minutes": 5,
-    "stall_after_minutes": 10
+    "stall_after_minutes": 10,
+    "presale": [
+      "bootstrap",
+      "domain-study",
+      "clarify",
+      "build",
+      "handed-off"
+    ]
   },
   "paths": {
     "project_root": "plans/{slug}-{date}",
@@ -47,7 +54,26 @@
     "wireframe_state": "plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md",
     "compiled_frd": "plans/{slug}-{date}/04_compiled/compiled-frd.html",
     "compiled_srs": "plans/{slug}-{date}/04_compiled/compiled-srs.html",
-    "design_doc": "designs/{slug}/DESIGN.md"
+    "design_doc": "designs/{slug}/DESIGN.md",
+    "presale_root": "plans/{slug}-{date}/00_presale",
+    "presale_inputs_root": "plans/{slug}-{date}/00_presale/00-inputs",
+    "presale_inputs_requirements": "plans/{slug}-{date}/00_presale/00-inputs/requirements",
+    "presale_inputs_discussions": "plans/{slug}-{date}/00_presale/00-inputs/discussions",
+    "presale_inputs_technical": "plans/{slug}-{date}/00_presale/00-inputs/technical",
+    "presale_inputs_references": "plans/{slug}-{date}/00_presale/00-inputs/references",
+    "presale_domain_primer": "plans/{slug}-{date}/00_presale/00-domain-primer.md",
+    "presale_clarifications": "plans/{slug}-{date}/00_presale/05-clarifications.md",
+    "presale_wbs_md": "plans/{slug}-{date}/00_presale/10-wbs-content.md",
+    "presale_wbs_csv": "plans/{slug}-{date}/00_presale/10-wbs-content.csv",
+    "presale_proposal_md": "plans/{slug}-{date}/00_presale/20-proposal-content.md",
+    "presale_output_root": "plans/{slug}-{date}/00_presale/_output",
+    "presale_wbs_xlsx": "plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx",
+    "presale_proposal_docx": "plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx",
+    "presale_state_cards": "plans/{slug}-{date}/00_presale/_state-cards",
+    "presale_changelog": "plans/{slug}-{date}/00_presale/_changelog",
+    "handoff_intake_sources": "plans/{slug}-{date}/01_intake/_sources",
+    "handoff_manifest": "plans/{slug}-{date}/01_intake/handoff-manifest.md",
+    "style_spec": "templates/output-style-spec.json"
   },
   "patterns": {
     "date_token": "^\\d{6}-\\d{4}$",
@@ -175,6 +201,58 @@
       "mutable": false,
       "requires": [],
       "outputs": []
+    },
+    "presale": {
+      "module_required": false,
+      "mutable": true,
+      "requires": [],
+      "outputs": [
+        "presale_domain_primer"
+      ],
+      "phase": "bootstrap"
+    },
+    "presale_clarify": {
+      "module_required": false,
+      "mutable": true,
+      "requires": [
+        "presale_domain_primer"
+      ],
+      "outputs": [
+        "presale_clarifications"
+      ]
+    },
+    "presale_build": {
+      "module_required": false,
+      "mutable": true,
+      "requires": [
+        "presale_domain_primer",
+        "presale_clarifications"
+      ],
+      "outputs": [
+        "presale_wbs_md",
+        "presale_wbs_csv",
+        "presale_proposal_md",
+        "presale_wbs_xlsx",
+        "presale_proposal_docx"
+      ]
+    },
+    "presale_status": {
+      "module_required": false,
+      "mutable": false,
+      "requires": [],
+      "outputs": []
+    },
+    "presale_handoff": {
+      "module_required": false,
+      "mutable": true,
+      "requires": [
+        "presale_wbs_md",
+        "presale_proposal_md"
+      ],
+      "outputs": [
+        "intake",
+        "handoff_manifest"
+      ]
     }
   },
   "source_of_truth_order": [
@@ -201,6 +279,58 @@
     }
   },
   "templates": {
-    "manifest": "templates/manifest.json"
+    "manifest": "templates/manifest.json",
+    "output_style_spec": "templates/output-style-spec.json",
+    "domain_primer": "templates/domain-primer-template.md",
+    "wbs_md": "templates/wbs-template.md",
+    "wbs_csv": "templates/wbs-template.csv",
+    "proposal_md": "templates/proposal-template.md",
+    "clarifications": "templates/clarifications-template.md",
+    "proposal_guide": "templates/proposal-guide.md"
+  },
+  "presale": {
+    "agents": {
+      "lead": "presale-lead",
+      "wbs": "wbs-builder",
+      "proposal": "proposal-writer"
+    },
+    "models": {
+      "lead": "opus",
+      "domain_study": "opus",
+      "clarify": "opus",
+      "wbs": "sonnet",
+      "proposal": "sonnet",
+      "bootstrap": "sonnet",
+      "handoff": "sonnet"
+    },
+    "user_gates": [
+      "after_domain_study",
+      "after_clarify",
+      "after_build",
+      "before_handoff"
+    ],
+    "auto_render_on_build": true,
+    "no_cross_project_recall": true,
+    "auto_derive_workspace": true,
+    "language": {
+      "artifacts_to_client": "en",
+      "domain_primer": "vi",
+      "agent_summaries": "vi",
+      "command_descriptions": "en"
+    },
+    "source_ref_formats": [
+      "[src:client:<file>§<sec>]",
+      "[src:domain:§<n>]",
+      "[src:clarify:Q<n>]",
+      "[src:assumption:A<n>]",
+      "[src:wbs:<id>]"
+    ],
+    "handoff_bundle": [
+      "presale_inputs_root",
+      "presale_domain_primer",
+      "presale_clarifications",
+      "presale_wbs_md",
+      "presale_proposal_md"
+    ]
   }
 }

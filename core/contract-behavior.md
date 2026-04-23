@@ -157,6 +157,89 @@ Packet rules:
 - Use `templates/manifest.json` or CLI extraction helpers instead of loading full templates when only one group is needed.
 - Reuse summaries and excerpts instead of rereading large raw sources when normalized artifacts already exist.
 
+## Compaction Discipline (Presale)
+
+Long-running orchestrations such as `/ba-presale` must protect the conversation context.
+
+- After each completed presale phase, the lead writes a state card under `paths.presale_state_cards` (≤ ~300 tokens): phase id, output paths, key decisions, open issues, next gate.
+- On context-loss recovery, reconstruct state from the most recent state card plus on-disk artifacts. Do not ask the user to restate the project.
+- Sub-agent results MUST come back as short summaries (~50 tokens). The full output lives on disk at the agreed target path.
+- Never inline templates into delegation packets. Reference template paths from `templates.*` and let the worker read on demand.
+- For change requests, the lead generates a small "change packet" (delta only) and dispatches surgical edits, not full rewrites.
+
+## Presale Lifecycle (`/ba-presale`)
+
+`/ba-presale` is the upstream lifecycle that runs BEFORE `intake`. It produces a locked WBS + Proposal + QnA bundle and hands off cleanly to `/ba-start`.
+
+### Subcommands
+
+Recognize the following subcommands in addition to the BA-kit core set:
+
+- `presale` — initialize lifecycle, run Bootstrap, then Domain Study. Stops at the Domain Study user gate.
+- `presale next` — advance to the next presale phase (gated transitions only).
+- `presale lock <phase>` — snapshot and freeze an artifact. Once locked, no mutation without `presale feedback`.
+- `presale render` — render xlsx + docx finals from markdown sources via document-skills. Render is **never** automatic.
+- `presale feedback` — accept client feedback log, generate change packet, dispatch surgical updates, re-run sync-check.
+- `presale status` — report current presale phase, locked artifacts, pending gates.
+- `presale handoff` — generate `intake.md`, source mirrors, and handoff manifest; bridge to `/ba-start`.
+- A bare prompt during a presale phase edits the current artifact via Edit tool (no rerender).
+
+### Multi-Agent Contract
+
+- `presale-lead` (Opus) is the orchestrator. It owns lifecycle transitions, sync-check, conflict resolution, render dispatch, and handoff.
+- `wbs-builder` (Sonnet) and `proposal-writer` (Sonnet) are workers. They write only to their assigned target path and return short summaries.
+- The lead NEVER delegates assembly, merge, render, conflict arbitration, or handoff.
+- Parallel WBS+Proposal dispatch must include identical Domain Primer reference and identical scope frame in both delegation packets.
+
+### User Gates
+
+Per `presale.user_gates`. After Domain Study, after WBS+Proposal sync-check, after QnA, and before handoff. The lead must stop and explicitly instruct the user how to advance (`/ba-presale next`).
+
+### Auto-Bootstrap
+
+- Bootstrap is fully automatic. Do NOT ask the user to organize files.
+- Scan the project workspace, classify each file into `presale_inputs_*` directories. Move/copy only — do not modify file contents.
+- Empty workspace + a text-only requirement → still proceed; capture the prompt as `00-inputs/requirements/_initial-prompt.md`.
+
+### Conflict Resolution
+
+When WBS and Proposal disagree, anchor the decision to the **requirement source of truth**, in priority order: client raw → answered QnA → validated Domain Primer → documented assumption. Do not resolve by "stronger side" or recency. Log the decision in `paths.presale_changelog`.
+
+### Source Ref Discipline
+
+Every fact in WBS, Proposal, and QnA carries an inline source ref using one of the formats in `presale.source_ref_formats`. A row or section without a source ref is blocked from final render. Source refs must survive render to xlsx/docx.
+
+### Render Discipline
+
+- Triggered only by `/ba-presale render`. Never auto-render on edit.
+- Inputs: markdown content + CSV intermediate + style spec (`templates.output_style_spec`).
+- Outputs: `paths.presale_wbs_xlsx`, `paths.presale_proposal_docx` only.
+- Render must NOT mutate the markdown sources.
+
+### Handoff to `/ba-start` (CRITICAL)
+
+`presale handoff` produces:
+
+1. `paths.intake` — generated from the source-of-truth bundle (`presale.handoff_bundle`).
+2. `paths.handoff_intake_sources/` — mirror or symlink of every bundle file so backbone can re-read originals.
+3. `paths.handoff_manifest` — a fact → source-ref traceability table.
+
+Continuity check before declaring handoff complete:
+- Every WBS phase appears in `intake.md` scope.
+- Every Proposal commitment appears in `intake.md`.
+- Every Pending or Blocked QnA appears in `intake.md` open questions.
+- Missing item → block handoff with explicit error. Do not paper over.
+
+Post-handoff, locked WBS + Proposal are the source of truth. If `/ba-start backbone` produces something contradicting them, flag for user review; do not silently overwrite.
+
+### Forbidden in Presale
+
+- Cross-project recall. The engine is the single source of truth (`presale.no_cross_project_recall = true`).
+- Auto-rendering on every edit.
+- Delegating assembly, merge, render, conflict arbitration, or handoff.
+- Skipping the Domain Study user gate.
+- Modifying locked artifacts without `/ba-presale feedback`.
+
 ## Large Artifact Write Protocol
 
 When generating artifacts that exceed ~150 lines (e.g., `backbone`, `frd`, `stories`, `srs`), you MUST use **incremental writes**.
