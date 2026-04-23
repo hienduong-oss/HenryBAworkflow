@@ -1,0 +1,17 @@
+WBS_ID,Work_Package,Description,Effort_PD,Dependencies,Phase,Owner,Source,Notes
+1,Phase 1 — Discovery,Discovery & analysis,0,,P1,BA,[src:domain:§2],Phase header
+1.1,Workshop nghiệp vụ,Tổ chức workshop làm rõ scope,0,,P1,BA,[src:client:RFP§2.1],
+1.2,Khảo sát hệ thống hiện hữu,Inventory & gap analysis,0,1.1,P1,BA+Tech,[src:client:tech-doc§3],
+2,Phase 2 — Design,Solution & UX design,0,1,P2,Tech Lead,[src:domain:§3],Phase header
+2.1,High-level design,HLD architecture,0,1.2,P2,TL,[src:assumption:A2],
+2.2,UX wireframe,Wireframe các màn chính,0,1.2,P2,UX,[src:client:RFP§3.4],
+3,Phase 3 — Build,Implementation,0,2,P3,Dev,[src:client:RFP§4],Phase header
+3.1,Backend modules,Core APIs,0,2.1,P3,Dev,[src:assumption:A3],
+3.2,Frontend modules,UI implementation,0,2.2,P3,Dev,[src:assumption:A3],
+3.3,Integrations,3rd party integration,0,2.1,P3,Dev,[src:client:tech-doc§5],
+4,Phase 4 — Test & UAT,Testing,0,3,P4,QA,[src:domain:§4],Phase header
+4.1,SIT,System integration test,0,3.3,P4,QA,[src:assumption:A4],
+4.2,UAT support,UAT facilitation,0,4.1,P4,BA+QA,[src:client:RFP§5],
+5,Phase 5 — Deploy & Handover,Go-live,0,4,P5,DevOps,[src:assumption:A5],Phase header
+5.1,Deployment,Prod deployment,0,4.2,P5,DevOps,[src:assumption:A5],
+5.2,Handover & training,Training + docs,0,5.1,P5,BA,[src:client:RFP§6],

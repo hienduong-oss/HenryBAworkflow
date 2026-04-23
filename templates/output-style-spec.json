@@ -1,0 +1,296 @@
+{
+  "_meta": {
+    "version": "0.2.0",
+    "purpose": "Style spec for presale outputs (xlsx, docx). Used by document-skills:xlsx and document-skills:docx during /ba-presale render.",
+    "status": "Aligned with proposal-guide v4.0 color palette. Refine further with actual brand assets.",
+    "applies_to": ["10-wbs-final.xlsx", "20-proposal-final.docx"]
+  },
+
+  "brand": {
+    "primary_navy": "#2B4C7E",
+    "secondary_steel_blue": "#4A7FB5",
+    "accent_gold": "#FFC000",
+    "body_text": "#333333",
+    "neutral_dark": "#404040",
+    "neutral_mid": "#7F7F7F",
+    "neutral_light": "#F2F2F2",
+    "neutral_white": "#FFFFFF",
+    "positive_cell": "#D4EDDA",
+    "gap_cell": "#F8D7DA",
+    "conditional_cell": "#FFF3CD",
+    "table_border": "#DEE2E6",
+    "alternate_row": "#F8F9FA"
+  },
+
+  "fonts": {
+    "heading": {
+      "family": "Calibri",
+      "weight": "Bold"
+    },
+    "body": {
+      "family": "Calibri",
+      "weight": "Regular"
+    },
+    "code": {
+      "family": "Consolas",
+      "weight": "Regular"
+    }
+  },
+
+  "xlsx": {
+    "default_sheet_name": "Sheet1",
+    "sheets": {
+      "WBS": {
+        "freeze_panes": "B2",
+        "header_row": {
+          "background": "#2B4C7E",
+          "font_color": "#FFFFFF",
+          "font_size": 11,
+          "bold": true,
+          "alignment_horizontal": "center",
+          "alignment_vertical": "middle",
+          "row_height": 28,
+          "border_bottom": {"style": "thick", "color": "#000000"}
+        },
+        "data_row": {
+          "font_size": 10,
+          "alignment_vertical": "top",
+          "wrap_text": true,
+          "alternate_fill": "#F2F2F2"
+        },
+        "hierarchy_levels": {
+          "level_1": {"bold": true, "font_size": 11, "indent": 0, "fill": "#DDEBF7"},
+          "level_2": {"bold": false, "font_size": 10, "indent": 1},
+          "level_3": {"italic": true, "font_size": 10, "indent": 2, "font_color": "#404040"}
+        },
+        "totals_row": {
+          "background": "#FFC000",
+          "bold": true,
+          "border_top": {"style": "thick", "color": "#000000"}
+        },
+        "column_widths": {
+          "WBS_ID": 10,
+          "Work_Package": 45,
+          "Description": 50,
+          "Effort_PD": 12,
+          "Dependencies": 18,
+          "Phase": 15,
+          "Owner": 15,
+          "Notes": 30
+        },
+        "number_formats": {
+          "Effort_PD": "#,##0.0"
+        }
+      },
+      "QnA": {
+        "freeze_panes": "B2",
+        "header_row": {
+          "background": "#2B4C7E",
+          "font_color": "#FFFFFF",
+          "font_size": 11,
+          "bold": true,
+          "alignment_horizontal": "center",
+          "row_height": 28
+        },
+        "data_row": {
+          "font_size": 10,
+          "alignment_vertical": "top",
+          "wrap_text": true,
+          "alternate_fill": "#F2F2F2"
+        },
+        "category_color_map": {
+          "Scope": "#DDEBF7",
+          "Technical": "#E2EFDA",
+          "Commercial": "#FFF2CC",
+          "Timeline": "#FCE4D6",
+          "Other": "#F2F2F2"
+        },
+        "column_widths": {
+          "ID": 8,
+          "Category": 14,
+          "Question": 50,
+          "Answer": 50,
+          "Source": 20,
+          "Status": 12,
+          "Notes": 25
+        },
+        "status_color_map": {
+          "Answered": "#C6EFCE",
+          "Pending": "#FFEB9C",
+          "Blocked": "#FFC7CE"
+        }
+      },
+      "Summary": {
+        "header_row": {
+          "background": "#2B4C7E",
+          "font_color": "#FFFFFF",
+          "bold": true,
+          "font_size": 11
+        },
+        "totals_row": {
+          "background": "#FFC000",
+          "bold": true
+        }
+      },
+      "Assumptions": {
+        "header_row": {
+          "background": "#7F7F7F",
+          "font_color": "#FFFFFF",
+          "bold": true
+        }
+      }
+    }
+  },
+
+  "docx": {
+    "page": {
+      "size": "A4",
+      "orientation": "portrait",
+      "margins_cm": {"top": 2.5, "bottom": 2.5, "left": 2.5, "right": 2.5}
+    },
+    "title": {
+      "font_family": "Calibri",
+      "font_size": 28,
+      "color": "#2B4C7E",
+      "bold": true,
+      "alignment": "center",
+      "space_before_pt": 0,
+      "space_after_pt": 24
+    },
+    "subtitle": {
+      "font_family": "Calibri",
+      "font_size": 14,
+      "color": "#4A7FB5",
+      "italic": true,
+      "alignment": "center",
+      "space_after_pt": 36
+    },
+    "heading_1": {
+      "font_family": "Calibri",
+      "font_size": 18,
+      "color": "#2B4C7E",
+      "bold": true,
+      "space_before_pt": 18,
+      "space_after_pt": 12,
+      "page_break_before": false,
+      "border_bottom": {"color": "#2B4C7E", "size_pt": 1}
+    },
+    "heading_2": {
+      "font_family": "Calibri",
+      "font_size": 14,
+      "color": "#2B4C7E",
+      "bold": true,
+      "space_before_pt": 12,
+      "space_after_pt": 6
+    },
+    "heading_3": {
+      "font_family": "Calibri",
+      "font_size": 12,
+      "color": "#404040",
+      "bold": true,
+      "italic": false,
+      "space_before_pt": 6,
+      "space_after_pt": 3
+    },
+    "body": {
+      "font_family": "Calibri",
+      "font_size": 11,
+      "color": "#404040",
+      "line_spacing": 1.15,
+      "alignment": "justify",
+      "space_after_pt": 6,
+      "first_line_indent_cm": 0
+    },
+    "list_bullet": {
+      "font_family": "Calibri",
+      "font_size": 11,
+      "indent_cm": 0.75,
+      "space_after_pt": 3,
+      "bullet_char": "•"
+    },
+    "list_numbered": {
+      "font_family": "Calibri",
+      "font_size": 11,
+      "indent_cm": 0.75,
+      "space_after_pt": 3
+    },
+    "callout_box": {
+      "background": "#DDEBF7",
+      "border_color": "#1F4E79",
+      "border_size_pt": 1,
+      "padding_pt": 8,
+      "font_size": 10
+    },
+    "table": {
+      "header_row": {
+        "background": "#2B4C7E",
+        "font_color": "#FFFFFF",
+        "bold": true,
+        "font_size": 10,
+        "alignment": "center"
+      },
+      "data_row": {
+        "font_size": 10,
+        "alternate_fill": "#F8F9FA"
+      },
+      "border_color": "#DEE2E6",
+      "border_size_pt": 0.5,
+      "cell_padding_cm": 0.1
+    },
+    "proposal_cells": {
+      "positive": {"background": "#D4EDDA", "note": "SotaTek-built, strong capability, recommended"},
+      "gap": {"background": "#F8D7DA", "note": "Platform gap, excluded, weak coverage"},
+      "conditional": {"background": "#FFF3CD", "note": "Conditional, partial coverage"},
+      "subtotal": {"background": "#2B4C7E", "font_color": "#FFFFFF", "bold": true}
+    },
+    "cover_page": {
+      "show": true,
+      "include": ["title", "client_name", "project_name", "date", "version", "company_logo_placeholder"],
+      "background_color": "#FFFFFF"
+    },
+    "header": {
+      "show": true,
+      "left_text": "{{client_name}} — {{project_name}}",
+      "right_text": "Confidential",
+      "font_size": 9,
+      "font_color": "#7F7F7F",
+      "border_bottom": true
+    },
+    "footer": {
+      "show": true,
+      "left_text": "{{company_name}}",
+      "center_text": "",
+      "right_text": "Page {{page_number}} of {{total_pages}}",
+      "font_size": 9,
+      "font_color": "#7F7F7F",
+      "border_top": true
+    },
+    "watermark": {
+      "show": false,
+      "text": "DRAFT",
+      "color": "#BFBFBF",
+      "size_pt": 96,
+      "rotation_deg": 315
+    }
+  },
+
+  "variables": {
+    "company_name": "{{TO_BE_FILLED}}",
+    "company_logo_path": "{{TO_BE_FILLED}}",
+    "default_locale": "vi-VN",
+    "date_format": "DD/MM/YYYY",
+    "currency_symbol": "VND"
+  },
+
+  "_phase_a_todo": [
+    "Replace primary/secondary/accent colors with actual brand colors",
+    "Confirm font family (current: Calibri — common Office default)",
+    "Adjust column widths in WBS and QnA based on real content patterns",
+    "Add company name, logo path, locale-specific formatting",
+    "Add additional sheets if needed (Pricing, Risks, etc.)",
+    "Add additional Proposal sections / styles if needed",
+    "Decide on watermark policy for draft vs final",
+    "Add print settings (orientation, scale, page setup) if needed for WBS",
+    "Confirm date format and currency for Vietnamese context"
+  ]
+}
