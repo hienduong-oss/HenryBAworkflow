@@ -2,15 +2,17 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SOURCE_ROOT="${BA_KIT_CODEX_SOURCE_ROOT:-${ROOT_DIR}}"
-SOURCE_SKILLS="${SOURCE_ROOT}/platform/codex/skills"
-SOURCE_AGENTS="${SOURCE_ROOT}/platform/codex/agents"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SOURCE_ROOT="${BA_KIT_CODEX_SOURCE_ROOT:-${ROOT_DIR}/codex}"
+SOURCE_SKILLS="${SOURCE_ROOT}/skills"
+SOURCE_AGENTS="${SOURCE_ROOT}/agents"
+SOURCE_TEMPLATES="${ROOT_DIR}/templates"
 CORE_SOURCE="${BA_KIT_CORE_SOURCE_ROOT:-${ROOT_DIR}/core}"
 CANONICAL_STEP_SOURCE="${ROOT_DIR}/skills/ba-start/steps"
 TARGET_HOME="${HOME}/.codex"
 TARGET_SKILLS="${TARGET_HOME}/skills"
 TARGET_AGENTS="${TARGET_HOME}/agents"
+TARGET_TEMPLATES="${TARGET_HOME}/templates"
 CORE_TARGET="${TARGET_HOME}/ba-kit"
 TARGET_CONFIG="${TARGET_HOME}/config.toml"
 LOCAL_BIN_TARGET="${HOME}/.local/bin"
@@ -33,11 +35,11 @@ install_cli() {
 }
 
 generate_codex_assets() {
-  if [[ ! -x "${ROOT_DIR}/platform/codex/scripts/generate-codex-assets.sh" ]]; then
-    echo "Codex asset generator missing: ${ROOT_DIR}/platform/codex/scripts/generate-codex-assets.sh" >&2
+  if [[ ! -x "${ROOT_DIR}/scripts/generate-codex-assets.sh" ]]; then
+    echo "Codex asset generator missing: ${ROOT_DIR}/scripts/generate-codex-assets.sh" >&2
     exit 1
   fi
-  (cd "${ROOT_DIR}" && bash ./platform/codex/scripts/generate-codex-assets.sh)
+  (cd "${ROOT_DIR}" && bash ./scripts/generate-codex-assets.sh)
 }
 
 copy_tree() {
@@ -60,11 +62,21 @@ EOF
 
 generate_codex_assets
 
-node - "${SOURCE_SKILLS}" "${SOURCE_AGENTS}" "${TARGET_HOME}" "${TARGET_SKILLS}" "${TARGET_AGENTS}" "${TARGET_CONFIG}" "${CANONICAL_STEP_SOURCE}" <<'NODE'
+node - "${SOURCE_SKILLS}" "${SOURCE_AGENTS}" "${SOURCE_TEMPLATES}" "${TARGET_HOME}" "${TARGET_SKILLS}" "${TARGET_AGENTS}" "${TARGET_TEMPLATES}" "${TARGET_CONFIG}" "${CANONICAL_STEP_SOURCE}" <<'NODE'
 const fs = require("node:fs");
 const path = require("node:path");
 
-const [sourceSkills, sourceAgents, targetHome, targetSkills, targetAgents, targetConfig, canonicalStepSource] =
+const [
+  sourceSkills,
+  sourceAgents,
+  sourceTemplates,
+  targetHome,
+  targetSkills,
+  targetAgents,
+  targetTemplates,
+  targetConfig,
+  canonicalStepSource,
+] =
   process.argv.slice(2);
 
 const ensureDir = (dirPath) => {
@@ -137,9 +149,11 @@ const appendAgentRegistration = (configPath, agentTomlPath) => {
 ensureDir(targetHome);
 ensureDir(targetSkills);
 ensureDir(targetAgents);
+ensureDir(targetTemplates);
 
 const installedSkills = copyContents(sourceSkills, targetSkills);
 const installedAgents = copyContents(sourceAgents, targetAgents);
+const installedTemplates = copyContents(sourceTemplates, targetTemplates);
 const installedStepFiles = copyContents(canonicalStepSource, path.join(targetSkills, "ba-start", "steps"));
 
 const registrations = [];
@@ -153,11 +167,15 @@ for (const entry of installedAgents) {
 
 console.log(`Installed skills into ${targetSkills}`);
 console.log(`Installed agents into ${targetAgents}`);
+console.log(`Installed templates into ${targetTemplates}`);
 if (installedSkills.length === 0) {
   console.log("No skill files were found to install.");
 }
 if (installedAgents.length === 0) {
   console.log("No agent files were found to install.");
+}
+if (installedTemplates.length === 0) {
+  console.log("No template files were found to install.");
 }
 if (installedStepFiles.length === 0) {
   console.log("No canonical ba-start step files were copied.");

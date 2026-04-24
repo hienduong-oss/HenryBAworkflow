@@ -118,5 +118,104 @@
         ]
       }
     }
+  },
+  "project-memory-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Bộ nhớ dự án (Project Memory) — Chế độ Compact/Summary"
+        ]
+      }
+    }
+  },
+  "project-memory-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Chỉ mục bộ nhớ dự án (Project Memory Index)"
+        ]
+      }
+    }
+  },
+  "project-memory-log-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Nhật ký bộ nhớ dự án (Project Memory Log)"
+        ]
+      }
+    }
+  },
+  "project-memory-hot-canonical-vocabulary-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Từ vựng chuẩn dự án (Canonical Vocabulary) — Hot Shard"
+        ]
+      }
+    }
+  },
+  "project-memory-hot-approved-decisions-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Quyết định đã chốt (Approved Decisions) — Hot Shard"
+        ]
+      }
+    }
+  },
+  "project-memory-hot-pushback-triggers-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Trigger dừng và hỏi lại (Push-back Triggers) — Hot Shard"
+        ]
+      }
+    }
+  },
+  "project-memory-module-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Bộ nhớ Module (Module Memory Shard) — Warm Tier"
+        ]
+      }
+    }
+  },
+  "project-memory-fileback-record-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Bản ghi Promotion Bộ nhớ (Memory File-Back Record)"
+        ]
+      }
+    }
+  },
+  "memory-packet-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Gói ngữ cảnh giới hạn (Bounded Context Packet)"
+        ]
+      }
+    }
+  },
+  "sub-agent-handoff-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Sub-Agent Handoff Template"
+        ]
+      }
+    }
+  },
+  "delegation-status-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Delegation Status"
+        ]
+      }
+    }
   }
 }

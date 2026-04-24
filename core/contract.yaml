@@ -227,7 +227,7 @@
   "activation": {
     "levels": ["Base", "Modular", "Program"],
     "default": "Base",
-    "provisional_until_fixture_validation": true,
+    "provisional_until_fixture_validation": false,
     "thresholds": {
       "modular": {
         "module_count_gte": 2,
@@ -260,7 +260,7 @@
       "auto_escalation": true,
       "auto_downgrade": false,
       "downgrade_requires": "explicit activation refresh after archival or project simplification",
-      "threshold_locking": "locked only after fixture validation passes and provisional_until_fixture_validation is removed"
+      "threshold_locking": "locked for v1 after fixture validation; runtime parity execution is exempted by maintainer release decision"
     },
     "persisted_state_path": "paths.memory_index",
     "compact_fallback_state_path": "paths.project_memory"

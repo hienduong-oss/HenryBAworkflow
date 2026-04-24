@@ -273,7 +273,7 @@ BA-kit auto-activates stricter memory and governance behavior based on project s
 ### Activation Rules
 
 - Use the structured rule tree in `activation.thresholds` from `core/contract.yaml` for all threshold comparisons. Supported rule nodes are `any_of`, `all_of`, and leaf comparisons with `signal`, `operator`, and `value`; supported leaf operators are `gte` and `equals`.
-- Thresholds are marked `provisional_until_fixture_validation = true` and must not be treated as final until fixture validation passes.
+- Thresholds are locked for v1 in `core/contract.yaml` after fixture validation; runtime parity execution is exempted by maintainer release decision.
 - Compute signals from the persisted sources defined in `activation.signals`.
 - When no shard/index metadata exists, use the compact-fallback value for each signal.
 - Auto-escalation is allowed. Auto-downgrade is not; downgrade requires explicit refresh.
