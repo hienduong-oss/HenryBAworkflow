@@ -31,13 +31,9 @@
     "source_manifest": "plans/{slug}-{date}/00_source/manifest.json",
     "source_summary": "plans/{slug}-{date}/00_source/summary.md",
     "source_chunks_dir": "plans/{slug}-{date}/00_source/chunks",
-    "project_home": "plans/{slug}-{date}/PROJECT-HOME.md",
     "design_root": "designs/{slug}",
     "compiled_root": "plans/{slug}-{date}/04_compiled",
     "delegation_root": "plans/{slug}-{date}/delegation",
-    "collab_home": "plans/{slug}-{date}/COLLAB-HOME.md",
-    "module_home": "plans/{slug}-{date}/03_modules/{module_slug}/MODULE-HOME.md",
-    "review_packet": "plans/{slug}-{date}/delegation/review-packets/{module_slug}.md",
     "intake": "plans/{slug}-{date}/01_intake/intake.md",
     "plan": "plans/{slug}-{date}/01_intake/plan.md",
     "backbone": "plans/{slug}-{date}/02_backbone/backbone.md",
@@ -105,7 +101,6 @@
       "mutable": true,
       "requires": [],
       "outputs": [
-        "project_home",
         "intake",
         "plan"
       ]
@@ -125,7 +120,6 @@
         "intake"
       ],
       "outputs": [
-        "project_home",
         "backbone",
         "project_memory"
       ]
@@ -233,49 +227,15 @@
   "activation": {
     "levels": ["Base", "Modular", "Program"],
     "default": "Base",
-    "provisional_until_fixture_validation": false,
+    "provisional_until_fixture_validation": true,
     "thresholds": {
       "modular": {
-        "any_of": [
-          {
-            "signal": "module_count",
-            "operator": "gte",
-            "value": 2
-          },
-          {
-            "signal": "owner_count",
-            "operator": "gte",
-            "value": 2
-          }
-        ]
+        "module_count_gte": 2,
+        "note": "OR owner_count >= 2"
       },
       "program": {
-        "any_of": [
-          {
-            "signal": "cross_module_dependency",
-            "operator": "equals",
-            "value": true
-          },
-          {
-            "signal": "delegation_slice_count",
-            "operator": "gte",
-            "value": 2
-          },
-          {
-            "all_of": [
-              {
-                "signal": "owner_count",
-                "operator": "gte",
-                "value": 2
-              },
-              {
-                "signal": "delegation_slice_count",
-                "operator": "gte",
-                "value": 1
-              }
-            ]
-          }
-        ]
+        "cross_module_dependency": true,
+        "note": "OR delegation_slice_count >= 2, OR owner_count >= 2 AND delegation_slice_count >= 1"
       }
     },
     "signals": {
@@ -300,7 +260,7 @@
       "auto_escalation": true,
       "auto_downgrade": false,
       "downgrade_requires": "explicit activation refresh after archival or project simplification",
-      "threshold_locking": "locked for v1 after fixture validation; runtime parity execution is exempted by maintainer release decision"
+      "threshold_locking": "locked only after fixture validation passes and provisional_until_fixture_validation is removed"
     },
     "persisted_state_path": "paths.memory_index",
     "compact_fallback_state_path": "paths.project_memory"
