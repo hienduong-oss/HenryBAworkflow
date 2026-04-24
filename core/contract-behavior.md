@@ -63,26 +63,6 @@ Do not mutate artifacts directly from a bare correction statement. Route to impa
 
 Use the resolution order from `resolution.*`.
 
-
-## On-Demand Research Trigger
-
-When the user asks about a topic, domain, or requirement that is **not covered in the existing Domain Primer** for the current project:
-
-1. Recognize that the topic is outside current domain scope
-2. Create a focused research brief using `templates/research-brief-template.md` (MUST/SHOULD/NICE-TO-HAVE structure)
-3. Invoke `ba-researcher` agent with the focused brief to gather facts, patterns, risks, and sources
-4. Present research findings to the user with implications for the BA workstream
-5. If the user confirms the topic is relevant, add the research to the Domain Primer or create a supplementary research note
-
-**Do not** auto-run research without user prompting. Research is on-demand, not automatic. The trigger is the user's question about an uncovered topic.
-
-On-demand research should be **narrow and focused** — one specific topic per research brief, not a full domain scan.
-
-## Collaboration Routing
-
-Collaboration intent such as module claim, review handoff, conflict check, PR, commit, push, or merge routes to `ba-collab`. GitHub actions are external side effects and require explicit approval after showing files and action plan.
-
-
 ### Slug
 
 - Prefer explicit `--slug`.
@@ -293,7 +273,7 @@ BA-kit auto-activates stricter memory and governance behavior based on project s
 ### Activation Rules
 
 - Use the structured rule tree in `activation.thresholds` from `core/contract.yaml` for all threshold comparisons. Supported rule nodes are `any_of`, `all_of`, and leaf comparisons with `signal`, `operator`, and `value`; supported leaf operators are `gte` and `equals`.
-- Thresholds are locked for v1 in `core/contract.yaml` after fixture validation; runtime parity execution is exempted by maintainer release decision.
+- Thresholds are marked `provisional_until_fixture_validation = true` and must not be treated as final until fixture validation passes.
 - Compute signals from the persisted sources defined in `activation.signals`.
 - When no shard/index metadata exists, use the compact-fallback value for each signal.
 - Auto-escalation is allowed. Auto-downgrade is not; downgrade requires explicit refresh.
@@ -323,7 +303,7 @@ Every command has deterministic read scope. Commands must navigate: summary → 
 | srs | contract.yaml, contract-behavior.md, paths.backbone, paths.stories | paths.project_memory or hot shards, module warm shard, paths.frd (if exists) | log.md, cold/, other module shards |
 | wireframes | contract.yaml, contract-behavior.md, paths.wireframe_input | paths.project_memory or paths.memory_hot_decisions, paths.design_doc, module warm shard | log.md, cold/, other module shards |
 | package | contract.yaml, contract-behavior.md | paths.project_memory (compact, consistency check), paths.memory_index (health overview) | log.md, cold/, warm/ shards |
-| status | contract.yaml, contract-behavior.md | paths.project_home, paths.project_memory header, paths.memory_index (activation + freshness) | log.md (unless --audit), warm/ shards, cold/ |
+| status | contract.yaml, contract-behavior.md | paths.project_memory header, paths.memory_index (activation + freshness) | log.md (unless --audit), warm/ shards, cold/ |
 
 ### Index-First Navigation Rule
 
