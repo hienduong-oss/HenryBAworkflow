@@ -5,6 +5,20 @@ This step requires:
 - `core/contract.yaml`
 - `core/contract-behavior.md`
 
+## Memory Read Scope
+
+- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`, `paths.backbone`, `paths.plan` (when exists)
+- **May read:** `paths.project_memory` or (`paths.memory_hot_vocabulary` + `paths.memory_hot_decisions`) when shard mode is active
+- **Must NOT read:** `log.md`, `cold/`, `warm/` shards, unrelated module shards
+
+## Governance Gate
+
+Before mutating this artifact:
+1. Verify you have write authority for this artifact scope.
+2. Confirm an impact run is completed and approved (skip only for `wording-only` changes).
+3. If either check fails: emit `GOVERNANCE_BLOCK: {reason}` and stop.
+4. After mutation completes: offer to file the change into canonical memory using `templates/project-memory-fileback-record-template.md`.
+
 ## Scope
 
 Run Step 6 only.

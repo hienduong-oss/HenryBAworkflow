@@ -21,9 +21,7 @@ Use this command when a requirement, rule, actor, scope item, or screen behavior
 ```
 
 <execution_context>
-@$HOME/.claude/ba-kit/workflows/impact.md
-@$HOME/.claude/ba-kit/contract.yaml
-@$HOME/.claude/ba-kit/contract-behavior.md
+Read `core/workflows/impact.md`, `core/contract.yaml`, `core/contract-behavior.md` from the repo root.
 </execution_context>
 
 <context>
@@ -31,6 +29,6 @@ $ARGUMENTS
 </context>
 
 <process>
-Execute the BA impact workflow from @$HOME/.claude/ba-kit/workflows/impact.md end-to-end.
-Follow the installed `ba-start` impact contract exactly and return analysis only.
+Execute the BA impact workflow from `core/workflows/impact.md` end-to-end.
+Follow the `ba-start` impact contract exactly and return analysis only.
 </process>

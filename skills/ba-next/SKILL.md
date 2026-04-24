@@ -20,9 +20,7 @@ Use this command when you want BA-kit to inspect the current project set and tel
 ```
 
 <execution_context>
-@$HOME/.claude/ba-kit/workflows/next.md
-@$HOME/.claude/ba-kit/contract.yaml
-@$HOME/.claude/ba-kit/contract-behavior.md
+Read `core/workflows/next.md`, `core/contract.yaml`, `core/contract-behavior.md` from the repo root.
 </execution_context>
 
 <context>
@@ -30,6 +28,6 @@ $ARGUMENTS
 </context>
 
 <process>
-Execute the BA next-step workflow from @$HOME/.claude/ba-kit/workflows/next.md end-to-end.
+Execute the BA next-step workflow from `core/workflows/next.md` end-to-end.
 Recommend the next exact command without mutating artifacts.
 </process>

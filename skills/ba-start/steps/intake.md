@@ -5,6 +5,12 @@ This step requires:
 - `core/contract.yaml`
 - `core/contract-behavior.md`
 
+## Memory Read Scope
+
+- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`
+- **May read:** `paths.project_memory` (compact summary only, when exists)
+- **Must NOT read:** memory shards (`hot/`, `warm/`, `cold/`), `log.md`, `paths.memory_index`
+
 ## Scope
 
 Run Steps 1-4 only.

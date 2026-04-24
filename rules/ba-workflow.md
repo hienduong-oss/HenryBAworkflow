@@ -123,3 +123,33 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 - **SRS preflight gate:** once slug/date and prerequisites are resolved, start from the exact backbone and user-stories artifacts, and pull the FRD only when it exists or is explicitly required.
 - **FRD/stories preflight gate:** once slug/date and prerequisites are resolved, start from the exact backbone artifact instead of rereading unrelated report or module trees.
 - **Context-loss recovery gate:** if exploration causes context pressure, recover from resolved command + slug/date + exact artifacts on disk; do not ask the user to restate the task unless the target really became ambiguous.
+
+## Multi-BA Governance
+
+This section applies when multiple BAs collaborate on the same project set.
+
+### Ownership
+
+- Lead BA owns global memory (hot shards, index, compact project-memory, cross-module decisions).
+- Module BAs own their assigned module warm shards (`project-memory/warm/modules/{module_slug}.md`).
+- Module BAs must escalate cross-module entries to Lead BA before writing.
+
+### Safe Mutation Protocol
+
+1. Only the owning BA may initiate a mutating rerun for their artifact scope.
+2. All memory promotions require explicit approval plus trace metadata per `templates/project-memory-fileback-record-template.md`.
+3. Cross-module changes require Lead BA sign-off before mutation.
+4. Module artifacts that introduce cross-module dependencies must be flagged and escalated.
+
+### Conflict Resolution
+
+- Ownership conflicts must be escalated — never guessed.
+- When two module files define conflicting terminology, Lead BA arbitrates through hot shard update.
+- When module warm shard changes conflict with global hot decisions, hot shard takes precedence.
+
+### Module Branch Rules (Git-based Teamwork)
+
+- Do not execute module-level tasks outside your explicitly assigned module branch.
+- Do not read or alter other modules' warm shards unless assembling the compiled document.
+- `Rule Codes` (`CR-***`) and `Message Codes` (`MSG-***`) must be unique across all modules.
+- If redefining a shared rule, escalate to backbone layer or manage naming boundaries carefully.

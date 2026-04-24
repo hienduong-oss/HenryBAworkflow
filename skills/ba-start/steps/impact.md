@@ -5,6 +5,20 @@ This step requires:
 - `core/contract.yaml`
 - `core/contract-behavior.md`
 
+## Memory Read Scope
+
+- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`, `paths.intake`, `paths.backbone`
+- **May read:** `paths.project_memory`, `paths.memory_index`, `paths.memory_hot_*`, selected `warm/` module shard (Modular/Program only); relevant downstream artifacts (frd, stories, srs, wireframe artifacts); `log.md` only when user explicitly requests audit/recent history
+- **Must NOT read:** `cold/` (unless explicitly escalated)
+- **Note:** `impact` is the only broad-read command. Only it may read across `warm/` module shards by default in Modular/Program activation.
+
+## Promotion Guidance
+
+After completing impact analysis and the user approves a rerun path:
+1. Document which memory shards, vocabulary terms, or decisions would need updating after the rerun.
+2. Prepare a file-back record outline using `templates/project-memory-fileback-record-template.md`.
+3. Pass the outline to the user for review before the mutating step executes.
+
 ## Scope
 
 Run the change-impact triage path only. Do not mutate artifacts.

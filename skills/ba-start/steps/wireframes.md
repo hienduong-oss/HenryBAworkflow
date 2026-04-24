@@ -5,6 +5,20 @@ This step requires:
 - `core/contract.yaml`
 - `core/contract-behavior.md`
 
+## Memory Read Scope
+
+- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`, `paths.wireframe_input` (or fallback sources)
+- **May read:** `paths.project_memory` or `paths.memory_hot_decisions` when shard mode active, `paths.design_doc`, module `warm/` shard for navigation/decisions
+- **Must NOT read:** `log.md`, `cold/`, other module shards
+
+## Governance Gate
+
+Before mutating this artifact:
+1. Verify you have write authority for this artifact scope.
+2. Confirm an impact run is completed and approved (skip only for `wording-only` changes).
+3. If either check fails: emit `GOVERNANCE_BLOCK: {reason}` and stop.
+4. After mutation completes: offer to file the change into canonical memory using `templates/project-memory-fileback-record-template.md`.
+
 ## Scope
 
 Run Step 9 only. This path is read-only on upstream BA artifacts and may regenerate only the runtime `DESIGN.md`, the wireframe constraint pack, the wireframe handoff checklist, and the wireframe state marker.
