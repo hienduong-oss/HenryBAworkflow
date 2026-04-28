@@ -1,70 +1,94 @@
 # BA-kit
 
-BA-kit là playbook Business Analysis cho môi trường AI agents như Claude Code, Codex, và Antigravity. Mục tiêu của repo này là biến agent thành một BA có quy trình rõ ràng, artifact có cấu trúc, và handoff đủ chuẩn để không phải “nhắc prompt thủ công” ở mỗi dự án.
+BA-kit là playbook Business Analysis cho Claude Code, Codex, và Antigravity. Repo này biến agent thành một BA workstation có lifecycle rõ ràng, artifact có cấu trúc, collaboration theo module, và handoff đủ chuẩn cho stakeholder/engineering.
 
-## Flow hiện tại
+Tài liệu chi tiết: [BA-kit GitBook](https://bakit.gitbook.io/)
 
-Lifecycle chuẩn của BA-kit:
+## BA Làm Gì Với BA-kit?
+
+BA có thể dùng ngôn ngữ tự nhiên thay vì nhớ command:
+
+```text
+Tôi có tài liệu yêu cầu mới, hãy tạo dự án BA
+Tiếp tục dự án warehouse-rfp, bước tiếp theo là gì?
+Đánh giá thay đổi: Export CSV phải có audit log
+Tôi nhận module auth-flow
+Gửi module auth-flow cho Lead BA review
+Đồng bộ module reporting với main trước khi làm tiếp
+Xuất gói bàn giao cho stakeholder
+```
+
+Agent sẽ map intent sang workflow an toàn:
+
+- Lifecycle BA: intake, backbone, stories, FRD, SRS, wireframe handoff, package.
+- Collaboration BA: claim module, check conflict, create review packet, optional GitHub PR handoff.
+- Git/GitHub là implementation detail; commit, push, PR, merge chỉ chạy khi user approve rõ.
+
+## Flow Hiện Tại
 
 ```text
 Raw input
 -> Intake + Gap Analysis
--> PROJECT-HOME.md (BA-facing dashboard)
+-> PROJECT-HOME.md
 -> Requirements Backbone
--> FRD / Stories / Use Cases + Screen Contract Plus
+-> Module artifacts: FRD / Stories / SRS / Screen Contract Plus
 -> DESIGN.md + wireframe-input.md + wireframe-map.md
 -> User tự tạo mockup / wireframe
 -> Final SRS + HTML package
 ```
 
-Điểm quan trọng:
-- `PROJECT-HOME.md` là trang điều phối dạng markdown cho BA non-tech: trạng thái hiện tại, bước tiếp theo, câu hỏi cần chốt, và prompt nhanh cho Claude/Codex/Antigravity.
-- `PROJECT-HOME.md` không phải source of truth; source of truth vẫn là intake/backbone/module artifacts.
-- `/ba-start wireframes` vẫn giữ nguyên tên command để tương thích ngược.
-- Nhưng Step 9 không còn gọi MCP để generate UI.
-- Step 9 chỉ chuẩn bị bộ handoff cho wireframe thủ công:
-  - `designs/{slug}/DESIGN.md`
-  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md`
-  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md`
-  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md`
+Với teamwork:
 
-## Vai trò từng artifact
+```text
+Lead BA chia module
+-> COLLAB-HOME.md
+-> Module BA nhận module
+-> MODULE-HOME.md
+-> Module BA tạo/cập nhật artifact trong module scope
+-> review packet
+-> Lead BA review / approve / integrate
+-> optional GitHub PR, approval-gated
+```
 
-- `DESIGN.md`
-  Dùng để khóa design tổng thể: visual tone, màu sắc, typography, layout principles, navigation schema, menu/header/footer, component patterns, responsive rules, anti-patterns.
+## Artifact Chính
 
-- `wireframe-input.md`
-  Dùng để khóa constraint ở mức màn hình/flow: màn hình nào phải có, portal/menu schema nào phải theo, state nào phải thể hiện, action/label nào là non-negotiable, và active-menu evidence nào phải xuất hiện.
+| Artifact | Vai trò |
+| --- | --- |
+| `PROJECT-HOME.md` | Dashboard BA-facing: trạng thái, bước tiếp theo, câu hỏi cần chốt, prompt nhanh cho runtime |
+| `01_intake/intake.md` | Input đã chuẩn hóa, gap analysis, câu hỏi mở |
+| `01_intake/plan.md` | Kế hoạch artifact sẽ sinh theo mode/gate |
+| `02_backbone/backbone.md` | Source of truth sau scope lock |
+| `02_backbone/project-memory.md` | Bộ nhớ dự án: thuật ngữ, quyết định, assumptions, corrections |
+| `COLLAB-HOME.md` | Dashboard cộng tác: ai làm module nào, review status, blocker |
+| `03_modules/{module}/MODULE-HOME.md` | Dashboard riêng cho Module BA: scope được sửa, checklist review |
+| `03_modules/{module}/frd.md` | Functional Requirements Document theo module |
+| `03_modules/{module}/user-stories.md` | User stories và acceptance criteria |
+| `03_modules/{module}/srs.md` | SRS/use case/screen spec theo module |
+| `wireframe-input.md` / `wireframe-map.md` | Gói constraint và map để user tự tạo mockup |
+| `delegation/review-packets/{module}.md` | Gói gửi Lead BA review |
+| `04_compiled/*.html` | Bản HTML stakeholder review/edit trong browser |
+| `designs/{slug}/DESIGN.md` | Design direction runtime cho UI handoff |
 
-- `wireframe-map.md`
-  Dùng làm checklist handoff: screen nào user phải tự vẽ, supporting states nào cần có, và sau khi vẽ xong thì phải attach hình/link vào đâu trong SRS.
+`PROJECT-HOME.md`, `COLLAB-HOME.md`, và `MODULE-HOME.md` là dashboard. Source of truth vẫn là `backbone.md`, sau đó là `intake.md` và module artifacts.
 
-- `SRS`
-  Là nơi chứa Use Case, Screen Contract Plus, Screen Inventory, và phần mô tả màn hình chi tiết. BA-kit/BA viết phần screen descriptions; user chỉ tự attach mockup thủ công vào section tương ứng.
-
-## Ai làm gì
-
-- BA-kit / BA:
-  - viết intake, backbone, FRD, stories, SRS core
-  - sinh `DESIGN.md`, `wireframe-input.md`, `wireframe-map.md`
-  - viết `Screen Descriptions` trong SRS như pha enrich sau wireframe, không tái định nghĩa portal/menu đã khóa
-
-- User / Designer:
-  - dựa trên `DESIGN.md`, `wireframe-input.md`, Use Case, Screen Contract Plus, Screen Inventory để tự tạo wireframe/mockup
-  - tự dán image/link/mockup vào đúng section trong SRS
-
-Mockup không phải source of truth. Source of truth vẫn là backbone, Use Case, Screen Contract Plus, Screen Inventory, và Screen Descriptions trong SRS.
-
-## Cấu trúc thư mục
+## Cấu Trúc Thư Mục
 
 ```text
 plans/
   {slug}-{date}/
     PROJECT-HOME.md
+    COLLAB-HOME.md
+    00_source/
     01_intake/
+      intake.md
+      plan.md
     02_backbone/
+      backbone.md
+      project-memory.md
+      project-memory/
     03_modules/
       {module_slug}/
+        MODULE-HOME.md
         frd.md
         user-stories.md
         srs.md
@@ -75,28 +99,16 @@ plans/
         wireframe-map.md
         wireframe-state.md
     04_compiled/
+    delegation/
+      packets/
+      review-packets/
 
 designs/
   {slug}/
     DESIGN.md
 ```
 
-## Teamwork và modular architecture
-
-BA-kit hỗ trợ làm việc nhóm bằng Git theo 2 tầng:
-- System-level:
-  - `01_intake/`
-  - `02_backbone/`
-- Module-level:
-  - `03_modules/{module_slug}/`
-
-Quy tắc quan trọng:
-- Các module không được tự định nghĩa global navigation, portal actors, hay UX direction riêng.
-- Những quyết định dùng chung phải được khóa ở `02_backbone` qua `Portal Matrix` và ở `designs/{slug}/DESIGN.md` qua `Navigation Schema`.
-- `/ba-start wireframes --module ...` chỉ chuẩn bị constraint/handoff cho module đó; nó không tự sinh mockup.
-- BA non-tech không cần dùng Git trực tiếp. Dùng `ba-collab` hoặc câu NLP như "Tôi nhận module auth-flow", "Gửi module payment cho Lead BA review", "Tạo PR cho module auth-flow". Agent tạo/update `COLLAB-HOME.md`, `MODULE-HOME.md`, review packet, và chỉ commit/push/PR/merge khi user approve rõ.
-
-## Cài đặt nhanh
+## Cài Đặt Nhanh
 
 ### Claude Code
 
@@ -106,18 +118,13 @@ cd bakit
 ./install.sh
 ```
 
-Sau đó restart Claude Code. Claude sẽ dùng:
-- `CLAUDE.md`
-- `skills/`
-- `rules/`
-- `templates/`
-- shared core trong `~/.claude/ba-kit/`
+Sau đó restart Claude Code.
 
 ### Codex
 
-Mở repo này trực tiếp trong Codex là dùng được ngay qua `AGENTS.md`.
+Repo-native: mở repo này trong Codex, Codex đọc `AGENTS.md`.
 
-Nếu muốn cài bundle lâu dài:
+Bundle install:
 
 ```bash
 bash scripts/install-codex-ba-kit.sh
@@ -129,19 +136,15 @@ bash scripts/install-codex-ba-kit.sh
 bash scripts/install-antigravity-ba-kit.sh
 ```
 
-Script này:
-- cài CLI `ba-kit`
-- ghi installation manifest
-- tạo Knowledge Item workflow cho Antigravity dựa trên flow manual wireframe handoff hiện tại
+Script cài CLI `ba-kit`, ghi installation manifest, và tạo Knowledge Item workflow cho Antigravity.
 
-## Ví dụ sử dụng
+## Command Surface
 
-### Claude Code
+BA non-tech nên bắt đầu bằng natural language qua router:
 
 ```text
 /ba-do Tôi có tài liệu yêu cầu mới, hãy tạo dự án BA
-/ba-do Tiếp tục dự án warehouse-rfp, cho tôi bước tiếp theo
-/ba-do Đánh giá thay đổi: Export CSV phải có audit log
+/ba-do Tiếp tục dự án warehouse-rfp
 /ba-do Tôi nhận module auth-flow
 /ba-do Gửi module auth-flow cho Lead BA review
 ```
@@ -150,50 +153,72 @@ Command-level fallback:
 
 ```text
 /ba-start
-/ba-start backbone --slug hr-app
-/ba-start srs --slug hr-app --module auth-flow
-/ba-start wireframes --slug hr-app --module auth-flow
-/ba-start status --slug hr-app
+/ba-start backbone --slug warehouse-rfp
+/ba-start srs --slug warehouse-rfp --module auth-flow
+/ba-start wireframes --slug warehouse-rfp --module auth-flow
+/ba-start package --slug warehouse-rfp
+/ba-start status --slug warehouse-rfp
 /ba-collab Tôi nhận module auth-flow
 /ba-collab Gửi module auth-flow cho Lead BA review
 ```
 
-Ý nghĩa của bước `wireframes`:
-- hỏi/chốt `DESIGN.md` nếu cần
-- build `wireframe-input.md`
-- build `wireframe-map.md`
-- đánh dấu `wireframe-state.md`
-- không generate hình UI
+CLI helper:
 
-### Codex
-
-```text
-Use AGENTS.md.
-Read PROJECT-HOME.md when present, then continue the BA workflow for slug warehouse-rfp.
-Explain the next step in BA-friendly Vietnamese first, then show the internal BA-kit command equivalent.
+```bash
+ba-kit doctor
+ba-kit update
+ba-kit status --slug warehouse-rfp
+ba-kit collab status --slug warehouse-rfp
 ```
 
-### Antigravity
+## Teamwork Và GitHub
+
+BA-kit hỗ trợ module collaboration nhưng không bắt BA học Git trước.
+
+BA nói:
 
 ```text
-Đọc PROJECT-HOME.md của dự án warehouse-rfp và cho tôi biết bước BA tiếp theo.
-Nếu cần chạy tiếp, dùng workflow an toàn tương ứng trong BA-kit.
+Tôi nhận module reporting
+Đồng bộ module reporting với main
+Kiểm tra module reporting trước khi gửi review
+Tạo PR cho module reporting
 ```
 
-## Nâng cấp
+Agent xử lý nội bộ:
+
+- Resolve đúng project/module.
+- Kiểm tra module ownership và write scope.
+- Cập nhật `COLLAB-HOME.md`, `MODULE-HOME.md`, review packet.
+- Chạy impact nếu thay đổi chạm requirement/shared decision.
+- Chỉ commit/push/PR/merge khi user approve rõ.
+- Nếu conflict nghiệp vụ hoặc Git conflict, dừng và báo file/section cần Lead BA quyết định.
+
+## Wireframe Handoff
+
+`/ba-start wireframes` giữ tên để tương thích ngược, nhưng không generate hình UI. Bước này chỉ chuẩn bị manual handoff pack:
+
+- `designs/{slug}/DESIGN.md`
+- `03_modules/{module}/wireframe-input.md`
+- `03_modules/{module}/wireframe-map.md`
+- `03_modules/{module}/wireframe-state.md`
+
+User hoặc designer tự tạo mockup/wireframe rồi attach vào đúng section trong SRS. Mockup không phải source of truth.
+
+## Nâng Cấp
 
 ```bash
 ba-kit doctor
 ba-kit update
 ```
 
-`ba-kit doctor` kiểm tra runtime readiness và `ba-kit update` sẽ refresh các runtime đã cài mà không đụng vào artifact dự án.
+`ba-kit doctor` kiểm tra runtime readiness. `ba-kit update` fast-forward source repo và reinstall các runtime đã cài.
 
-## Tài liệu nên đọc tiếp
+## Đọc Tiếp
 
-- [GitBook-ready Docs](gitbook/documentation/README.md)
+- [BA-kit GitBook](https://bakit.gitbook.io/)
 - [Getting Started](docs/getting-started.md)
 - [Codex Setup](docs/codex-setup.md)
+- [Antigravity Setup](docs/antigravity-setup.md)
 - [Skill Catalog](docs/skill-catalog.md)
 - [BA Methodology Guide](docs/ba-methodology-guide.md)
 - [Design Artifacts](designs/README.md)
