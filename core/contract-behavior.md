@@ -59,6 +59,11 @@ Also infer `impact` when:
 
 Do not mutate artifacts directly from a bare correction statement. Route to impact first.
 
+## Resolution Rules
+
+Use the resolution order from `resolution.*`.
+
+
 ## On-Demand Research Trigger
 
 When the user asks about a topic, domain, or requirement that is **not covered in the existing Domain Primer** for the current project:
@@ -73,9 +78,10 @@ When the user asks about a topic, domain, or requirement that is **not covered i
 
 On-demand research should be **narrow and focused** — one specific topic per research brief, not a full domain scan.
 
-## Resolution Rules
+## Collaboration Routing
 
-Use the resolution order from `resolution.*`.
+Collaboration intent such as module claim, review handoff, conflict check, PR, commit, push, or merge routes to `ba-collab`. GitHub actions are external side effects and require explicit approval after showing files and action plan.
+
 
 ### Slug
 
@@ -171,142 +177,6 @@ Packet rules:
 - Use `templates/manifest.json` or CLI extraction helpers instead of loading full templates when only one group is needed.
 - Reuse summaries and excerpts instead of rereading large raw sources when normalized artifacts already exist.
 
-## Compaction Discipline (Presale)
-
-Long-running orchestrations such as `/ba-presale` must protect the conversation context.
-
-- After each completed presale phase, the lead writes a state card under `paths.presale_state_cards` (≤ ~300 tokens): phase id, output paths, key decisions, open issues, next gate.
-- On context-loss recovery, reconstruct state from the most recent state card plus on-disk artifacts. Do not ask the user to restate the project.
-- Sub-agent results MUST come back as short summaries (~50 tokens). The full output lives on disk at the agreed target path.
-- Never inline templates into delegation packets. Reference template paths from `templates.*` and let the worker read on demand.
-- For change requests, the lead generates a small "change packet" (delta only) and dispatches surgical edits, not full rewrites.
-
-## Presale Lifecycle (`/ba-presale`)
-
-`/ba-presale` is the upstream lifecycle that runs BEFORE `intake`. It produces a locked WBS + Proposal + QnA bundle and hands off cleanly to `/ba-start`.
-
-### Subcommands
-
-Recognize the following subcommands in addition to the BA-kit core set:
-
-- `presale` — initialize lifecycle, run Bootstrap, then Domain Study. Stops at the Domain Study user gate.
-- `presale clarify` — advance to clarify phase (gap analysis + questions).
-- `presale build` — build WBS and/or Proposal (user selects target: all / proposal only / WBS only). Auto-renders after sync-check passes.
-- `presale feedback` — accept client feedback log, generate change packet, dispatch surgical updates, re-run sync-check.
-- `presale status` — report current presale phase, locked artifacts, pending gates.
-- `presale handoff` — generate `intake.md`, source mirrors, and handoff manifest; bridge to `/ba-start`.
-- A bare prompt during a presale gate = surgical edit on the current artifact + auto re-render of affected output.
-
-### Multi-Agent Contract
-
-- `presale-lead` (Opus) is the orchestrator. It owns lifecycle transitions, sync-check, conflict resolution, render dispatch, and handoff.
-- `wbs-builder` (Sonnet) and `proposal-writer` (Sonnet) are workers. They write only to their assigned target path and return short summaries.
-- The lead NEVER delegates assembly, merge, render, conflict arbitration, or handoff.
-- Parallel WBS+Proposal dispatch must include identical Domain Primer reference and identical scope frame in both delegation packets.
-
-### User Gates
-
-Per `presale.user_gates`. After Domain Study, after Clarify, after Build, and before handoff. The lead must stop and explicitly instruct the user the next command (e.g., `/ba-presale clarify`, `/ba-presale build`, `/ba-presale handoff`).
-
-### Auto-Bootstrap
-
-- Bootstrap is fully automatic. Do NOT ask the user to organize files.
-- Scan the project workspace, classify each file into `presale_inputs_*` directories. Move/copy only — do not modify file contents.
-- Empty workspace + a text-only requirement → still proceed; capture the prompt as `00-inputs/requirements/_initial-prompt.md`.
-
-### Conflict Resolution
-
-When WBS and Proposal disagree, anchor the decision to the **requirement source of truth**, in priority order: client raw → answered QnA → validated Domain Primer → documented assumption. Do not resolve by "stronger side" or recency. Log the decision in `paths.presale_changelog`.
-
-### Source Ref Discipline
-
-Every fact in WBS, Proposal, and QnA carries an inline source ref using one of the formats in `presale.source_ref_formats`. A row or section without a source ref is blocked from final render. Source refs must survive render to xlsx/docx.
-
-### Render Discipline
-
-- Render is automatic after sync-check passes during `/ba-presale build`. No separate `render` command.
-- For single-target builds (Proposal only / WBS only), render immediately after dispatch returns.
-- Surgical edits during the build gate auto re-render only the affected file (xlsx OR docx).
-- Inputs: markdown content + CSV intermediate + style spec (`templates.output_style_spec`).
-- Outputs: `paths.presale_wbs_xlsx`, `paths.presale_proposal_docx` only.
-- Render must NOT mutate the markdown sources.
-
-### Handoff to `/ba-start` (CRITICAL)
-
-`presale handoff` produces:
-
-1. `paths.intake` — generated from the source-of-truth bundle (`presale.handoff_bundle`).
-2. `paths.handoff_intake_sources/` — mirror or symlink of every bundle file so backbone can re-read originals.
-3. `paths.handoff_manifest` — a fact → source-ref traceability table.
-
-Continuity check before declaring handoff complete:
-- Every WBS phase appears in `intake.md` scope.
-- Every Proposal commitment appears in `intake.md`.
-- Every Pending or Blocked QnA appears in `intake.md` open questions.
-- Missing item → block handoff with explicit error. Do not paper over.
-
-Post-handoff, locked WBS + Proposal are the source of truth. If `/ba-start backbone` produces something contradicting them, flag for user review; do not silently overwrite.
-
-### Forbidden in Presale
-
-- Cross-project recall. The engine is the single source of truth (`presale.no_cross_project_recall = true`).
-- Auto-rendering on every edit.
-- Delegating assembly, merge, render, conflict arbitration, or handoff.
-- Skipping the Domain Study user gate.
-- Modifying locked artifacts without `/ba-presale feedback`.
-
-## Orchestration Optimization (Pattern B)
-
-Minimize token spend by separating judgment points from mechanical steps. An agent should only "think" when the next action requires evaluation, comparison, or synthesis. Deterministic routing, file operations, and conditional dispatch do not need LLM judgment.
-
-### Model Enforcement
-
-Every `Agent()` tool call that spawns a sub-agent MUST include an explicit `model` parameter matching `presale.models.{role}` from `contract.yaml`. Sub-agents must NEVER inherit the parent orchestrator's model. This prevents silent model escalation (e.g., a Sonnet worker running on Opus because the lead forgot to specify).
-
-Validation rule: if a delegation packet targets `wbs-builder` or `proposal-writer`, the Agent call must pass `model: "sonnet"`. If it targets a surgical edit on a single section, it must also pass `model: "sonnet"`.
-
-### Judgment vs Mechanical Classification
-
-**Judgment points** (require LLM — use the model assigned to the decision owner):
-- Domain study synthesis (reading inputs, web research, producing primer)
-- Clarify gap analysis (identifying missing information across 8 categories)
-- Sync-check comparison (reading two artifacts, detecting semantic conflicts)
-- Conflict resolution anchoring (deciding which source wins per priority order)
-- Surgical edit intent parsing (understanding what the user wants changed)
-- Cross-artifact consistency check (UC ↔ screen ↔ wireframe alignment)
-
-**Mechanical steps** (deterministic — use Bash, conditional logic, or lowest-cost model):
-- Bootstrap → Domain Study auto-chain: always happens, no branching
-- Build parallel dispatch: always dispatch both WBS + Proposal, no evaluation needed
-- Render dispatch after sync: `if zero_conflicts AND all_source_refs → render`. Boolean check.
-- Handoff file mirror: `mkdir` + `cp`/symlink. Pure file operations.
-- Handoff continuity check: grep WBS phase names in intake.md. String matching.
-- SRS group concat: append fragments in fixed order A→F. No evaluation.
-- Surgical edit dispatch after intent parsed: create packet + call Agent. Template fill.
-- Surgical edit re-render after sync: `if sync_pass → render affected_file`. Boolean.
-
-### Applying Pattern B in Step Files
-
-Step files should mark each sub-step with `[JUDGMENT]` or `[MECHANICAL]` to make the classification explicit. When a step is mechanical:
-
-1. Prefer Bash tool for file operations (mkdir, cp, symlink, cat).
-2. Use conditional logic in the step narrative rather than asking the LLM to "decide."
-3. If an LLM call is unavoidable for a mechanical step (e.g., template-fill compose), use the lowest-cost model specified in `presale.models` (typically Sonnet).
-4. Never route a mechanical step through Opus when Sonnet or Bash can handle it.
-
-### Surgical Edit Loop Optimization
-
-When the user sends a bare prompt during a build gate:
-
-1. `[JUDGMENT — Opus]` Parse user intent → identify target artifact + section + change.
-2. `[MECHANICAL — Sonnet]` Create edit packet from parsed intent → dispatch to sub-agent.
-3. Wait for sub-agent return (~50 tokens).
-4. `[JUDGMENT — Opus]` Re-run sync-check on affected slice only.
-5. `[MECHANICAL — Bash/Sonnet]` If sync passes → re-render affected file (xlsx OR docx).
-6. `[MECHANICAL]` Return 1-line confirm.
-
-Steps 2, 3, 5, 6 do not need Opus context. The lead should minimize context passed to these mechanical steps.
-
 ## Large Artifact Write Protocol
 
 When generating artifacts that exceed ~150 lines (e.g., `backbone`, `frd`, `stories`, `srs`), you MUST use **incremental writes**.
@@ -315,3 +185,225 @@ Writing entire documents in memory and flushing in one call causes `<max_tokens>
 1. **Write the skeleton first**: Create the target file with the template structure (headings, boilerplate, front matter) using a single write.
 2. **Append group content sequentially**: For each logic group (e.g., one Epic, one Use Case), generate the fragment and append it into the correct section of the file. Complete one group before starting the next.
 3. **Never attempt to assemble and flush the full artifact in memory**.
+
+## Runtime-Neutral HITL Contract
+
+BA-kit is a playbook, not a UI product. Human-in-the-loop behavior must be enforced through artifact routing and contract rules, not through screen interactions.
+
+- The core guarantees must stay identical across Claude Code, Codex, and Antigravity even when their command syntax or tool surfaces differ.
+- Runtime-local memory is never authoritative. Persist reusable project memory on disk under `paths.project_memory`.
+- A runtime adapter may translate command syntax or question prompts, but it must preserve the same resolution, stop conditions, approval gates, and rerun rules.
+
+## Granular Artifact Intervention
+
+Treat these as the minimum intervention units whenever they exist:
+
+- goal / metric IDs
+- actor IDs
+- feature IDs
+- FR / NFR IDs
+- story IDs and acceptance criteria
+- use case IDs and step rows
+- screen IDs
+- rule codes and message codes
+- glossary terms
+
+When a user change can be attached to one or more stable nodes, update only the narrowest source-of-truth artifact that owns those nodes. Do not rewrite the whole project set when a narrower rerun path is sufficient.
+
+## Active Push-back And Fail-Closed Behavior
+
+When uncertainty is material, stop and ask instead of filling the gap with plausible prose.
+
+Material uncertainty includes:
+
+- ambiguous scope, actor ownership, or target module
+- conflicting terminology between artifacts
+- unclear acceptance behavior, validation rules, or error handling
+- unclear portal ownership, navigation schema, or active-menu behavior
+- a change statement that could touch multiple source-of-truth layers with different rerun paths
+
+Fail-closed rules:
+
+- If a required fact is missing, mark it as an assumption or open question instead of presenting it as settled.
+- If a downstream artifact would require guessing an upstream decision, stop and route back to the owning step.
+- If a correction invalidates a persisted assumption, record the rejected assumption in `paths.project_memory` on the next approved mutating rerun.
+
+## Project Memory Contract
+
+Use `paths.project_memory` as the runtime-neutral memory layer for the active project set.
+
+- Initialize or refresh it from the latest accepted intake/backbone decisions.
+- Keep it concise: only stable vocabulary, approved decisions, accepted assumptions, rejected assumptions, accepted corrections, and push-back triggers.
+- Do not dump full transcript history into the memory file.
+- When an impact run reveals a cross-artifact correction pattern, carry that pattern into the next approved mutating rerun so later runs can reuse it safely.
+- `paths.project_memory` is recommended support context once `paths.backbone` exists, but it must not block the lifecycle when missing.
+
+## Memory Architecture Contract
+
+BA-kit adopts compiled support memory from LLM Wiki concepts while keeping BA-kit lifecycle, governance, and source-of-truth hierarchy intact. The boundary is:
+
+- `backbone.md` remains the primary scope truth and mutating artifact source.
+- `project-memory.md` (compact/summary form) remains the anti-drift support layer in simple projects.
+- `project-memory/` shard tree is the structured memory extension for complex projects.
+
+### Shard Tree vs Compact Mode
+
+- **Compact mode**: only `project-memory.md` exists; used for simple/summary-only projects; backward compatible.
+- **Shard mode**: `project-memory.md` + `project-memory/` tree; used when index navigation benefit justifies the structure.
+- Shard tree is optional; existing projects without it remain fully operational.
+
+### Index Role Constraint
+
+`project-memory/index.md` is a bounded navigator:
+- It routes agents to the right shards/modules.
+- It must not become a second monolith or a memory dump.
+- Detail lives in hot/warm/cold shards, not in the index itself.
+
+### Log Role Constraint
+
+`project-memory/log.md` is optional append-only chronology:
+- It is never part of default command reads.
+- Commands that need recent-history or audit context may read it explicitly.
+- It never outranks `backbone.md` or hot shards as source of truth.
+
+### Cold Tier Constraint
+
+`project-memory/cold/` is never loaded by default:
+- Only via explicit escalation with a stated reason.
+- Superseded facts move here after archive.
+
+### Migration Path (Summary-Only to Shard Tree)
+
+For projects currently using only `project-memory.md`:
+1. Keep `project-memory.md` as the compact summary — no changes needed to run.
+2. Optionally create `project-memory/` directory with `index.md` when cross-shard navigation becomes valuable.
+3. Populate hot shards from existing vocabulary/decisions sections of `project-memory.md`.
+4. Roadmap plan directories under `plans/` are NOT migration targets; use dedicated BA project fixtures.
+
+## Activation Contract
+
+BA-kit auto-activates stricter memory and governance behavior based on project signals. Activation is deterministic and runtime-neutral.
+
+### Activation Levels
+
+- `Base`: single BA, single module, or simple project. Compact mode eligible.
+- `Modular`: two or more modules or owners. Index-first navigation required.
+- `Program`: cross-module dependencies or two or more concurrent delegation slices.
+
+### Activation Rules
+
+- Use the structured rule tree in `activation.thresholds` from `core/contract.yaml` for all threshold comparisons. Supported rule nodes are `any_of`, `all_of`, and leaf comparisons with `signal`, `operator`, and `value`; supported leaf operators are `gte` and `equals`.
+- Thresholds are locked for v1 in `core/contract.yaml` after fixture validation; runtime parity execution is exempted by maintainer release decision.
+- Compute signals from the persisted sources defined in `activation.signals`.
+- When no shard/index metadata exists, use the compact-fallback value for each signal.
+- Auto-escalation is allowed. Auto-downgrade is not; downgrade requires explicit refresh.
+- Persist activation state inside `paths.memory_index` when shard mode is active.
+- When compact mode is active, record observed activation level in `paths.project_memory` header.
+
+### Activation Freeze Fallback
+
+When runtime mismatch is detected between stored and computed activation level:
+- Freeze activation to `Base`.
+- Emit: `ACTIVATION_FREEZE: computed level {X} conflicts with stored level {Y}; frozen to Base pending explicit refresh.`
+- Do not proceed with Modular or Program behavior until the user explicitly refreshes activation.
+
+## Read Scope Contract
+
+Every command has deterministic read scope. Commands must navigate: summary → index → targeted shards.
+
+### Read Scope Per Command
+
+| Command | Must Read | May Read | Must NOT Read |
+| --- | --- | --- | --- |
+| intake | contract.yaml, contract-behavior.md | paths.project_memory (compact only) | memory shards, log.md, cold/ |
+| backbone | contract.yaml, contract-behavior.md, paths.intake | paths.project_memory, paths.memory_index (nav only), paths.memory_hot_vocabulary, paths.memory_hot_decisions | log.md, cold/, warm/ |
+| impact | contract.yaml, contract-behavior.md, paths.intake, paths.backbone | paths.project_memory, paths.memory_index, paths.memory_hot_*, selected warm/ module shard, relevant downstream artifacts; log.md only for explicit audit | cold/ (unless escalated) |
+| frd | contract.yaml, contract-behavior.md, paths.backbone, paths.plan | paths.project_memory or hot vocabulary+decisions shards | log.md, cold/, warm/, unrelated module shards |
+| stories | contract.yaml, contract-behavior.md, paths.backbone | paths.plan, paths.frd (if exists), paths.project_memory or hot shards | log.md, cold/, warm/, unrelated module shards |
+| srs | contract.yaml, contract-behavior.md, paths.backbone, paths.stories | paths.project_memory or hot shards, module warm shard, paths.frd (if exists) | log.md, cold/, other module shards |
+| wireframes | contract.yaml, contract-behavior.md, paths.wireframe_input | paths.project_memory or paths.memory_hot_decisions, paths.design_doc, module warm shard | log.md, cold/, other module shards |
+| package | contract.yaml, contract-behavior.md | paths.project_memory (compact, consistency check), paths.memory_index (health overview) | log.md, cold/, warm/ shards |
+| status | contract.yaml, contract-behavior.md | paths.project_home, paths.project_memory header, paths.memory_index (activation + freshness) | log.md (unless --audit), warm/ shards, cold/ |
+
+### Index-First Navigation Rule
+
+When shard memory exists:
+1. Read `paths.memory_index` first to determine which shards are relevant.
+2. Load only the shards the index routes to.
+3. Never load the full shard tree when a targeted read is possible.
+
+### `impact` Broad-Read Exception
+
+`impact` is the only command that may read across warm/ module shards by default when Modular or Program activation is detected.
+
+### Log Exclusion Rule
+
+`log.md` is excluded from all default command reads. Only `impact` may read it and only when the user explicitly requests audit or recent-history context.
+
+### Escalation Rule
+
+A command may escalate its read scope only when:
+- The index explicitly routes to an additional shard.
+- The user states an explicit audit or context need.
+- Missing shard routing would otherwise require guessing.
+
+Emit: `READ_ESCALATION: {command} read {path} due to {reason}.`
+
+## Multi-BA Governance Contract
+
+### Memory Ownership Matrix
+
+| Memory Layer | Primary Owner | Who May Write |
+| --- | --- | --- |
+| `project-memory.md` (compact) | Lead BA | Lead BA |
+| `project-memory/index.md` | Lead BA | Lead BA |
+| `project-memory/hot/*.md` | Lead BA | Lead BA |
+| `project-memory/warm/modules/{module_slug}.md` | Module BA | Module BA; cross-module entries require Lead BA approval |
+
+### Conflict Escalation Rules
+
+- When a module BA attempts to write a global hot shard: `GOVERNANCE_CONFLICT: {actor} does not own {path}; escalate to Lead BA.`
+- Two module BAs claiming the same shard: escalate before proceeding.
+- A warm shard change that creates a cross-module dependency: route to Lead BA for approval before writing.
+- Ambiguous ownership escalates rather than guesses.
+
+### Promotion Rules
+
+Canonical memory changes only after an approved rerun:
+1. Detect a change that affects accepted terminology, decisions, or push-back triggers.
+2. Run `impact` to trace scope.
+3. Get explicit user approval of the impact and proposed rerun path.
+4. Execute the approved mutating rerun.
+5. Promote the change to canonical memory using `templates/project-memory-fileback-record-template.md`.
+6. Append a traceable entry to `log.md` when shard mode is active.
+
+### File-Back Approval Authority
+
+- **Lead BA approves:** global or cross-module file-back, hot shard updates, index changes.
+- **Module owner approves:** module-local warm shard file-back.
+- **End-user approval required when:** filed-back content changes accepted business scope or policy.
+- **Ambiguity rule:** ambiguous classification forces explicit end-user approval before file-back.
+- Command-level approval alone is not sufficient for file-back.
+
+### Trace Schema
+
+Every filed-back memory item must carry: `source_artifact`, `source_ids`, `promotion_target`, `approved_by`, `approved_role`, `approved_at`, `approval_basis`, `approval_trigger`, `impact_ref`, `supersedes`, `superseded_by` (optional).
+
+### Archive Policy
+
+- Active facts stay in `hot/` and `warm/`.
+- Superseded facts move to `cold/` with a `superseded_by` trace.
+- `log.md` carries chronology; it does not hold canonical facts.
+- Cold tier is not loaded by default.
+
+### Pre-Mutate Governance Validation
+
+Before mutating `backbone`, `frd`, `stories`, `srs`, or `wireframes`:
+1. Verify write authority for the target artifact and its owning memory shard.
+2. Confirm an impact run is completed and approved (skip only for `wording-only`).
+3. If either check fails: emit `GOVERNANCE_BLOCK: {reason}` and stop.
+4. After approved mutation: offer to file the change into canonical memory using the trace schema.
+
+### Packet-Only Delegation Rule
+
+Sub-agents must receive a memory packet containing objective, write scope, trace IDs, and exact upstream excerpts — not the full memory tree. Return `NEEDS_REPARTITION` with exact missing inputs when the packet is insufficient.

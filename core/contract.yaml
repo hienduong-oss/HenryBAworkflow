@@ -22,14 +22,7 @@
       "failed"
     ],
     "heartbeat_minutes": 5,
-    "stall_after_minutes": 5,
-    "presale": [
-      "bootstrap",
-      "domain-study",
-      "clarify",
-      "build",
-      "handed-off"
-    ]
+    "stall_after_minutes": 10
   },
   "paths": {
     "project_root": "plans/{slug}-{date}",
@@ -38,9 +31,13 @@
     "source_manifest": "plans/{slug}-{date}/00_source/manifest.json",
     "source_summary": "plans/{slug}-{date}/00_source/summary.md",
     "source_chunks_dir": "plans/{slug}-{date}/00_source/chunks",
+    "project_home": "plans/{slug}-{date}/PROJECT-HOME.md",
     "design_root": "designs/{slug}",
     "compiled_root": "plans/{slug}-{date}/04_compiled",
     "delegation_root": "plans/{slug}-{date}/delegation",
+    "collab_home": "plans/{slug}-{date}/COLLAB-HOME.md",
+    "module_home": "plans/{slug}-{date}/03_modules/{module_slug}/MODULE-HOME.md",
+    "review_packet": "plans/{slug}-{date}/delegation/review-packets/{module_slug}.md",
     "intake": "plans/{slug}-{date}/01_intake/intake.md",
     "plan": "plans/{slug}-{date}/01_intake/plan.md",
     "backbone": "plans/{slug}-{date}/02_backbone/backbone.md",
@@ -55,25 +52,18 @@
     "compiled_frd": "plans/{slug}-{date}/04_compiled/compiled-frd.html",
     "compiled_srs": "plans/{slug}-{date}/04_compiled/compiled-srs.html",
     "design_doc": "designs/{slug}/DESIGN.md",
-    "presale_root": "plans/{slug}-{date}/00_presale",
-    "presale_inputs_root": "plans/{slug}-{date}/00_presale/00-inputs",
-    "presale_inputs_requirements": "plans/{slug}-{date}/00_presale/00-inputs/requirements",
-    "presale_inputs_discussions": "plans/{slug}-{date}/00_presale/00-inputs/discussions",
-    "presale_inputs_technical": "plans/{slug}-{date}/00_presale/00-inputs/technical",
-    "presale_inputs_references": "plans/{slug}-{date}/00_presale/00-inputs/references",
-    "presale_domain_primer": "plans/{slug}-{date}/00_presale/00-domain-primer.md",
-    "presale_clarifications": "plans/{slug}-{date}/00_presale/05-clarifications.md",
-    "presale_wbs_md": "plans/{slug}-{date}/00_presale/10-wbs-content.md",
-    "presale_wbs_csv": "plans/{slug}-{date}/00_presale/10-wbs-content.csv",
-    "presale_proposal_md": "plans/{slug}-{date}/00_presale/20-proposal-content.md",
-    "presale_output_root": "plans/{slug}-{date}/00_presale/_output",
-    "presale_wbs_xlsx": "plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx",
-    "presale_proposal_docx": "plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx",
-    "presale_state_cards": "plans/{slug}-{date}/00_presale/_state-cards",
-    "presale_changelog": "plans/{slug}-{date}/00_presale/_changelog",
-    "handoff_intake_sources": "plans/{slug}-{date}/01_intake/_sources",
-    "handoff_manifest": "plans/{slug}-{date}/01_intake/handoff-manifest.md",
-    "style_spec": "templates/output-style-spec.json"
+    "project_memory": "plans/{slug}-{date}/02_backbone/project-memory.md",
+    "memory_root": "plans/{slug}-{date}/02_backbone/project-memory",
+    "memory_index": "plans/{slug}-{date}/02_backbone/project-memory/index.md",
+    "memory_log": "plans/{slug}-{date}/02_backbone/project-memory/log.md",
+    "memory_hot": "plans/{slug}-{date}/02_backbone/project-memory/hot",
+    "memory_warm": "plans/{slug}-{date}/02_backbone/project-memory/warm",
+    "memory_cold": "plans/{slug}-{date}/02_backbone/project-memory/cold",
+    "memory_hot_vocabulary": "plans/{slug}-{date}/02_backbone/project-memory/hot/canonical-vocabulary.md",
+    "memory_hot_decisions": "plans/{slug}-{date}/02_backbone/project-memory/hot/approved-decisions.md",
+    "memory_hot_pushback": "plans/{slug}-{date}/02_backbone/project-memory/hot/pushback-triggers.md",
+    "memory_module_warm": "plans/{slug}-{date}/02_backbone/project-memory/warm/modules/{module_slug}.md",
+    "packet_root": "plans/{slug}-{date}/delegation/packets"
   },
   "patterns": {
     "date_token": "^\\d{6}-\\d{4}$",
@@ -115,6 +105,7 @@
       "mutable": true,
       "requires": [],
       "outputs": [
+        "project_home",
         "intake",
         "plan"
       ]
@@ -134,7 +125,9 @@
         "intake"
       ],
       "outputs": [
-        "backbone"
+        "project_home",
+        "backbone",
+        "project_memory"
       ]
     },
     "frd": {
@@ -201,58 +194,6 @@
       "mutable": false,
       "requires": [],
       "outputs": []
-    },
-    "presale": {
-      "module_required": false,
-      "mutable": true,
-      "requires": [],
-      "outputs": [
-        "presale_domain_primer"
-      ],
-      "phase": "bootstrap"
-    },
-    "presale_clarify": {
-      "module_required": false,
-      "mutable": true,
-      "requires": [
-        "presale_domain_primer"
-      ],
-      "outputs": [
-        "presale_clarifications"
-      ]
-    },
-    "presale_build": {
-      "module_required": false,
-      "mutable": true,
-      "requires": [
-        "presale_domain_primer",
-        "presale_clarifications"
-      ],
-      "outputs": [
-        "presale_wbs_md",
-        "presale_wbs_csv",
-        "presale_proposal_md",
-        "presale_wbs_xlsx",
-        "presale_proposal_docx"
-      ]
-    },
-    "presale_status": {
-      "module_required": false,
-      "mutable": false,
-      "requires": [],
-      "outputs": []
-    },
-    "presale_handoff": {
-      "module_required": false,
-      "mutable": true,
-      "requires": [
-        "presale_wbs_md",
-        "presale_proposal_md"
-      ],
-      "outputs": [
-        "intake",
-        "handoff_manifest"
-      ]
     }
   },
   "source_of_truth_order": [
@@ -279,86 +220,89 @@
     }
   },
   "templates": {
-    "manifest": "templates/manifest.json",
-    "output_style_spec": "templates/output-style-spec.json",
-    "domain_primer": "templates/domain-primer-template.md",
-    "wbs_md": "templates/wbs-template.md",
-    "wbs_csv": "templates/wbs-template.csv",
-    "proposal_md": "templates/proposal-template.md",
-    "clarifications": "templates/clarifications-template.md",
-    "proposal_guide": "templates/proposal-guide.md"
+    "manifest": "templates/manifest.json"
   },
-  "presale": {
-    "agents": {
-      "lead": "presale-lead",
-      "wbs": "wbs-builder",
-      "proposal": "proposal-writer"
+  "memory": {
+    "compact_fallback": "active when only project_memory file exists and memory_root directory is absent",
+    "index_role": "bounded navigator routing to shards and modules; must not become a second monolith",
+    "log_role": "optional append-only chronology support; excluded from normal command reads",
+    "cold_default": "never loaded by default; only via explicit escalation",
+    "shard_tree_optional": true,
+    "migration_scope_excludes_roadmap_dirs": true
+  },
+  "activation": {
+    "levels": ["Base", "Modular", "Program"],
+    "default": "Base",
+    "provisional_until_fixture_validation": false,
+    "thresholds": {
+      "modular": {
+        "any_of": [
+          {
+            "signal": "module_count",
+            "operator": "gte",
+            "value": 2
+          },
+          {
+            "signal": "owner_count",
+            "operator": "gte",
+            "value": 2
+          }
+        ]
+      },
+      "program": {
+        "any_of": [
+          {
+            "signal": "cross_module_dependency",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "signal": "delegation_slice_count",
+            "operator": "gte",
+            "value": 2
+          },
+          {
+            "all_of": [
+              {
+                "signal": "owner_count",
+                "operator": "gte",
+                "value": 2
+              },
+              {
+                "signal": "delegation_slice_count",
+                "operator": "gte",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      }
     },
-    "models": {
-      "lead": "opus",
-      "domain_study": "opus",
-      "clarify": "opus",
-      "wbs": "sonnet",
-      "proposal": "sonnet",
-      "bootstrap": "sonnet",
-      "handoff": "sonnet",
-      "handoff_compose": "sonnet",
-      "surgical_edit_dispatch": "sonnet"
+    "signals": {
+      "module_count": {
+        "source": "count module directories under paths.module_root parent",
+        "compact_fallback": 1
+      },
+      "owner_count": {
+        "source": "distinct owners declared in memory index/module metadata",
+        "compact_fallback": 1
+      },
+      "cross_module_dependency": {
+        "source": "explicit flag or listed dependency in memory index",
+        "compact_fallback": false
+      },
+      "delegation_slice_count": {
+        "source": "count active/queued trackers under paths.delegation_root, excluding archive",
+        "compact_fallback": 0
+      }
     },
-    "model_enforcement": {
-      "require_explicit_model_param": true,
-      "sub_agent_calls_must_specify_model": true,
-      "inherit_parent_model": false,
-      "comment": "Prevent silent model escalation. Every Agent() call MUST pass model param matching presale.models.{role}. Sub-agents must NEVER inherit the lead's Opus model."
+    "lifecycle": {
+      "auto_escalation": true,
+      "auto_downgrade": false,
+      "downgrade_requires": "explicit activation refresh after archival or project simplification",
+      "threshold_locking": "locked for v1 after fixture validation; runtime parity execution is exempted by maintainer release decision"
     },
-    "user_gates": [
-      "after_domain_study",
-      "after_clarify",
-      "after_build",
-      "before_handoff"
-    ],
-    "auto_render_on_build": true,
-    "no_cross_project_recall": true,
-    "auto_derive_workspace": true,
-    "orchestration_mode": {
-      "comment": "Pattern B — script-orchestration for mechanical steps, agent only for judgment points.",
-      "judgment_points": [
-        "domain_study_synthesis",
-        "clarify_gap_analysis",
-        "sync_check_comparison",
-        "conflict_resolution_anchoring",
-        "surgical_edit_intent_parsing"
-      ],
-      "mechanical_steps": [
-        "bootstrap_auto_chain",
-        "build_parallel_dispatch",
-        "render_dispatch_after_sync",
-        "handoff_file_mirror",
-        "handoff_continuity_grep",
-        "srs_group_concat",
-        "surgical_edit_dispatch_after_parse",
-        "surgical_edit_rerender_after_sync"
-      ]
-    },
-    "language": {
-      "artifacts_to_client": "en",
-      "domain_primer": "vi",
-      "agent_summaries": "vi",
-      "command_descriptions": "en"
-    },
-    "source_ref_formats": [
-      "[src:client:<file>§<sec>]",
-      "[src:domain:§<n>]",
-      "[src:clarify:Q<n>]",
-      "[src:assumption:A<n>]",
-      "[src:wbs:<id>]"
-    ],
-    "handoff_bundle": [
-      "presale_inputs_root",
-      "presale_domain_primer",
-      "presale_clarifications",
-      "presale_wbs_md",
-      "presale_proposal_md"
-    ]
+    "persisted_state_path": "paths.memory_index",
+    "compact_fallback_state_path": "paths.project_memory"
   }
 }

@@ -22,21 +22,16 @@ Match intent using the first rule that fits:
 | If the text describes... | Route to | Why |
 | --- | --- | --- |
 | publishing to Notion | `ba-notion` | publish workflow |
-| checking status, completion, or missing artifacts — and presale artifacts exist but no intake | `ba-presale status` | presale inspection path |
-| checking status, completion, or missing artifacts — and intake/backbone exist | `ba-start status` | ba-start inspection path |
+| claiming/assigning a module, sending review, checking module conflict, approving/integrating module work, or GitHub PR/commit/merge handoff | `ba-collab` | BA collaboration workflow |
+| checking status, completion, or missing artifacts | `ba-start status` | inspection path |
+| asking to continue a project, resume work, or "toi nen lam gi tiep" | `ba-next` | BA-facing continuation path |
 | asking what the next BA step should be | `ba-next` | state-aware recommendation |
-| presale work: domain study, clarifications, WBS, Proposal, or handoff to ba-start | `ba-presale` with the matching subcommand | presale lifecycle |
-| a new presale engagement from raw client material (no requirements clear yet) | `ba-presale` | upstream presale lifecycle |
 | adding, changing, removing, or correcting a requirement/rule/scope item | `ba-impact` | change triage before mutation |
 | a bare correction statement in an existing BA project context | `ba-impact` | safe default before edits |
+| asking to prepare UI handoff, mockup checklist, or wireframe constraints | `ba-start wireframes` | friendly alias for manual wireframe handoff |
+| asking to export, publish a review package, or create stakeholder handoff HTML | `ba-start package` | friendly alias for packaging |
 | directly generating or rerunning intake/backbone/frd/stories/srs/wireframes/package | `ba-start` with the matching subcommand | direct BA lifecycle step |
-| a new BA engagement from raw input (requirements already clear) | `ba-start` | full lifecycle |
-
-Presale vs ba-start disambiguation:
-- If the project folder has `00_presale/` artifacts but no `plans/` intake → presale lifecycle.
-- If the project folder has `plans/{slug}-{date}/01_intake/intake.md` → ba-start lifecycle.
-- If both exist → presale is complete; route to ba-start.
-- If neither exists and the input is raw client material with no clear requirements → presale.
+| a new BA engagement from raw input | `ba-start` | full lifecycle |
 
 If the text could match both `ba-impact` and a direct edit request, prefer `ba-impact` unless the user explicitly says to update, edit, overwrite, regenerate, or rerun a named artifact or step.
 </step>
@@ -57,10 +52,10 @@ Reason: {one-line reason}
 Hand off to the chosen command and stop.
 
 Rules:
-- `ba-presale` for upstream presale work (domain study → clarify → build → handoff)
 - `ba-impact` for requirement changes or correction statements
 - `ba-next` for "what should I do next"
-- `ba-start` for explicit BA lifecycle steps after presale or from raw input
+- `ba-start` for explicit lifecycle steps
+- `ba-collab` for module collaboration and approval-gated GitHub handoff
 - `ba-notion` for publishing
 
 The dispatcher must not directly edit BA artifacts.

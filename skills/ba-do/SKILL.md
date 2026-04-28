@@ -17,13 +17,13 @@ Use this command when you know what you want to do in a BA workflow but do not k
 ```text
 /ba-do xem next step cho project nay
 /ba-do dang lam do SRS thi them yeu cau nay
+/ba-do toi nhan module auth-flow
+/ba-do gui module payment cho Lead BA review
 /ba-do publish SRS len Notion
 ```
 
 <execution_context>
-@$HOME/.claude/ba-kit/workflows/do.md
-@$HOME/.claude/ba-kit/contract.yaml
-@$HOME/.claude/ba-kit/contract-behavior.md
+Read `core/workflows/do.md`, `core/contract.yaml`, `core/contract-behavior.md` from the repo root.
 </execution_context>
 
 <context>
@@ -31,6 +31,6 @@ $ARGUMENTS
 </context>
 
 <process>
-Execute the BA routing workflow from @$HOME/.claude/ba-kit/workflows/do.md end-to-end.
-Dispatch to `ba-impact`, `ba-next`, `ba-start`, or `ba-notion`.
+Execute the BA routing workflow from `core/workflows/do.md` end-to-end.
+Dispatch to `ba-impact`, `ba-next`, `ba-start`, `ba-collab`, or `ba-notion`.
 </process>
