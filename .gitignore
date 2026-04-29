@@ -1,6 +1,7 @@
 .DS_Store
 .claude/
 .gemini/
+.codex-artifacts/
 !.gemini/settings.json
 
 # Logs
