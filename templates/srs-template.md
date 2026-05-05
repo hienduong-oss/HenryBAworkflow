@@ -62,14 +62,22 @@ Mô tả các tương tác chính của hệ thống theo định dạng actor-g
 - [Tham chiếu quy tắc]
 
 **Sơ đồ luồng (Process Flow / Sequence Diagram)**
-Yêu cầu bắt buộc phải có sơ đồ luồng BPMN 2.0 (có swimlane bằng Mermaid flowchart/state diagram) hoặc Sơ đồ trình tự (Sequence Diagram) cho Use Case này. Thể hiện rõ các tương tác giữa tác nhân và hệ thống, cũng như các rẽ nhánh luồng thay thế.
+Yêu cầu bắt buộc phải có sơ đồ luồng có swimlane bằng PlantUML hoặc Sơ đồ trình tự (Sequence Diagram) bằng Mermaid cho Use Case này. Thể hiện rõ các tương tác giữa tác nhân và hệ thống, cũng như các rẽ nhánh luồng thay thế.
 
-```mermaid
-sequenceDiagram
-    actor U as Người dùng (Actor)
-    participant S as Hệ thống (System)
-    U->>S: [Gửi tương tác / Hành động]
-    S-->>U: [Hiển thị phản hồi / Kết quả]
+```plantuml
+@startuml
+|Người dùng|
+start
+:Thực hiện hành động;
+|Hệ thống|
+:Tiếp nhận và xử lý;
+if (Điều kiện hợp lệ?) then (Có)
+  :Trả kết quả thành công;
+else (Không)
+  :Trả lỗi / luồng thay thế;
+endif
+stop
+@enduml
 ```
 
 **Màn hình liên kết (Linked Screen):** [SCR-01 — Tên màn hình]

@@ -23,7 +23,7 @@ Related rules:
 
 ## Cross-Artifact Consistency
 - Use cases, screen descriptions, wireframe constraints, and any user-supplied wireframes must describe the **same** behavior using **identical** terminology.
-- Every detailed Use Case in the SRS must include a Process Flow (BPMN 2.0 with swimlanes) or Sequence Diagram (using Mermaid).
+- Every detailed Use Case in the SRS must include a Process Flow with swimlanes (using PlantUML) or a Sequence Diagram (using Mermaid).
 - When wireframe support is requested, an approved project `DESIGN.md` must exist and the resulting manual handoff pack must follow it consistently.
 - Screen Contract Plus must be sufficient to prepare wireframe constraints before final screen descriptions are written.
 - The backbone must lock a system-level `Portal Matrix` whenever UI-backed scope exists.

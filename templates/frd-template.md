@@ -19,16 +19,22 @@ Mô tả giải pháp cần thực hiện dưới góc độ kinh doanh.
 | [Tính năng] | [MoSCoW] | [Mô tả] | [Owner] |
 
 ## Luồng nghiệp vụ (Workflows)
-Sử dụng Mermaid swimlanes hoặc flowcharts cho các hành trình người dùng chính.
+Sử dụng PlantUML activity diagram có swimlane khi cần thể hiện trách nhiệm chéo vai trò/hệ thống. Với luồng đơn giản, có thể dùng Mermaid flowchart.
 
-```mermaid
-flowchart LR
-  A[Bắt đầu] --> B[Bước 1]
-  B --> C{Quyết định}
-  C -->|Có| D[Bước 2]
-  C -->|Không| E[Luồng thay thế]
-  D --> F[Kết thúc]
-  E --> F
+```plantuml
+@startuml
+|Người dùng|
+start
+:Gửi yêu cầu;
+|Hệ thống|
+:Kiểm tra điều kiện;
+if (Hợp lệ?) then (Có)
+  :Tiếp tục xử lý;
+else (Không)
+  :Trả lỗi / luồng thay thế;
+endif
+stop
+@enduml
 ```
 
 ## Yêu cầu dữ liệu (Data Requirements)
