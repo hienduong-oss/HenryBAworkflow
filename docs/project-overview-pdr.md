@@ -57,7 +57,7 @@ BA-kit closes that gap with a BA-first operating model.
 - Full project management automation
 - Domain-specific regulatory logic beyond starter guidance
 - Code generation for implementation teams
-- Diagram rendering beyond Mermaid syntax
+- Diagram rendering beyond Mermaid plus PlantUML swimlanes
 
 ## Target Users
 
@@ -81,7 +81,7 @@ BA-kit closes that gap with a BA-first operating model.
 2. The requirements backbone is the default authoring source after intake.
 3. Four focused agent roles handle delegation without overlap.
 4. Templates are first-class assets because BA deliverables are repeatable.
-5. Mermaid is the standard diagram syntax for portability in markdown.
+5. PlantUML is the standard for swimlanes; Mermaid remains the portable default for the other diagram types in markdown.
 6. Hybrid methodology is the default for solo IT BA work.
 7. SRS and wireframes are gated by real handoff, UI, and risk needs instead of always being emitted in full.
 8. `PROJECT-HOME.md` is a dashboard, not a source of truth; source-of-truth precedence remains backbone then intake.

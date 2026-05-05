@@ -103,7 +103,7 @@ Start with `/ba-start` with regulatory context. The SRS captures compliance cons
 
 ## Modeling Standards
 
-- Use Mermaid for diagrams
+- Use PlantUML for swimlanes; use Mermaid for other diagrams
 - Prefer one diagram per decision question
 - Keep labels business-readable
 - Distinguish current-state from future-state explicitly
