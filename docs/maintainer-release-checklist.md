@@ -57,3 +57,12 @@ Phase 4 is closed for v1 by maintainer decision:
 - structural parity, fixture/golden, installer smoke, and threshold checks remain required
 
 Future releases may reopen runtime execution as a blocking gate.
+
+## Commercial Access Checks
+
+- verify `LICENSE` is the BA-kit Commercial License and does not contain MIT wording
+- verify repo access for any legal entity that purchased or was granted access is read-only unless an exception is approved
+- verify customer use rights are limited to a single legal entity
+- verify any affiliate, contractor, or client access request has a separate written commercial approval
+- verify the active order form, invoice, or MSA does not conflict with the root `LICENSE`
+- verify README licensing language matches the current commercial model before each release or sales handoff
