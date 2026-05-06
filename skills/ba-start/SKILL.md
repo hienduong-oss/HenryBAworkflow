@@ -1,7 +1,7 @@
 ---
 name: ba-start
 description: Lifecycle engine for BA-kit. Accepts raw requirements, normalizes them, locks scope, builds a requirements backbone, emits only the necessary downstream artifacts, and packages deliverables.
-argument-hint: "[intake|impact|backbone|frd|stories|srs|wireframes|package|status] [file|--slug|--date|--module|--mode]"
+argument-hint: "[intake|impact|options|backbone|frd|stories|srs|wireframes|package|status|next] [file|--slug|--date|--module|--mode|--select|--skip]"
 ---
 
 # BA Start
@@ -22,6 +22,9 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 /ba-start
 /ba-start intake <file>
 /ba-start impact --slug <slug> [change-file]
+/ba-start options --slug <slug>
+/ba-start options --slug <slug> --select option-02
+/ba-start options --slug <slug> --skip
 /ba-start backbone --slug <slug>
 /ba-start frd --slug <slug> --module <module_slug>
 /ba-start stories --slug <slug> --module <module_slug>
@@ -39,6 +42,7 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 | no subcommand | `steps/intake.md`, then downstream gated steps | full lifecycle |
 | `intake` | `steps/intake.md` | Steps 1-4 |
 | `impact` | `steps/impact.md` | analysis only |
+| `options` | `steps/options.md` | pre-backbone solution optioning |
 | `backbone` | `steps/backbone.md` | Step 5 |
 | `frd` | `steps/frd.md` | Step 6 |
 | `stories` | `steps/stories.md` | Step 7 |
