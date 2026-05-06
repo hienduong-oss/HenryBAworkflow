@@ -9,17 +9,20 @@
 **Cập nhật lần cuối:** [YYYY-MM-DD HH:mm]
 **Runtime gần nhất:** [claude-code | codex | antigravity | mixed]
 
+> Trạng thái lifecycle chuẩn trong dashboard này: `recommended` = nên làm tiếp nhưng chưa bắt đầu, `in-progress` = đang thực hiện, `completed` = đã xong/đã chốt, `skipped` = chủ động bỏ qua có lý do, `not-needed` = không cần cho dự án này. Chỉ dùng tập trạng thái này, không quay lại bộ nhãn task-board cũ.
+
 ## 1. Tôi Đang Ở Đâu?
 
 | Hạng mục | Trạng thái | Ý nghĩa cho BA |
 | --- | --- | --- |
-| Tiếp nhận yêu cầu | [Todo / Doing / Done] | Đã gom và chuẩn hóa thông tin đầu vào chưa |
-| Khung yêu cầu đã chốt | [Todo / Doing / Done] | Đã có source of truth để sinh tài liệu chưa |
-| User stories | [Not needed / Todo / Doing / Done] | Có cần bàn giao cho team Agile không |
-| FRD | [Not needed / Todo / Doing / Done] | Có cần tài liệu yêu cầu chức năng chi tiết không |
-| SRS | [Not needed / Todo / Doing / Done] | Có cần đặc tả hệ thống/use case/screen không |
-| Handoff UI | [Not needed / Todo / Doing / Done] | Có cần gói constraint để user tự vẽ mockup không |
-| Gói bàn giao HTML | [Not needed / Todo / Done] | Có bản stakeholder review trong browser chưa |
+| Tiếp nhận yêu cầu | [recommended | in-progress | completed] | Đã gom và chuẩn hóa thông tin đầu vào chưa |
+| Phương án giải pháp | [recommended | in-progress | completed | skipped | not-needed] | Đã cần brainstorm và chốt hướng solution trước backbone chưa |
+| Khung yêu cầu đã chốt | [recommended | in-progress | completed] | Đã có source of truth để sinh tài liệu chưa |
+| User stories | [recommended | in-progress | completed | skipped | not-needed] | Có cần bàn giao cho team Agile không |
+| FRD | [recommended | in-progress | completed | skipped | not-needed] | Có cần tài liệu yêu cầu chức năng chi tiết không |
+| SRS | [recommended | in-progress | completed | skipped | not-needed] | Có cần đặc tả hệ thống/use case/screen không |
+| Handoff UI | [recommended | in-progress | completed | skipped | not-needed] | Có cần gói constraint để user tự vẽ mockup không |
+| Gói bàn giao HTML | [recommended | in-progress | completed | skipped | not-needed] | Có bản stakeholder review trong browser chưa |
 
 ## 2. Bước Tiếp Theo Được Khuyến Nghị
 
@@ -43,7 +46,8 @@
 | --- | --- | --- |
 | Trang điều phối dự án | `PROJECT-HOME.md` | Xem trạng thái, bước tiếp theo, câu hỏi cần chốt |
 | Phiếu tiếp nhận yêu cầu | `01_intake/intake.md` | Lưu input đã chuẩn hóa và gap |
-| Kế hoạch xử lý | `01_intake/plan.md` | Chọn artifact nào cần sinh |
+| Kế hoạch xử lý | `01_intake/plan.md` | Decision ledger cho optioning status, khuyến nghị bước tiếp theo, và artifact cần sinh |
+| Bộ phương án giải pháp | `01_intake/options/*` | Xem các option solution và bảng so sánh trước khi chốt backbone |
 | Khung yêu cầu đã chốt | `02_backbone/backbone.md` | Source of truth sau scope lock |
 | Bộ nhớ dự án | `02_backbone/project-memory.md` | Thuật ngữ, quyết định, giả định đã chốt |
 | Tài liệu module | `03_modules/{module}/...` | FRD, stories, SRS, UI handoff theo phân hệ |
@@ -76,6 +80,7 @@ Use AGENTS.md. Read PROJECT-HOME.md for the BA-facing state, then use the BA-kit
 | --- | --- |
 | Tạo dự án mới / phân tích tài liệu mới | `intake` hoặc full lifecycle |
 | Tiếp tục dự án | `ba-next` rồi step được khuyến nghị |
+| Brainstorm phương án / chốt option | `options` |
 | Khung yêu cầu đã chốt | `backbone` |
 | Đánh giá thay đổi | `impact` |
 | Chuẩn bị handoff UI | `wireframes` |
