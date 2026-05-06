@@ -3,11 +3,24 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ba-kit-md-to-html.XXXXXX")"
-trap 'rm -rf "$TMP_DIR"' EXIT
+OUTSIDE_PNG="${TMP_DIR}.outside.png"
+trap 'rm -rf "$TMP_DIR" "$OUTSIDE_PNG"' EXIT
 
 mkdir -p "$TMP_DIR/designs/test-flow"
 
 python3 - "$TMP_DIR/designs/test-flow/SCR-01-login.png" <<'PY'
+import base64
+import pathlib
+import sys
+
+png = (
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8"
+    "/w8AAgMBgI6D+wAAAABJRU5ErkJggg=="
+)
+pathlib.Path(sys.argv[1]).write_bytes(base64.b64decode(png))
+PY
+
+python3 - "$OUTSIDE_PNG" <<'PY'
 import base64
 import pathlib
 import sys
@@ -29,11 +42,20 @@ cat >"$TMP_DIR/frd-260330-1010-demo-portal.md" <<'EOF'
 
 ## Luồng nghiệp vụ
 
-```mermaid
-flowchart TD
-  A[User submits] --> B{Valid?}
-  B -- Yes --> C[Continue]
-  B -- No --> D[Show error]
+```plantuml
+@startuml
+|User|
+start
+:Submit request;
+|System|
+:Validate;
+if (Valid?) then (Yes)
+  :Continue;
+else (No)
+  :Show error;
+endif
+stop
+@enduml
 ```
 EOF
 
@@ -56,7 +78,7 @@ cat >"$TMP_DIR/srs-260330-1010-demo-portal.md" <<'EOF'
 
 - Delivery packaging
   1. Generate stakeholder HTML
-  2. Preserve Mermaid blocks
+  2. Preserve Mermaid blocks and render PlantUML swimlanes
 
 > Stakeholder copy should render without editing controls.
 
@@ -64,6 +86,8 @@ cat >"$TMP_DIR/srs-260330-1010-demo-portal.md" <<'EOF'
 | --- | --- |
 | FRD | Ready |
 | SRS | Ready |
+
+![escape-attempt](__ESCAPE_IMG__)
 
 ```mermaid
 flowchart TD
@@ -77,16 +101,30 @@ echo "package"
 ```
 EOF
 
+python3 - "$TMP_DIR/srs-260330-1010-demo-portal.md" "$(basename "$OUTSIDE_PNG")" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+escaped = f"../{sys.argv[2]}"
+path.write_text(path.read_text(encoding="utf-8").replace("__ESCAPE_IMG__", escaped), encoding="utf-8")
+PY
+
+cp "$TMP_DIR/frd-260330-1010-demo-portal.md" "$TMP_DIR/frd-260330-1010-demo-portal-remote.md"
+
 python3 "$ROOT_DIR/scripts/md-to-html.py" --base-dir "$TMP_DIR" --no-editor "$TMP_DIR/frd-260330-1010-demo-portal.md"
 python3 "$ROOT_DIR/scripts/md-to-html.py" --base-dir "$TMP_DIR" --no-editor "$TMP_DIR/srs-260330-1010-demo-portal.md"
+python3 "$ROOT_DIR/scripts/md-to-html.py" --base-dir "$TMP_DIR" --no-editor --plantuml-server "https://plantuml.internal/plantuml/svg/" --plantuml-command "$TMP_DIR/does-not-exist-plantuml" "$TMP_DIR/frd-260330-1010-demo-portal-remote.md"
 
 FRD_HTML="$TMP_DIR/frd-260330-1010-demo-portal.html"
 SRS_HTML="$TMP_DIR/srs-260330-1010-demo-portal.html"
+REMOTE_FRD_HTML="$TMP_DIR/frd-260330-1010-demo-portal-remote.html"
 
 test -f "$FRD_HTML"
 test -f "$SRS_HTML"
+test -f "$REMOTE_FRD_HTML"
 
-python3 - "$FRD_HTML" "$SRS_HTML" <<'PY'
+python3 - "$FRD_HTML" "$SRS_HTML" "$REMOTE_FRD_HTML" "$OUTSIDE_PNG" <<'PY'
 from html.parser import HTMLParser
 from pathlib import Path
 import sys
@@ -101,9 +139,13 @@ class Probe(HTMLParser):
         self.has_table = False
         self.has_blockquote = False
         self.has_mermaid = False
+        self.has_plantuml_remote = False
+        self.has_plantuml_inline = False
+        self.has_plantuml_warning = False
         self.has_bash = False
         self.has_nav = False
         self.has_image = False
+        self.has_blocked_image = False
         self.has_nested_ol_ul = False
         self.has_nested_ul_ol = False
 
@@ -124,10 +166,18 @@ class Probe(HTMLParser):
             self.has_nav = True
         elif tag == "img" and attrs.get("src", "").startswith("data:image/png;base64,"):
             self.has_image = True
+        elif tag == "img" and "/plantuml/svg/" in attrs.get("src", ""):
+            self.has_plantuml_remote = True
+        elif tag == "figcaption" and "plantuml-render-warning" in element_classes:
+            self.has_plantuml_warning = True
+        elif tag == "svg":
+            self.has_plantuml_inline = True
         elif tag == "pre" and attrs.get("class") == "mermaid":
             self.has_mermaid = True
         elif tag == "code" and attrs.get("class") == "language-bash":
             self.has_bash = True
+        elif tag == "span" and "blocked-image" in element_classes:
+            self.has_blocked_image = True
 
         parent_tags = [name for name, _ in self.stack[:-1]]
         if tag == "ul" and parent_tags[-2:] == ["ol", "li"]:
@@ -144,6 +194,8 @@ class Probe(HTMLParser):
 
 frd_html = Path(sys.argv[1]).read_text(encoding="utf-8")
 srs_html = Path(sys.argv[2]).read_text(encoding="utf-8")
+remote_frd_html = Path(sys.argv[3]).read_text(encoding="utf-8")
+outside_png = Path(sys.argv[4]).read_bytes()
 
 for html, doc_type in (
     (frd_html, "frd"),
@@ -160,6 +212,16 @@ for html, doc_type in (
     assert "Generated" in html, f"Missing generated metadata row for {doc_type}"
 
 assert "Demo Portal" in frd_html, "Missing FRD project metadata"
+probe = Probe()
+probe.feed(frd_html)
+assert "plantuml.com/plantuml/svg/" not in frd_html, "Unexpected public PlantUML server leak"
+assert probe.has_plantuml_inline or probe.has_plantuml_warning, "Missing safe PlantUML handling"
+
+remote_probe = Probe()
+remote_probe.feed(remote_frd_html)
+assert remote_probe.has_plantuml_remote, "Missing configured PlantUML fallback rendering"
+assert "https://plantuml.internal/plantuml/svg/" in remote_frd_html, "Configured PlantUML server URL missing"
+assert "Local PlantUML was unavailable" in remote_frd_html, "Missing explicit local-first fallback note"
 
 probe = Probe()
 probe.feed(srs_html)
@@ -169,6 +231,7 @@ assert probe.has_blockquote, "Missing blockquote"
 assert probe.has_mermaid, "Missing Mermaid block"
 assert probe.has_bash, "Missing bash code block"
 assert probe.has_image, "Missing embedded image"
+assert probe.has_blocked_image, "Missing blocked escaped image marker"
 assert probe.has_nested_ol_ul, "Missing ordered list with nested unordered list"
 assert probe.has_nested_ul_ol, "Missing unordered list with nested ordered list"
 assert srs_html.count('<pre class="mermaid">') == 1, "Unexpected Mermaid block count"
@@ -178,6 +241,8 @@ assert "startOnLoad: false" in srs_html, "Missing explicit Mermaid bootstrap"
 assert "mermaid.run({ querySelector: 'pre.mermaid' })" in srs_html, "Missing Mermaid render call"
 assert "wireframe-lightbox" in srs_html, "Missing wireframe preview lightbox"
 assert "max-height: min(68vh, 960px);" in srs_html, "Missing constrained wireframe image sizing"
+assert "Blocked image path outside base directory" in srs_html, "Missing traversal block message"
+assert outside_png.hex() not in srs_html, "Escaped image bytes leaked into HTML"
 PY
 
 grep -q '<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>' "$SRS_HTML"

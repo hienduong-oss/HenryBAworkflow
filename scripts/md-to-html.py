@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Convert BA markdown documents to unified BA-kit HTML with rendered Mermaid diagrams and embedded images.
+"""Convert BA markdown documents to unified BA-kit HTML with rendered diagrams and embedded images.
 
 Usage:
     python scripts/md-to-html.py plans/reports/frd-260325-project.md
     python scripts/md-to-html.py plans/reports/srs-260325-project.md
 
-Works with any BA-kit document: intake, FRD (Mermaid workflows), user stories,
+Works with any BA-kit document: intake, FRD (Mermaid/PlantUML workflows), user stories,
 SRS (wireframe images + diagrams), or any markdown file.
 
 Supports:
     - Shared BA-kit HTML shell with metadata header and artifact-specific visual variants
     - Mermaid diagrams (rendered client-side via mermaid.js CDN)
+    - PlantUML diagrams (rendered locally when available, or via an explicitly configured server)
     - Inline wireframe images from explicit PNG references in the markdown
     - In-browser editing without touching raw HTML code
     - Page breaks for PDF printing (browser Print → Save as PDF)
@@ -19,8 +20,12 @@ Supports:
 
 import argparse
 import base64
+import os
 import re
+import shutil
+import subprocess
 import sys
+import zlib
 from datetime import datetime
 from html import escape
 from pathlib import Path
@@ -31,6 +36,9 @@ from typing import Optional
 
 LIST_ITEM_RE = re.compile(r"^(?P<indent>[ \t]*)(?P<marker>[-*]|\d+\.)\s+(?P<content>.+)$")
 DATE_TOKEN_RE = r"\d{6}-\d{4}"
+PLANTUML_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_"
+ALLOWED_IMAGE_SUFFIXES = {".gif", ".jpeg", ".jpg", ".png", ".svg", ".webp"}
+REPO_ROOT = Path(__file__).resolve().parent.parent
 
 ARTIFACT_VARIANTS = {
     "generic": {
@@ -232,16 +240,39 @@ def render_document_shell(md: str, md_path: Path) -> tuple[str, str]:
     return doc_type, shell
 
 
+def resolve_asset_path(asset_path: str, base_dir: Path) -> tuple[Optional[Path], Optional[str]]:
+    """Resolve an asset path only when it stays inside the allowed base directory."""
+    resolved_base = base_dir.resolve()
+    candidate = Path(asset_path.strip())
+    if candidate.is_absolute():
+        return None, "Blocked image path outside base directory"
+    resolved_path = (resolved_base / candidate).resolve()
+    try:
+        resolved_path.relative_to(resolved_base)
+    except ValueError:
+        return None, "Blocked image path outside base directory"
+    if resolved_path.suffix.lower() not in ALLOWED_IMAGE_SUFFIXES:
+        return None, f"Unsupported image type: {resolved_path.suffix or '[none]'}"
+    if not resolved_path.exists() or not resolved_path.is_file():
+        return None, "Missing image"
+    return resolved_path, None
+
+
 def embed_image(img_path: str, base_dir: Path) -> str:
     """Convert image path to base64 data URI."""
-    full_path = Path(img_path)
-    if not full_path.is_absolute():
-        full_path = base_dir / full_path
-    if not full_path.exists():
-        return f'<span class="missing-image">[Missing image: {escape(img_path)}]</span>'
+    full_path, error = resolve_asset_path(img_path, base_dir)
+    if error:
+        css_class = "missing-image" if error == "Missing image" else "blocked-image"
+        return f'<span class="{css_class}">[{escape(error)}: {escape(img_path)}]</span>'
     suffix = full_path.suffix.lower()
-    mime = {"png": "image/png", "jpg": "image/jpeg", "jpeg": "image/jpeg",
-            "webp": "image/webp"}.get(suffix.lstrip("."), "image/png")
+    mime = {
+        "gif": "image/gif",
+        "png": "image/png",
+        "jpg": "image/jpeg",
+        "jpeg": "image/jpeg",
+        "svg": "image/svg+xml",
+        "webp": "image/webp",
+    }.get(suffix.lstrip("."), "image/png")
     data = base64.b64encode(full_path.read_bytes()).decode()
     return (
         f'<img src="data:{mime};base64,{data}" alt="{escape(full_path.stem)}" '
@@ -249,7 +280,146 @@ def embed_image(img_path: str, base_dir: Path) -> str:
     )
 
 
-def md_to_html(md: str, base_dir: Path) -> str:
+def encode_plantuml(source: str) -> str:
+    """Encode PlantUML text into the compact URL form expected by PlantUML servers."""
+    compressor = zlib.compressobj(level=9, wbits=-15)
+    compressed = compressor.compress(source.encode("utf-8")) + compressor.flush()
+    encoded = []
+    for index in range(0, len(compressed), 3):
+        chunk = compressed[index:index + 3]
+        b1 = chunk[0]
+        b2 = chunk[1] if len(chunk) > 1 else 0
+        b3 = chunk[2] if len(chunk) > 2 else 0
+        for value in (
+            b1 >> 2,
+            ((b1 & 0x03) << 4) | (b2 >> 4),
+            ((b2 & 0x0F) << 2) | (b3 >> 6),
+            b3 & 0x3F,
+        ):
+            encoded.append(PLANTUML_ALPHABET[value & 0x3F])
+    return "".join(encoded)
+
+
+def normalize_plantuml_server(server: Optional[str]) -> Optional[str]:
+    """Return a normalized PlantUML server URL with a trailing slash."""
+    if not server:
+        return None
+    normalized = server.strip()
+    if not normalized:
+        return None
+    return normalized if normalized.endswith("/") else f"{normalized}/"
+
+
+def install_local_plantuml() -> tuple[Optional[str], Optional[str]]:
+    """Attempt to install PlantUML locally using the repo helper script."""
+    installer = REPO_ROOT / "scripts" / "install-plantuml.sh"
+    if not installer.exists():
+        return None, f"Missing installer: {installer}"
+    try:
+        result = subprocess.run(
+            [str(installer)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as exc:
+        return None, f"Failed to execute PlantUML installer: {exc}"
+    if result.returncode != 0:
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        stdout = result.stdout.decode("utf-8", errors="replace").strip()
+        details = stderr or stdout or f"exit code {result.returncode}"
+        return None, f"Local PlantUML install failed: {details}"
+    installed = shutil.which("plantuml")
+    if not installed:
+        return None, "Local PlantUML install completed but `plantuml` is still not on PATH"
+    return installed, None
+
+
+def resolve_plantuml_command(plantuml_command: Optional[str], auto_install: bool) -> tuple[Optional[str], Optional[str]]:
+    """Resolve a local PlantUML executable, optionally auto-installing it first."""
+    candidate = None
+    if plantuml_command:
+        candidate = shutil.which(plantuml_command)
+        if candidate is None and Path(plantuml_command).exists():
+            candidate = str(Path(plantuml_command).resolve())
+    else:
+        candidate = shutil.which("plantuml")
+    if candidate:
+        return candidate, None
+    if auto_install:
+        return install_local_plantuml()
+    return None, "Local `plantuml` executable not found"
+
+
+def render_plantuml_locally(source: str, plantuml_command: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    """Render PlantUML using a local executable when available."""
+    executable = plantuml_command
+    if not executable:
+        return None, "Local `plantuml` executable not found"
+    try:
+        result = subprocess.run(
+            [executable, "-tsvg", "-pipe"],
+            input=source.encode("utf-8"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+    except OSError as exc:
+        return None, f"Failed to execute local `plantuml`: {exc}"
+    if result.returncode != 0:
+        stderr = result.stderr.decode("utf-8", errors="replace").strip()
+        if stderr:
+            return None, f"Local `plantuml` render failed: {stderr}"
+        return None, f"Local `plantuml` render failed with exit code {result.returncode}"
+    svg = result.stdout.decode("utf-8", errors="replace").strip()
+    if "<svg" not in svg:
+        return None, "Local `plantuml` output was not SVG"
+    return svg, None
+
+
+def render_plantuml(source: str, plantuml_server: Optional[str], plantuml_command: Optional[str]) -> str:
+    """Render a PlantUML fenced block without leaking to third-party services by default."""
+    diagram = source.strip()
+    if not diagram:
+        return '<pre class="plantuml-render-error">[Empty PlantUML diagram]</pre>\n'
+    normalized_server = normalize_plantuml_server(plantuml_server)
+    local_svg, _ = render_plantuml_locally(diagram, plantuml_command)
+    if local_svg:
+        return (
+            '<figure class="plantuml-diagram plantuml-diagram--inline">'
+            f"{local_svg}"
+            "</figure>\n"
+        )
+    if normalized_server:
+        encoded = encode_plantuml(diagram)
+        return (
+            '<figure class="plantuml-diagram">'
+            '<figcaption class="plantuml-render-warning">'
+            'Local PlantUML was unavailable, so this diagram is using the configured server fallback.'
+            '</figcaption>'
+            f'<img src="{normalized_server}{encoded}" alt="PlantUML diagram" '
+            'class="plantuml-image" loading="lazy" decoding="async">'
+            "</figure>\n"
+        )
+    return (
+        '<figure class="plantuml-diagram">'
+        '<figcaption class="plantuml-render-warning">'
+        'PlantUML was not rendered. Prefer local setup via `ba-kit install-plantuml` '
+        'or rerun with `--auto-install-plantuml`. Only if local is unavailable should '
+        'you use `--plantuml-server` / `BA_KIT_PLANTUML_SERVER`.'
+        '</figcaption>'
+        f'<pre class="plantuml-render-error">{escape(diagram)}</pre>'
+        "</figure>\n"
+    )
+
+
+def md_to_html(
+    md: str,
+    base_dir: Path,
+    *,
+    plantuml_server: Optional[str] = None,
+    plantuml_command: Optional[str] = None,
+) -> str:
     """Convert markdown to HTML with embedded images."""
     lines = md.split("\n")
     html_parts = []
@@ -257,6 +427,7 @@ def md_to_html(md: str, base_dir: Path) -> str:
     in_code = False
     in_table = False
     code_lang = ""
+    code_lines = []
     table_rows = []
     list_stack = []
 
@@ -320,14 +491,26 @@ def md_to_html(md: str, base_dir: Path) -> str:
             if in_code:
                 if code_lang == "mermaid":
                     html_parts.append("</pre>\n")
+                elif code_lang == "plantuml":
+                    html_parts.append(
+                        render_plantuml(
+                            "".join(code_lines),
+                            plantuml_server=plantuml_server,
+                            plantuml_command=plantuml_command,
+                        )
+                    )
                 else:
                     html_parts.append("</code></pre>\n")
                 in_code = False
+                code_lang = ""
+                code_lines = []
             else:
                 code_lang = line[3:].strip()
                 cls = f' class="language-{code_lang}"' if code_lang else ""
                 if code_lang == "mermaid":
                     html_parts.append(f'<pre class="mermaid">')
+                elif code_lang == "plantuml":
+                    code_lines = []
                 else:
                     html_parts.append(f"<pre><code{cls}>")
                 in_code = True
@@ -335,6 +518,8 @@ def md_to_html(md: str, base_dir: Path) -> str:
         if in_code:
             if code_lang == "mermaid":
                 html_parts.append(line + "\n")
+            elif code_lang == "plantuml":
+                code_lines.append(line + "\n")
             else:
                 html_parts.append(escape(line) + "\n")
             continue
@@ -647,6 +832,38 @@ pre.mermaid,
     background: #fffbeb;
     border-color: rgba(146, 64, 14, 0.24);
 }
+.plantuml-diagram {
+    margin: 1em 0;
+    padding: 20px;
+    border: 1px solid rgba(15, 52, 96, 0.1);
+    border-radius: 14px;
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 1));
+    overflow-x: auto;
+}
+.plantuml-diagram--inline svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+.plantuml-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+.plantuml-render-warning {
+    margin: 0 0 12px;
+    color: #92400e;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.plantuml-render-error {
+    color: #92400e;
+    background: #fffbeb;
+    border: 1px solid rgba(146, 64, 14, 0.24);
+    border-radius: 14px;
+}
 img.wireframe {
     display: block;
     width: auto;
@@ -662,7 +879,8 @@ img.wireframe {
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     cursor: zoom-in;
 }
-.missing-image { color: #d32f2f; font-style: italic; padding: 1em; background: #fff3f3; border: 1px dashed #d32f2f; border-radius: 4px; }
+.missing-image,
+.blocked-image { color: #d32f2f; font-style: italic; padding: 1em; background: #fff3f3; border: 1px dashed #d32f2f; border-radius: 4px; }
 .toc { background: #f8f9fa; border: 1px solid var(--border); border-radius: 8px; padding: 1.5em; margin-bottom: 2em; }
 .toc h2 { margin-top: 0; font-size: 1.2em; }
 .toc ul { list-style: none; margin: 0; padding: 0; }
@@ -1086,6 +1304,7 @@ def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: b
     """Convert any BA markdown to HTML with embedded images and Mermaid support."""
     if base_dir is None:
         base_dir = default_base_dir(md_path)
+    base_dir = base_dir.resolve()
     md = md_path.read_text(encoding="utf-8")
 
     # Convert wireframe file references to embedded images
@@ -1096,7 +1315,19 @@ def convert(md_path: Path, *, base_dir: Optional[Path] = None, editor_enabled: b
         md,
     )
 
-    body = md_to_html(md, base_dir)
+    plantuml_server = normalize_plantuml_server(os.environ.get("BA_KIT_PLANTUML_SERVER"))
+    plantuml_command = os.environ.get("BA_KIT_PLANTUML_COMMAND")
+    auto_install_plantuml = os.environ.get("BA_KIT_AUTO_INSTALL_PLANTUML") == "1"
+    resolved_plantuml_command, _ = resolve_plantuml_command(
+        plantuml_command,
+        auto_install=auto_install_plantuml,
+    )
+    body = md_to_html(
+        md,
+        base_dir,
+        plantuml_server=plantuml_server,
+        plantuml_command=resolved_plantuml_command,
+    )
     doc_type, document_shell = render_document_shell(md, md_path)
     title = extract_title(md, md_path)
 
@@ -1179,17 +1410,43 @@ def aggregate_modules(modules_dir: Path, base_dir: Optional[Path], editor_enable
         print(f"Generated aggregate: {out}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert BA markdown to HTML with Mermaid diagrams and embedded images")
+    parser = argparse.ArgumentParser(description="Convert BA markdown to HTML with Mermaid/PlantUML diagrams and embedded images")
     parser.add_argument("input", help="Path to markdown file or 03_modules directory (for aggregate)")
     parser.add_argument(
         "--base-dir",
         help="Project root used to resolve relative image references",
     )
     parser.add_argument(
+        "--plantuml-server",
+        help=(
+            "Optional approved PlantUML server URL. "
+            "Defaults to BA_KIT_PLANTUML_SERVER; if unset, no remote PlantUML fetch is emitted."
+        ),
+    )
+    parser.add_argument(
+        "--plantuml-command",
+        help=(
+            "Path to a local `plantuml` executable. "
+            "Defaults to BA_KIT_PLANTUML_COMMAND or `plantuml` on PATH."
+        ),
+    )
+    parser.add_argument(
+        "--auto-install-plantuml",
+        action="store_true",
+        help="Attempt to install PlantUML locally before falling back to a configured server.",
+    )
+    parser.add_argument(
         "--with-editor",
         action="store_true",
         help="Generate HTML with the in-browser editing toolbar",
     )
+    parser.add_argument(
+        "--no-editor",
+        dest="with_editor",
+        action="store_false",
+        help="Generate HTML without the in-browser editing toolbar (default)",
+    )
+    parser.set_defaults(with_editor=False)
     parser.add_argument(
         "--aggregate",
         action="store_true",
@@ -1203,6 +1460,12 @@ def main():
         sys.exit(1)
 
     base = Path(args.base_dir).resolve() if args.base_dir else None
+    if args.plantuml_server:
+        os.environ["BA_KIT_PLANTUML_SERVER"] = normalize_plantuml_server(args.plantuml_server) or ""
+    if args.plantuml_command:
+        os.environ["BA_KIT_PLANTUML_COMMAND"] = args.plantuml_command
+    if args.auto_install_plantuml:
+        os.environ["BA_KIT_AUTO_INSTALL_PLANTUML"] = "1"
 
     if args.aggregate:
         aggregate_modules(input_path, base_dir=base, editor_enabled=args.with_editor)
