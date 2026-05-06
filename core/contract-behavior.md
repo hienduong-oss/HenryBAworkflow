@@ -133,6 +133,12 @@ Stop when:
 - multiple options exist but no explicit selection/skip has been approved
 - a selection request names an unknown option id
 
+For `options`, allow `--select <option-id>` and `--skip` as mutually exclusive control arguments.
+Stop when:
+- the requested option file does not exist
+- multiple options exist but no explicit selection/skip has been approved
+- a selection request names an unknown option id
+
 ## Overwrite Behavior
 
 Before mutating `backbone`, `frd`, `stories`, `srs`, `wireframes`, or `package`:
