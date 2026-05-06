@@ -17,11 +17,17 @@ Rules:
 - prefer explicit `--slug`
 - otherwise detect a single existing project set from exact BA-kit artifact patterns
 - if ambiguous, stop and ask the user to choose
+- when the next exact command would be module-scoped (`frd`, `stories`, `srs`, or `wireframes`), resolve the module using the contract rules before emitting the command
+- if multiple module directories exist, stop and ask instead of emitting an incomplete module-scoped command
 </step>
 
 <step name="inspect_artifacts">
 Inspect the resolved artifact set and determine which of these exist:
 - intake
+- plan
+- options index
+- option files
+- comparison file
 - backbone
 - frd
 - user stories
@@ -38,13 +44,16 @@ Read the backbone gate section when it exists. Use it to decide whether FRD, SRS
 Apply the first matching rule:
 
 1. no intake -> next step `ba-start intake`
-2. intake exists but no backbone -> `ba-start backbone --slug <slug>`
-3. backbone exists and FRD is explicitly required but missing -> `ba-start frd --slug <slug>`
-4. backbone exists but user stories are missing -> `ba-start stories --slug <slug>`
-5. SRS is required and missing -> `ba-start srs --slug <slug>`
-6. wireframe-input exists and wireframe-state is missing while wireframe handoff is required -> `ba-start wireframes --slug <slug>`
-7. final markdown exists but required packaged HTML is missing -> `ba-start package --slug <slug>`
-8. everything required already exists -> `ba-start status --slug <slug>`
+2. intake exists and `paths.plan` says options are `recommended` or `in-progress` -> `ba-start options --slug <slug>`
+3. intake exists and `paths.plan` is missing, invalid, or says `completed` without `selected option` -> `ba-start status --slug <slug>`
+4. intake exists, `paths.plan` says options are `not-needed`, and no backbone -> `ba-start backbone --slug <slug>`
+5. intake exists, `paths.plan` says options are `skipped`, or `completed` with `selected option` recorded in `paths.plan`, and no backbone -> `ba-start backbone --slug <slug>`
+6. backbone exists and FRD is explicitly required but missing -> `ba-start frd --slug <slug> --module <module_slug>`
+7. backbone exists but user stories are missing -> `ba-start stories --slug <slug> --module <module_slug>`
+8. SRS is required and missing -> `ba-start srs --slug <slug> --module <module_slug>`
+9. wireframe-input exists and wireframe-state is missing while wireframe handoff is required -> `ba-start wireframes --slug <slug> --module <module_slug>`
+10. final markdown exists but required packaged HTML is missing -> `ba-start package --slug <slug>`
+11. everything required already exists -> `ba-start status --slug <slug>`
 
 When FRD/SRS/wireframe-handoff gates are unclear, explain the uncertainty and recommend `ba-start status --slug <slug>` instead of guessing.
 </step>

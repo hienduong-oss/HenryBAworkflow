@@ -30,7 +30,8 @@ Match intent using the first rule that fits:
 | a bare correction statement in an existing BA project context | `ba-impact` | safe default before edits |
 | asking to prepare UI handoff, mockup checklist, or wireframe constraints | `ba-start wireframes` | friendly alias for manual wireframe handoff |
 | asking to export, publish a review package, or create stakeholder handoff HTML | `ba-start package` | friendly alias for packaging |
-| directly generating or rerunning intake/backbone/frd/stories/srs/wireframes/package | `ba-start` with the matching subcommand | direct BA lifecycle step |
+| asking to brainstorm solution options, create multiple solution directions, compare solution approaches, choose an option, or skip optioning | `ba-start options` | pre-backbone decision support |
+| directly generating or rerunning intake/options/backbone/frd/stories/srs/wireframes/package | `ba-start` with the matching subcommand | direct BA lifecycle step |
 | a new BA engagement from raw input | `ba-start` | full lifecycle |
 
 If the text could match both `ba-impact` and a direct edit request, prefer `ba-impact` unless the user explicitly says to update, edit, overwrite, regenerate, or rerun a named artifact or step.

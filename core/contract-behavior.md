@@ -21,6 +21,7 @@ Use this file as the canonical LLM policy layer for BA-kit.
 - Use exact artifact matching only. Never infer from "closest looking" filenames.
 - Never silently choose a slug, dated set, or module by mtime.
 - Keep module-scoped authoring inside `paths.module_root` and project-scoped compiled output inside `paths.compiled_root`.
+- Treat `paths.project_home` as the BA-facing dashboard for resume/status guidance. It is not a source of truth and must not override `backbone`, `intake`, or module artifacts.
 
 ## Argument Parsing
 
@@ -31,6 +32,7 @@ Parse arguments before doing any work.
 3. The first remaining lifecycle token is the subcommand:
    - `intake`
    - `impact`
+   - `options`
    - `backbone`
    - `frd`
    - `stories`
@@ -38,11 +40,14 @@ Parse arguments before doing any work.
    - `wireframes`
    - `package`
    - `status`
-4. If no subcommand is present, run the full lifecycle from intake.
-5. For `intake`, allow one free argument as the source path hint.
-6. For `impact`, allow one free argument as the change file path hint.
-7. For `frd`, `stories`, `srs`, and `wireframes`, enforce `commands.<name>.module_required`.
-8. Reject unknown subcommands and unexpected free arguments instead of guessing.
+   - `next`
+4. Friendly aliases may be translated before execution: "continue/resume" -> `next`, "đánh giá thay đổi" -> `impact`, "brainstorm phương án" -> `options`, "chốt option" -> `options`, "chuẩn bị handoff UI" -> `wireframes`, "xuất gói bàn giao" -> `package`, "kiểm tra trạng thái" -> `status`.
+5. If no subcommand is present, run the full lifecycle from intake.
+6. For `intake`, allow one free argument as the source path hint.
+7. For `impact`, allow one free argument as the change file path hint.
+8. For `options`, allow `--select <option-id>` and `--skip` as mutually exclusive control arguments.
+9. For `frd`, `stories`, `srs`, and `wireframes`, enforce `commands.<name>.module_required`.
+10. Reject unknown subcommands and unexpected free arguments instead of guessing.
 
 ## Natural-Language Routing
 
@@ -58,6 +63,8 @@ Also infer `impact` when:
 - the user sends a bare correction statement without explicitly asking to update, overwrite, regenerate, or rerun a named artifact
 
 Do not mutate artifacts directly from a bare correction statement. Route to impact first.
+
+Collaboration intent such as module claim, review handoff, conflict check, PR, commit, push, or merge routes to `ba-collab`. GitHub actions are external side effects and require explicit approval after showing files and action plan.
 
 ## Resolution Rules
 
@@ -95,6 +102,36 @@ Use the resolution order from `resolution.*`.
 - If any required artifact is missing, print the exact missing path, the exact prior command to run, and stop.
 - For `package`, block only when wireframe state is `missing`.
 - If no wireframe-state marker exists, treat it as `not-applicable` only when the SRS set has no UI-backed screens or Screen Contract Plus section. Otherwise treat it as `missing`.
+
+## Canonical Lifecycle Status Mapping
+
+Use one status vocabulary for optioning and Project Home lifecycle guidance:
+
+- `recommended`: should run next, not started
+- `in-progress`: active work or decision cycle is open
+- `completed`: required work or decision is accepted
+- `skipped`: intentionally bypassed with rationale
+- `not-needed`: safely unnecessary for this project
+
+Do not introduce parallel labels such as `todo`, `doing`, or `done` for the same lifecycle meaning.
+
+## Options Decision-Ledger Gate
+
+Treat `paths.plan` as the execution decision ledger whenever intake seeds an `options status`, whether or not `paths.options_root` has been created yet.
+
+- Intake may seed only `recommended` or `not-needed`.
+- The recommendation strength stays in prose (`recommend` or `strongly recommend`), not in a parallel status enum.
+- `options` should move the lifecycle to `in-progress`, then to `completed` once `selected option` is recorded, or to `skipped` when the user explicitly bypasses optioning.
+- `backbone` must stop when the ledger status is `recommended` or `in-progress`.
+- `backbone` may proceed only when the ledger records `not-needed`, `selected option` (`completed`), or `skipped`.
+- If intake judged optioning unnecessary, the ledger may remain `not-needed` and point to `backbone` as the next command.
+- `paths.options_root` is evidence that option artifacts exist; it must not be used as the condition that turns backbone gating on or off.
+
+For `options`, allow `--select <option-id>` and `--skip` as mutually exclusive control arguments.
+Stop when:
+- the requested option file does not exist
+- multiple options exist but no explicit selection/skip has been approved
+- a selection request names an unknown option id
 
 ## Overwrite Behavior
 
@@ -296,14 +333,14 @@ Every command has deterministic read scope. Commands must navigate: summary → 
 | Command | Must Read | May Read | Must NOT Read |
 | --- | --- | --- | --- |
 | intake | contract.yaml, contract-behavior.md | paths.project_memory (compact only) | memory shards, log.md, cold/ |
-| backbone | contract.yaml, contract-behavior.md, paths.intake | paths.project_memory, paths.memory_index (nav only), paths.memory_hot_vocabulary, paths.memory_hot_decisions | log.md, cold/, warm/ |
+| backbone | contract.yaml, contract-behavior.md, paths.intake, paths.plan (when exists) | selected option file only when optioning is `completed`; paths.project_memory, paths.memory_index (nav only), paths.memory_hot_vocabulary, paths.memory_hot_decisions | log.md, cold/, warm/ |
 | impact | contract.yaml, contract-behavior.md, paths.intake, paths.backbone | paths.project_memory, paths.memory_index, paths.memory_hot_*, selected warm/ module shard, relevant downstream artifacts; log.md only for explicit audit | cold/ (unless escalated) |
 | frd | contract.yaml, contract-behavior.md, paths.backbone, paths.plan | paths.project_memory or hot vocabulary+decisions shards | log.md, cold/, warm/, unrelated module shards |
 | stories | contract.yaml, contract-behavior.md, paths.backbone | paths.plan, paths.frd (if exists), paths.project_memory or hot shards | log.md, cold/, warm/, unrelated module shards |
 | srs | contract.yaml, contract-behavior.md, paths.backbone, paths.stories | paths.project_memory or hot shards, module warm shard, paths.frd (if exists) | log.md, cold/, other module shards |
 | wireframes | contract.yaml, contract-behavior.md, paths.wireframe_input | paths.project_memory or paths.memory_hot_decisions, paths.design_doc, module warm shard | log.md, cold/, other module shards |
 | package | contract.yaml, contract-behavior.md | paths.project_memory (compact, consistency check), paths.memory_index (health overview) | log.md, cold/, warm/ shards |
-| status | contract.yaml, contract-behavior.md | paths.project_memory header, paths.memory_index (activation + freshness) | log.md (unless --audit), warm/ shards, cold/ |
+| status | contract.yaml, contract-behavior.md | paths.project_home, paths.project_memory header, paths.memory_index (activation + freshness) | log.md (unless --audit), warm/ shards, cold/ |
 
 ### Index-First Navigation Rule
 
@@ -380,7 +417,8 @@ Every filed-back memory item must carry: `source_artifact`, `source_ids`, `promo
 
 Before mutating `backbone`, `frd`, `stories`, `srs`, or `wireframes`:
 1. Verify write authority for the target artifact and its owning memory shard.
-2. Confirm an impact run is completed and approved (skip only for `wording-only`).
+2. Confirm an impact run is completed and approved.
+   Exception: skip the impact requirement for first-pass `backbone` creation when `paths.backbone` does not yet exist, and for explicitly approved `wording-only` reruns.
 3. If either check fails: emit `GOVERNANCE_BLOCK: {reason}` and stop.
 4. After approved mutation: offer to file the change into canonical memory using the trace schema.
 
