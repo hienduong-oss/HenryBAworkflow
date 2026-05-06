@@ -38,6 +38,7 @@ Read these files in order:
 The active step file depends on the resolved subcommand:
 - no subcommand or `intake` -> `intake.md`
 - `impact` -> `impact.md`
+- `options` -> `options.md`
 - `backbone` -> `backbone.md`
 - `frd` -> `frd.md`
 - `stories` -> `stories.md`
