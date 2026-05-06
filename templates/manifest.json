@@ -74,6 +74,33 @@
       }
     }
   },
+  "options-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Danh mục phương án giải pháp (Solution Options Index)"
+        ]
+      }
+    }
+  },
+  "solution-option-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Phương án giải pháp (Solution Option)"
+        ]
+      }
+    }
+  },
+  "options-comparison-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Bảng so sánh phương án (Options Comparison)"
+        ]
+      }
+    }
+  },
   "collab-home-template.md": {
     "groups": {
       "all": {
