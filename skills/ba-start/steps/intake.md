@@ -93,9 +93,6 @@ After scope lock, evaluate whether the intake should:
 - recommend `options`
 - strongly recommend `options`
 
-Use the canonical optioning lifecycle statuses `recommended | in-progress | completed | skipped | not-needed`.
-Keep `recommend` versus `strongly recommend` in the recommendation summary only; do not create extra status values.
-
 The recommendation must cite signals:
 
 - multiple plausible solution directions
@@ -107,8 +104,8 @@ The recommendation must cite signals:
 Write `paths.plan` as a decision ledger skeleton with:
 
 - options status: `not-needed` or `recommended`
-- recommendation summary, including whether optioning is merely recommended or strongly recommended
-- expected next command: `backbone` when status is `not-needed`, otherwise `options`
+- recommendation summary
+- expected next command
 
 Also create or refresh `paths.project_home` using [../../../templates/project-home-template.md](../../../templates/project-home-template.md).
 

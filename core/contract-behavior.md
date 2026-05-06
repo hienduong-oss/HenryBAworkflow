@@ -102,28 +102,9 @@ Use the resolution order from `resolution.*`.
 - For `package`, block only when wireframe state is `missing`.
 - If no wireframe-state marker exists, treat it as `not-applicable` only when the SRS set has no UI-backed screens or Screen Contract Plus section. Otherwise treat it as `missing`.
 
-## Canonical Lifecycle Status Mapping
-
-Use one status vocabulary for optioning and Project Home lifecycle guidance:
-
-- `recommended`: should run next, not started
-- `in-progress`: active work or decision cycle is open
-- `completed`: required work or decision is accepted
-- `skipped`: intentionally bypassed with rationale
-- `not-needed`: safely unnecessary for this project
-
-Do not introduce parallel labels such as `todo`, `doing`, or `done` for the same lifecycle meaning.
-
 ## Options Decision-Ledger Gate
 
-When `paths.options_root` exists as an active decision cycle, treat `paths.plan` as the execution decision ledger.
-
-- Intake may seed only `recommended` or `not-needed`.
-- The recommendation strength stays in prose (`recommend` or `strongly recommend`), not in a parallel status enum.
-- `options` should move the lifecycle to `in-progress`, then to `completed` once `selected option` is recorded, or to `skipped` when the user explicitly bypasses optioning.
-- `backbone` must stop when the ledger status is `recommended` or `in-progress`.
-- `backbone` may proceed only when the ledger records either `selected option` (`completed`) or `skipped`.
-- If intake judged optioning unnecessary, the ledger may remain `not-needed` and point to `backbone` as the next command.
+When `paths.options_root` exists as an active decision cycle, treat `plan.md` as the execution decision ledger. `backbone` must not proceed until the ledger records either `selected option` or `skipped`.
 
 ## Overwrite Behavior
 
