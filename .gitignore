@@ -13,6 +13,7 @@ yarn-error.log*
 .idea/
 .vscode/
 __pycache__/
+*.pyc
 
 # Generated artifacts
 dist/
@@ -20,11 +21,6 @@ build/
 coverage/
 tmp/
 temp/
-plans/**
-!plans/
-!plans/README.md
-!plans/reports/
-!plans/reports/.gitkeep
 designs/**/.design-snapshot.md
 designs/**/stitch-state.json
 

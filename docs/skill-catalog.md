@@ -2,12 +2,33 @@
 
 ## Purpose
 
-This catalog explains the BA-kit workflow skill plus the maintenance skills that support packaging, publishing, and runtime upkeep.
+This catalog explains the two BA-kit lifecycles plus the maintenance and utility skills.
 
-## Skill
+## Lifecycles
+
+### Upstream: `/ba-presale`
+
+Client-facing presale deliverables. Run from the client project folder.
+
+| Phase | Subcommand | Output |
+| --- | --- | --- |
+| 0 — Bootstrap | `/ba-presale` | `00_presale/00-inputs/` skeleton |
+| 1 — Domain Study | auto-chains from bootstrap | `00-domain-primer.md` (VN) |
+| 2 — Clarify | `/ba-presale clarify` | `05-clarifications.md` (EN) |
+| 3 — Build | `/ba-presale build` | `10-wbs-content.md` + `20-proposal-content.md` + `.xlsx` + `.docx` |
+| 4 — Handoff | `/ba-presale handoff` | `01_intake/intake.md` bridge to `/ba-start` |
+
+Agents: `presale-lead` (Opus, orchestrator), `wbs-builder` (Sonnet), `proposal-writer` (Sonnet).
+
+### Downstream: `/ba-start`
+
+BA artifact lifecycle. Run after presale handoff or from raw input.
+
+## Skills
 
 | Skill | When to Use | Related Templates | Related Agents | Typical Output |
 | --- | --- | --- | --- | --- |
+| `ba-presale` | Upstream presale: domain study, clarifications, WBS + Proposal, handoff to `/ba-start` | `domain-primer-template.md`, `clarifications-template.md`, `wbs-template.md`, `proposal-template.md` | `presale-lead`, `wbs-builder`, `proposal-writer` | Domain primer, clarifications, WBS xlsx, Proposal docx, intake bridge |
 | `ba-start` | Full BA engagement or resumable step-level reruns from raw input to packaged deliverables | `intake-form-template.md`, `requirements-backbone-template.md`, `frd-template.md`, `user-story-template.md`, `srs-template.md`, `design-md-template.md`, `wireframe-input-template.md`, `wireframe-map-template.md` | `requirements-engineer`, `ui-ux-designer`, `ba-documentation-manager`, `ba-researcher` | Intake form, requirements backbone, gated FRD/stories/SRS artifacts, project runtime `DESIGN.md`, wireframe constraint pack, manual wireframe handoff map, FRD/SRS HTML, quality review, artifact status |
 | `ba-kit-update` | Update the installed BA-kit runtime assets from the registered source repo | None | None | One-command fast-forward update and reinstall |
 | `ba-notion` | Publish an exact BA markdown artifact into Notion via MCP | None | None | Notion page created or updated from BA source content |

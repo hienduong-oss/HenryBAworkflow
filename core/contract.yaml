@@ -22,7 +22,7 @@
       "failed"
     ],
     "heartbeat_minutes": 5,
-    "stall_after_minutes": 10,
+    "stall_after_minutes": 5,
     "presale": [
       "bootstrap",
       "domain-study",
@@ -301,7 +301,15 @@
       "wbs": "sonnet",
       "proposal": "sonnet",
       "bootstrap": "sonnet",
-      "handoff": "sonnet"
+      "handoff": "sonnet",
+      "handoff_compose": "sonnet",
+      "surgical_edit_dispatch": "sonnet"
+    },
+    "model_enforcement": {
+      "require_explicit_model_param": true,
+      "sub_agent_calls_must_specify_model": true,
+      "inherit_parent_model": false,
+      "comment": "Prevent silent model escalation. Every Agent() call MUST pass model param matching presale.models.{role}. Sub-agents must NEVER inherit the lead's Opus model."
     },
     "user_gates": [
       "after_domain_study",
@@ -312,6 +320,26 @@
     "auto_render_on_build": true,
     "no_cross_project_recall": true,
     "auto_derive_workspace": true,
+    "orchestration_mode": {
+      "comment": "Pattern B — script-orchestration for mechanical steps, agent only for judgment points.",
+      "judgment_points": [
+        "domain_study_synthesis",
+        "clarify_gap_analysis",
+        "sync_check_comparison",
+        "conflict_resolution_anchoring",
+        "surgical_edit_intent_parsing"
+      ],
+      "mechanical_steps": [
+        "bootstrap_auto_chain",
+        "build_parallel_dispatch",
+        "render_dispatch_after_sync",
+        "handoff_file_mirror",
+        "handoff_continuity_grep",
+        "srs_group_concat",
+        "surgical_edit_dispatch_after_parse",
+        "surgical_edit_rerender_after_sync"
+      ]
+    },
     "language": {
       "artifacts_to_client": "en",
       "domain_primer": "vi",

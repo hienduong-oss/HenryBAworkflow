@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: Proposal Content (markdown source of truth) — v4.0 aligned
-PURPOSE: Structural template for proposal-writer agent. Rendered to docx via /ba-presale render.
+PURPOSE: Structural template for proposal-writer agent. Auto-rendered to docx after /ba-presale build sync-check passes.
 LOCATION (per project): presale/{slug}-{date}/20-proposal-content.md
 LANGUAGE: Vietnamese by default.
 GUIDE: See templates/proposal-guide.md for depth, styling rules, tone, and pitfalls.

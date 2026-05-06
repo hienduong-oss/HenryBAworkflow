@@ -14,6 +14,7 @@ usage() {
 Usage:
   ba-kit doctor
   ba-kit update
+  ba-kit sync
   ba-kit resolve [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit next [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit check-prereq <command> [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
@@ -27,6 +28,7 @@ Usage:
 Commands:
   doctor          Check BA-kit runtime readiness, installed manifests, and optional MCP/tool dependencies.
   update          Fast-forward pull the installed BA-kit source repo and rerun installed runtime installers.
+  sync            Quick-sync source repo assets to ~/.claude/ without reinstalling CLI or rewriting manifests.
   resolve         Resolve the exact slug/date/module target from the modular tree.
   next            Recommend the next BA-kit command for the resolved modular artifact set.
   check-prereq    Validate the exact prerequisite artifacts for a BA command.
@@ -686,12 +688,12 @@ run_installer() {
       (cd "${repo}" && ./install.sh)
       ;;
     codex)
-      [[ -x "${repo}/scripts/install-codex-ba-kit.sh" ]] || fail "Codex installer missing: ${repo}/scripts/install-codex-ba-kit.sh"
-      (cd "${repo}" && ./scripts/install-codex-ba-kit.sh)
+      [[ -x "${repo}/platform/codex/scripts/install-codex-ba-kit.sh" ]] || fail "Codex installer missing: ${repo}/platform/codex/scripts/install-codex-ba-kit.sh"
+      (cd "${repo}" && bash ./platform/codex/scripts/install-codex-ba-kit.sh)
       ;;
     antigravity)
-      [[ -f "${repo}/scripts/install-antigravity-ba-kit.sh" ]] || fail "Antigravity installer missing: ${repo}/scripts/install-antigravity-ba-kit.sh"
-      (cd "${repo}" && bash ./scripts/install-antigravity-ba-kit.sh)
+      [[ -f "${repo}/platform/gemini/scripts/install-antigravity-ba-kit.sh" ]] || fail "Antigravity installer missing: ${repo}/platform/gemini/scripts/install-antigravity-ba-kit.sh"
+      (cd "${repo}" && bash ./platform/gemini/scripts/install-antigravity-ba-kit.sh)
       ;;
     *)
       fail "Unsupported runtime in installation manifest: ${runtime}"
@@ -765,8 +767,8 @@ doctor_command() {
   doctor_file_check "shared CLI" "${local_bin_cli}" "optional" || failures=$((failures + 1))
   doctor_file_check "installation manifest dir" "${MANIFEST_DIR}" "optional" || failures=$((failures + 1))
   doctor_file_check "Claude installer" "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/install.sh" "required" || failures=$((failures + 1))
-  doctor_file_check "Codex installer" "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/install-codex-ba-kit.sh" "required" || failures=$((failures + 1))
-  doctor_file_check "Antigravity installer" "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/install-antigravity-ba-kit.sh" "required" || failures=$((failures + 1))
+  doctor_file_check "Codex installer" "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/platform/codex/scripts/install-codex-ba-kit.sh" "required" || failures=$((failures + 1))
+  doctor_file_check "Antigravity installer" "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/platform/gemini/scripts/install-antigravity-ba-kit.sh" "required" || failures=$((failures + 1))
   doctor_file_check "HTML renderer" "$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/scripts/md-to-html.py" "required" || failures=$((failures + 1))
   printf '\n'
 
@@ -1407,6 +1409,14 @@ chunk_write_command() {
   printf "Successfully chunk-appended to %s\\n" "${target_file}"
 }
 
+sync_command() {
+  local repo script_path
+  repo="$(resolve_registered_repo)"
+  script_path="${repo}/scripts/ba-kit-sync"
+  [[ -x "${script_path}" ]] || fail "Sync script missing: ${script_path}"
+  bash "${script_path}"
+}
+
 main() {
   local command="${1:-}"
   shift || true
@@ -1445,6 +1455,10 @@ main() {
       ;;
     status)
       status_command "$@"
+      ;;
+    sync)
+      [[ "$#" -eq 0 ]] || fail "Unsupported arguments for 'sync'"
+      sync_command
       ;;
     ""|-h|--help|help)
       usage

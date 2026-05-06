@@ -19,20 +19,50 @@ All inputs under `plans/{slug}-{date}/00_presale/00-inputs/`:
 - Skim `technical/*` — capture integration & constraint signals only.
 - Read `references/*` only when explicitly relevant.
 
-## Step 2 — Web research (conditional)
+## Step 2 — Research Brief Creation
 
-Use WebSearch when:
-- Industry / domain is unfamiliar
-- Specific regulation, standard, or vendor mentioned but undefined
-- Competitor / market context required
+### 2a. [JUDGMENT — Opus] Create project-specific research brief
 
-**Do NOT** WebSearch generic BA topics. **No cross-project recall.**
+presale-lead creates a tailored research brief by:
+1. Reading all inputs under `00-inputs/` to understand project context
+2. Identifying industry, problem statement, geography, stakeholders
+3. Extracting research objectives from Domain Primer template
+4. Filling `templates/research-brief-template.md` with project-specific context
+5. Setting MUST/SHOULD/NICE-TO-HAVE priorities based on domain scope
 
-Cite each web source inline `[src:web:<url> YYYY-MM-DD]` in the Domain Primer.
+Output: filled `research-brief.md` in `plans/{slug}-{date}/00_presale/_research/`
+
+### 2b. [MECHANICAL — Bash] Prepare delegation packet
+
+```bash
+mkdir -p "plans/{slug}-{date}/00_presale/_research"
+cp "templates/research-brief-template.md" "plans/{slug}-{date}/00_presale/_research/research-brief.md"
+```
+
+### 2c. [JUDGMENT — Sonnet] Execute research
+
+**Dispatch ba-researcher** with:
+- Filled research brief from `plans/{slug}-{date}/00_presale/_research/research-brief.md`
+- Research objectives: produce findings + source list + open questions + risk flags + terminology glossary
+
+ba-researcher must return:
+1. Structured findings per output format in template
+2. Inline citations `[src:web:<url> YYYY-MM-DD]` for every factual claim
+3. Credibility-assessed source list
+4. Open questions for follow-up
+5. Early risk flags if applicable
+
+**Do NOT** skip research because the domain "seems familiar." **No cross-project recall.**
+
+If ba-researcher is unavailable, fall back to inline WebSearch with the same coverage requirements.
 
 ## Step 3 — Author Domain Primer
 
-Read `templates/domain-primer-template.md` for structure. Write to `plans/{slug}-{date}/00_presale/00-domain-primer.md`.
+Read `templates/domain-primer-template.md` for structure. Write to `plans/{slug}-{date}/00_presale/00-domain-primer.md` using:
+- Step 2 research brief as primary input
+- All inputs under `00-inputs/` as secondary context
+
+Language: **Vietnamese** (this artifact is for internal BA use).
 
 Language: **Vietnamese** (this artifact is for internal BA use).
 

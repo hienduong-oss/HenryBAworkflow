@@ -1,6 +1,6 @@
 <!--
 TEMPLATE: WBS Content (markdown source of truth)
-PURPOSE: Lightweight, edit-friendly WBS used during iteration. Rendered to xlsx via /ba-presale render.
+PURPOSE: Lightweight, edit-friendly WBS used during iteration. Auto-rendered to xlsx after /ba-presale build sync-check passes.
 STATUS: PLACEHOLDER — refine in Phase A.
 LOCATION (per project): presale/{slug}-{date}/10-wbs-content.md
 PAIRED WITH: 10-wbs-content.csv (CSV intermediate, token-cheap)

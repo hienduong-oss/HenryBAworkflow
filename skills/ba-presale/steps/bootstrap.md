@@ -2,6 +2,8 @@
 
 Phase 0 of the presale lifecycle. Owner: `presale-lead` (Sonnet). Runs automatically when user invokes bare `/ba-presale`, then auto-chains into `steps/domain-study.md`.
 
+**Orchestration note:** Bootstrap is 100% mechanical (file ops, classification by filename pattern). The auto-chain to domain-study is deterministic — no branching, no evaluation needed. This entire step runs at Sonnet cost level per `presale.models.bootstrap`.
+
 This step requires:
 - `core/contract.yaml` (`paths.presale_*`)
 - `rules/ba-presale-standards.md` §2
@@ -22,9 +24,9 @@ Phase 0+1 — Workspace setup and domain synthesis.
 
 Will:
   1. Derive slug = basename(cwd), date = today
-  2. Create plans/{slug}-{date}/00_presale/ skeleton
+  2. Create 00_presale/ skeleton inside existing project folder
   3. Classify existing files → 00-inputs/{requirements,discussions,technical,references}
-  4. Read all inputs + run WebSearch on unfamiliar domain
+  4. Read all inputs + run thorough WebSearch (always, every project)
   5. Synthesize Domain Primer (Vietnamese, 8 sections)
 
 Output:   plans/{slug}-{date}/00_presale/00-domain-primer.md
@@ -52,16 +54,18 @@ Rules (in order):
    Bootstrapping presale at {cwd} (slug={slug}, date={date})
    ```
 
-## Step 2 — Create project skeleton
+## Step 2 — Create presale skeleton
+
+The project folder (`plans/{slug}-{date}/`) is assumed to already exist (user created it or it was set up externally). Bootstrap only creates the presale sub-structure inside it.
 
 Create (idempotent — skip if exists):
-- `plans/{slug}-{date}/`
 - `plans/{slug}-{date}/00_presale/`
 - `plans/{slug}-{date}/00_presale/00-inputs/{requirements,discussions,technical,references}/`
 - `plans/{slug}-{date}/00_presale/_state-cards/`
 - `plans/{slug}-{date}/00_presale/_changelog/`
 - `plans/{slug}-{date}/00_presale/_output/`
-- `plans/{slug}-{date}/01_intake/` (empty, reserved for handoff)
+
+Do NOT create `plans/{slug}-{date}/` itself or `01_intake/` — those are created by their owning phases (handoff creates `01_intake/`).
 
 All presale artifact paths: use `paths.presale_*` from `core/contract.yaml` — do NOT hardcode.
 
@@ -116,9 +120,9 @@ Write `plans/{slug}-{date}/00_presale/_state-cards/00-bootstrap.md` (≤300 toke
 - anomalies / unclassified files
 - next gate: domain-study
 
-## Step 7 — Auto-chain to Domain Study
+## Step 7 — Auto-chain to Domain Study `[MECHANICAL]`
 
-No user gate here. Read and execute `steps/domain-study.md` immediately.
+No user gate here. This is deterministic — bootstrap always chains to domain-study. No LLM evaluation needed for the routing decision. Read and execute `steps/domain-study.md` immediately.
 
 ## Forbidden
 

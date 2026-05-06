@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE_ROOT="${BA_KIT_CODEX_SOURCE_ROOT:-${ROOT_DIR}/codex}"
-SOURCE_SKILLS="${SOURCE_ROOT}/skills"
-SOURCE_AGENTS="${SOURCE_ROOT}/agents"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+SOURCE_ROOT="${BA_KIT_CODEX_SOURCE_ROOT:-${ROOT_DIR}}"
+SOURCE_SKILLS="${SOURCE_ROOT}/platform/codex/skills"
+SOURCE_AGENTS="${SOURCE_ROOT}/platform/codex/agents"
 CORE_SOURCE="${BA_KIT_CORE_SOURCE_ROOT:-${ROOT_DIR}/core}"
 CANONICAL_STEP_SOURCE="${ROOT_DIR}/skills/ba-start/steps"
 TARGET_HOME="${HOME}/.codex"
@@ -33,11 +33,11 @@ install_cli() {
 }
 
 generate_codex_assets() {
-  if [[ ! -x "${ROOT_DIR}/scripts/generate-codex-assets.sh" ]]; then
-    echo "Codex asset generator missing: ${ROOT_DIR}/scripts/generate-codex-assets.sh" >&2
+  if [[ ! -x "${ROOT_DIR}/platform/codex/scripts/generate-codex-assets.sh" ]]; then
+    echo "Codex asset generator missing: ${ROOT_DIR}/platform/codex/scripts/generate-codex-assets.sh" >&2
     exit 1
   fi
-  (cd "${ROOT_DIR}" && bash ./scripts/generate-codex-assets.sh)
+  (cd "${ROOT_DIR}" && bash ./platform/codex/scripts/generate-codex-assets.sh)
 }
 
 copy_tree() {

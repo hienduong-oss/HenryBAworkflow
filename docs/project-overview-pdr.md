@@ -28,18 +28,21 @@ BA-kit closes that gap with a BA-first operating model.
 
 | Component | Purpose |
 | --- | --- |
+| `skills/ba-presale/` | Upstream presale lifecycle: domain study, clarifications, WBS + Proposal generation, handoff to `/ba-start` |
 | `skills/ba-start/` | Single unified BA skill covering intake, backbone-first analysis, gated artifact emission, and packaging |
-| `agents/` | 4 specialized delegation roles for parallel execution |
-| `rules/` | Workflow and quality standards |
+| `agents/` | 5 specialized delegation roles: presale-lead, wbs-builder, proposal-writer, requirements-engineer, ui-ux-designer, ba-documentation-manager, ba-researcher |
+| `rules/` | Workflow, quality, and presale standards |
 | `templates/` | BA deliverable structures including the requirements backbone |
 | `designs/` | Project runtime `DESIGN.md` files that constrain manual wireframing and external design handoff |
-| `AGENTS.md` | Persistent Codex repository instructions |
+| `CODEX.md` | Persistent Codex repository instructions |
 | `CLAUDE.md` | Claude Code project instructions |
 
 ## Product Scope
 
 ### In Scope
 
+- Presale deliverables: domain primer, clarifications, WBS, Proposal (xlsx + docx)
+- Presale-to-BA handoff via intake bridge
 - Intake normalization and gap analysis
 - Requirements backbone and gated requirements engineering (FRD, SRS)
 - User story generation
@@ -66,7 +69,7 @@ BA-kit closes that gap with a BA-first operating model.
 - Users can start with `/ba-start` and receive a complete BA workflow
 - Every requirement has acceptance criteria
 - Installation takes less than five minutes
-- Codex can use the repo immediately through `AGENTS.md`
+- Codex can use the repo immediately through `CODEX.md`
 
 ## Design Decisions
 

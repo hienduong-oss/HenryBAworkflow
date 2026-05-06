@@ -1,5 +1,7 @@
 # BA-kit For Codex
 
+> Entry point for Codex runtime. Equivalent of CLAUDE.md for Claude Code and GEMINI.md for Antigravity.
+
 BA-kit should be treated as a business analysis playbook when Codex is operating inside this repository.
 
 ## Role

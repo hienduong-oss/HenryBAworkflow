@@ -8,19 +8,21 @@ Standards for the upstream presale lifecycle (`/ba-presale`). Sit alongside [BA 
 
 ## 1. Lifecycle Gates (presale)
 
-| State | Owner | Model | Gate to next |
-|-------|-------|-------|--------------|
-| 0 — Bootstrap | presale-lead | Sonnet | auto-chain → Domain Study |
-| 1 — Domain Study | presale-lead + WebSearch | **Opus** | **USER GATE** — `/ba-presale clarify` |
-| 2 — Clarify | presale-lead | **Opus** | **USER GATE** — `/ba-presale build` (≥80% Answered) |
-| 3 — Build (WBS ‖ Proposal + sync + auto-render) | wbs-builder ‖ proposal-writer + lead | Sonnet ×2 + Opus | **USER GATE** — `/ba-presale handoff` |
-| 4 — Handoff | presale-lead | Sonnet | continuity check pass |
+| State | Owner | Model | Step Type | Gate to next |
+|-------|-------|-------|-----------|--------------|
+| 0 — Bootstrap | presale-lead | Sonnet | MECHANICAL | auto-chain → Domain Study |
+| 1 — Domain Study | presale-lead + WebSearch | **Opus** | JUDGMENT | **USER GATE** — `/ba-presale clarify` |
+| 2 — Clarify | presale-lead | **Opus** | JUDGMENT | **USER GATE** — `/ba-presale build` (no minimum answer threshold) |
+| 3 — Build (WBS ‖ Proposal + sync + auto-render) | wbs-builder ‖ proposal-writer + lead | Sonnet ×2 + Opus (sync only) | MIXED | **USER GATE** — `/ba-presale handoff` |
+| 4 — Handoff | presale-lead | Sonnet (compose) + Bash (file ops) | MOSTLY MECHANICAL | continuity check pass |
 
 **Rules:**
 - Auto-derive workspace from cwd. Never ask user for `--slug` / `--date`.
 - User gates at Phase 1/2/3 are non-negotiable. Agent must explicitly instruct the next command.
 - Phase 3 integrates sync-check + auto-render. No separate `render` command exists.
 - Locked artifacts stay locked. Post-handoff corrections route through `/ba-start impact`.
+- **Model enforcement:** Every Agent() call to sub-agents MUST include explicit `model: "sonnet"`. See `presale.model_enforcement` in `contract.yaml`.
+- **Orchestration optimization:** Classify sub-steps as `[JUDGMENT]` or `[MECHANICAL]`. Mechanical steps use Bash/Sonnet, never Opus. See `presale.orchestration_mode` in `contract.yaml`.
 
 ---
 
@@ -84,7 +86,7 @@ Rules:
 - After each phase, lead writes a state-card to `_state-cards/{NN}-{phase}.md` (≤300 tokens, Vietnamese):
   - phase id, output paths, key decisions, open issues, next gate
 - Sub-agents heartbeat to delegation tracker every milestone or 5 min.
-- Stalled slice (>10 min, no artifact change) → lead recovers (re-spawn or repartition), does not wait blindly.
+- Stalled slice (>5 min, no artifact change) → lead recovers (re-spawn or repartition), does not wait blindly.
 - Templates referenced by path, never inlined into delegation packets.
 
 ---
@@ -163,3 +165,28 @@ Other conventions:
 - Do NOT persist feedback history — apply surgical edits immediately; log only sync-check arbitrations in `_changelog/`.
 - Do NOT re-ask user for information already captured in Domain Primer / Clarifications / WBS / Proposal during handoff.
 - Do NOT modify locked WBS/Proposal during `/ba-start` backbone without flagged review.
+
+---
+
+## 11. Orchestration Optimization (Pattern B)
+
+Minimize token spend by separating judgment from mechanical steps. Reference: `presale.orchestration_mode` in `contract.yaml`.
+
+### Model Enforcement
+- Every `Agent()` call to sub-agents MUST include explicit `model: "sonnet"`.
+- Sub-agents must NEVER inherit the lead's Opus model (prevents silent 3x cost escalation).
+- Validation: if delegation target is `wbs-builder` or `proposal-writer`, the call must pass `model: "sonnet"`.
+
+### Judgment vs Mechanical
+- **Judgment** (Opus justified): domain synthesis, gap analysis, sync-check comparison, conflict resolution anchoring, surgical edit intent parsing, cross-artifact consistency check.
+- **Mechanical** (Bash/Sonnet/conditional): auto-chain routing, parallel dispatch, render dispatch, file mirror/copy, continuity grep, template-fill composition, edit packet creation.
+- Step files mark each sub-step with `[JUDGMENT]` or `[MECHANICAL]`.
+- Do NOT route mechanical steps through Opus context.
+
+### Surgical Edit Loop (Optimized)
+1. `[JUDGMENT — Opus]` Parse user intent.
+2. `[MECHANICAL — Sonnet]` Create + dispatch edit packet.
+3. `[MECHANICAL]` Wait for return.
+4. `[JUDGMENT — Opus]` Sync-check affected slice.
+5. `[MECHANICAL]` Re-render affected file.
+6. `[MECHANICAL]` Confirm.

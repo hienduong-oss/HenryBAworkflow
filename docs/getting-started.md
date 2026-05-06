@@ -15,7 +15,7 @@ cd bakit
 
 BA-kit supports two usage modes:
 - **Claude Code**: install BA-kit assets into `~/.claude`
-- **Codex**: open the repo and use the root `AGENTS.md`
+- **Codex**: open the repo and use the root `CODEX.md`
 
 ## 3. Install For Claude Code
 
@@ -120,11 +120,11 @@ For rerun commands:
 - use `/ba-start impact --slug <slug>` when a requirement, rule, scope item, actor responsibility, or screen behavior changes while a downstream artifact is already being drafted
 - treat `impact` as the default change-triage path when the user says things like "đang làm dở SRS thì thêm yêu cầu này" unless the edit is obviously wording-only
 - treat a short correction statement like "Không có nhóm admin user" as `impact` in an existing project context; do not interpret it as a direct edit request unless the user explicitly asks to update an artifact
-- for `srs`, start from the exact resolved backbone and user-stories artifacts, and pull the FRD only when it exists or is required, instead of rereading the whole `plans/reports/final/` and `plans/reports/drafts/` directories
-- for `frd` and `stories`, start from the exact resolved backbone artifact instead of rereading the whole `plans/reports/final/` directory
+- for `srs`, start from the exact resolved backbone and user-stories artifacts, and pull the FRD only when it exists or is required
+- for `frd` and `stories`, start from the exact resolved backbone artifact
 - if you only have old reports named like `002-intake-form.md`, treat them as a legacy suite and rerun or migrate them before expecting the current `/ba-start` contract to resume from them
-- for non-trivial delegated work, expect BA-kit to create trackers under `plans/{date}-{slug}/delegation/`
-- treat a delegation tracker with no heartbeat for more than 10 minutes as likely stalled and inspect or rerun that slice instead of waiting blindly
+- for non-trivial delegated work, expect BA-kit to create trackers under `plans/{slug}-{date}/delegation/`
+- treat a delegation tracker with no heartbeat for more than 5 minutes as likely stalled and inspect or rerun that slice instead of waiting blindly
 - once you explicitly approve a mutating rerun step, BA-kit should continue that step instead of reverting to generic prompts about what to do with the document
 
 ## 5. Use BA-kit In Codex
@@ -133,7 +133,7 @@ Codex does not need `install.sh`.
 
 Instead:
 1. Open this repository in Codex
-2. Make sure the root `AGENTS.md` is visible in the repo
+2. Make sure the root `CODEX.md` is visible in the repo
 3. For freeform BA requests, tell Codex to use `skills/ba-do/SKILL.md` first
 4. Tell Codex to use `skills/ba-start/SKILL.md` when the lifecycle step is explicit
 5. Point Codex to the correct template under `templates/`
@@ -145,7 +145,7 @@ Instead:
 ### Codex Example
 
 ```text
-Use AGENTS.md and skills/ba-start/SKILL.md.
+Use CODEX.md and skills/ba-start/SKILL.md.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
 Include use cases, Screen Contract Plus, a project runtime `DESIGN.md`, final screen descriptions, linked requirements, test cases, and wireframe constraints.
 Make the wireframe output a manual handoff pack so the user can design externally and manually attach the result to the final document.
@@ -162,7 +162,7 @@ Produce an intake form, a requirements backbone, gated FRD/stories/SRS artifacts
 For partial reruns in Codex, be explicit about the target slug and dated set when ambiguity exists. Example:
 
 ```text
-Use AGENTS.md and skills/ba-start/SKILL.md.
+Use CODEX.md and skills/ba-start/SKILL.md.
 Run only the wireframe rerun path for slug warehouse-rfp.
 If multiple dated sets exist for that slug, stop and ask me which date to use.
 Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask me to refresh it before preparing the wireframe handoff pack.
@@ -173,7 +173,7 @@ Then report `/ba-start status` semantics with artifact dates, wireframe handoff 
 Change-impact triage in Codex:
 
 ```text
-Use AGENTS.md and skills/ba-start/SKILL.md.
+Use CODEX.md and skills/ba-start/SKILL.md.
 I am writing the SRS for slug warehouse-rfp and this new requirement arrived:
 "Export CSV must require permission, record an audit log, and show a success or failure banner."
 Run the equivalent of `/ba-start impact --slug warehouse-rfp`.
@@ -185,7 +185,7 @@ See [codex-setup.md](./codex-setup.md) for more prompt patterns.
 
 Runtime defaults for both Claude Code and Codex:
 - BA deliverables are written in Vietnamese by default unless the user explicitly requests English
-- the dated artifact-set token is `YYMMDD-HHmm` across report filenames and `plans/{date}-{slug}/plan.md`
+- the dated artifact-set token is `YYMMDD-HHmm` across report filenames and `plans/{slug}-{date}/plan.md`
 - Shadcn UI is the default wireframe constraint baseline unless explicitly overridden by the approved project `DESIGN.md`
 
 `plans/` is a local runtime workspace. BA-kit writes generated plans and report artifacts there during an engagement, but those files are not meant to stay version-controlled in the toolkit repository.
@@ -269,7 +269,7 @@ Packaged HTML keeps Mermaid diagrams visualized in-browser and preserves any wir
 
 ## 8. Know Where To Look
 
-- Runtime instructions for Codex: [AGENTS.md](../AGENTS.md)
+- Runtime instructions for Codex: [CODEX.md](../CODEX.md)
 - Claude-oriented project instructions: [CLAUDE.md](../CLAUDE.md)
 - Codex-specific setup notes: [codex-setup.md](./codex-setup.md)
 - Skill catalog: [skill-catalog.md](./skill-catalog.md)

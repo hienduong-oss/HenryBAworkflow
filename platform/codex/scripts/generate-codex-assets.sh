@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-TARGET_DIR="${ROOT_DIR}/codex/skills/ba-start"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+TARGET_DIR="${ROOT_DIR}/platform/codex/skills/ba-start"
 
 mkdir -p "${TARGET_DIR}"
 

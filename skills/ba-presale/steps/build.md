@@ -1,43 +1,48 @@
 # BA Presale Step — Build (WBS + Proposal + Sync + Render)
 
-Phase 3 of the presale lifecycle. Owner: `presale-lead` (orchestrator, **Opus** for sync arbitration). Dispatches `wbs-builder` and `proposal-writer` (both **Sonnet**) in parallel, runs sync-check inline, then auto-renders xlsx + docx.
+Phase 3 of the presale lifecycle. Owner: `presale-lead` (orchestrator, **Opus** for sync arbitration). Dispatches `wbs-builder` and/or `proposal-writer` (both **Sonnet**) based on user selection, runs sync-check inline, then auto-renders.
 
 Triggered by user command `/ba-presale build`. Never auto-advances from `clarify`.
 
 This step requires:
 - `plans/{slug}-{date}/00_presale/00-domain-primer.md`
-- `plans/{slug}-{date}/00_presale/05-clarifications.md` (≥80% answered)
+- `plans/{slug}-{date}/00_presale/05-clarifications.md` (no minimum answer threshold — unanswered questions become assumptions)
 - `templates/wbs-template.md`, `templates/wbs-template.csv`
 - `templates/proposal-template.md`, `templates/proposal-guide.md`
 - `templates/output-style-spec.json`
 - `rules/ba-presale-standards.md` §3, §4, §5
 - Skills: `document-skills:xlsx`, `document-skills:docx`
 
-## Pre-run description block (MANDATORY)
+## Pre-run: Build Target Selection (MANDATORY)
 
-Before any work, print this block in English (short, concise):
+Before any work, present a build target selection using `AskUserQuestion`. Do NOT assume "build all."
+
+**Question:** "What would you like to build?"
+
+**Options:**
+1. **Build all** — WBS + Proposal + sync-check + render (both xlsx + docx)
+2. **Proposal only** — Proposal markdown + docx render (skip WBS)
+3. **WBS only** — WBS markdown + CSV + xlsx render (skip Proposal)
+
+After user selects, print the pre-run description block reflecting the chosen target:
 
 ```
 ────────────────────────────────────────
-🔵 /ba-presale build — WBS + Proposal + Render
+🔵 /ba-presale build — {target description}
 ────────────────────────────────────────
-Phase 3 — Generate scope/effort + commercial deliverables.
+Phase 3 — {target-specific summary}
 
 Will:
-  1. Pre-flight: confirm Domain Primer + ≥80% clarifications answered
-  2. Dispatch wbs-builder + proposal-writer in PARALLEL (Sonnet ×2)
-  3. Run sync-check inline (Opus): WBS ↔ Proposal alignment
-  4. Resolve conflicts via requirement source priority; loop until clean
-  5. AUTO-RENDER xlsx (WBS + Clarifications sheets) and docx (Proposal)
+  1. Pre-flight: confirm Domain Primer + clarifications exist
+  2. {dispatch description based on target}
+  3. {sync-check if both, skip if single}
+  4. AUTO-RENDER {xlsx and/or docx based on target}
 
 Outputs:
-  plans/{slug}-{date}/00_presale/10-wbs-content.md  (+ .csv)
-  plans/{slug}-{date}/00_presale/20-proposal-content.md
-  plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx
-  plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx
+  {list only relevant outputs}
 
 Language: English (artifacts are client-facing)
-Next gate: USER GATE — review xlsx + docx before /ba-presale handoff
+Next gate: USER GATE — review before /ba-presale handoff
 
 Proceed? (reply 'ok' to start, or type a different command)
 ────────────────────────────────────────
@@ -45,22 +50,16 @@ Proceed? (reply 'ok' to start, or type a different command)
 
 Wait for `ok` before continuing.
 
-## Step 1 — Pre-flight checks
+## Step 1 — Pre-flight checks `[MECHANICAL]`
 
-Block build if any check fails:
+Boolean checks only — no LLM judgment needed. Block build if any check fails:
 
 1. `00-domain-primer.md` exists.
-2. `05-clarifications.md` exists AND `Status=Answered` ≥ 80% of total rows.
-   - On fail, print:
-     ```
-     ⚠️ Cannot build: only {answered}/{N} clarifications answered ({pct}%).
-        Run /ba-presale clarify and answer remaining questions or use
-        "accept all suggestions" then retry /ba-presale build.
-     ```
-3. Templates exist at expected paths.
+2. `05-clarifications.md` exists. **No minimum answer threshold** — unanswered questions are carried forward as assumptions with `[src:assumption:A{n}]` refs in WBS/Proposal.
+3. Templates exist at expected paths (only check templates relevant to the selected build target).
 4. `_output/` directory exists (create if missing).
 
-## Step 2 — Resolve Proposal variant
+## Step 2 — Resolve Proposal variant `[JUDGMENT — Opus]`
 
 Determine variant from Domain Primer + answered clarifications:
 - **Variant A — Platform/Integration**: vendor-led, discovery-heavy, team-based quotation. Triggered by Tech category answers indicating vendor CIAM / SaaS adoption / heavy integration with established platforms.
@@ -68,11 +67,25 @@ Determine variant from Domain Primer + answered clarifications:
 
 Record variant decision in state card (Step 6).
 
-## Step 3 — Parallel dispatch (single message, two Agent calls)
+## Step 3 — Dispatch `[MECHANICAL]` (based on build target selection)
 
-Dispatch both sub-agents in a single tool-call batch.
+Dispatch sub-agents based on the user's build target selection from the pre-run step.
 
-### Packet A → `wbs-builder` (Sonnet)
+**MODEL ENFORCEMENT (CRITICAL):** All Agent calls MUST include explicit `model: "sonnet"` parameter. Do NOT let sub-agents inherit the lead's Opus model. See `presale.model_enforcement` in `contract.yaml`.
+
+### Build target: "Build all" (default)
+
+Dispatch both sub-agents in a single tool-call batch (parallel).
+
+### Build target: "Proposal only"
+
+Dispatch only `proposal-writer`. Skip WBS dispatch entirely. If `10-wbs-content.md` already exists from a prior build, Proposal can reference it for §7/§9 alignment. If not, Proposal stubs §7 and §9.
+
+### Build target: "WBS only"
+
+Dispatch only `wbs-builder`. Skip Proposal dispatch entirely.
+
+### Packet A → `wbs-builder` (model: **sonnet**) — skip if "Proposal only"
 
 ```
 objective: Author WBS markdown + CSV (English) from Domain Primer + answered clarifications.
@@ -92,7 +105,7 @@ return_format: ~50-token summary (status, row counts, open flags)
 tracker: 00_presale/_state-cards/03a-wbs.md
 ```
 
-### Packet B → `proposal-writer` (Sonnet)
+### Packet B → `proposal-writer` (model: **sonnet**) — skip if "WBS only"
 
 ```
 objective: Author Proposal markdown (English) from Domain Primer + answered clarifications + WBS.
@@ -112,9 +125,13 @@ return_format: ~50-token summary (status, section coverage, flags)
 tracker: 00_presale/_state-cards/03b-proposal.md
 ```
 
-Both dispatched in PARALLEL via single message containing two Agent tool calls.
+Both dispatched in PARALLEL via single message containing two Agent tool calls (when "Build all" selected).
 
-## Step 4 — Sync-check (lead, inline, Opus)
+## Step 4 — Sync-check `[JUDGMENT — Opus]` (lead, inline) — only when "Build all"
+
+**Skip this step entirely if build target is "Proposal only" or "WBS only".** Sync-check only applies when both artifacts are built in the same run.
+
+This is a true judgment point — the lead must read both artifacts, detect semantic conflicts, and anchor resolution to source priority. Opus is justified here.
 
 After both sub-agents return, lead reads both artifacts in full and runs the check matrix:
 
@@ -136,15 +153,21 @@ For each conflict, anchor decision to source priority:
 3. Validated Domain Primer
 4. Documented assumption (lowest)
 
-Log each decision to `00_presale/_changelog/sync-{YYYYMMDD-HHmm}.md`. Dispatch surgical fix to relevant sub-agent (single-section edit packet). Re-run sync-check after fixes return. Loop until zero conflicts OR escalation needed.
+Log each decision to `00_presale/_changelog/sync-{YYYYMMDD-HHmm}.md`. Dispatch surgical fix to relevant sub-agent (**model: sonnet** — single-section edit packet, mechanical dispatch). Re-run sync-check after fixes return. Loop until zero conflicts OR escalation needed.
 
 ### Escalation
 
 If a conflict cannot be anchored to any source, STOP and present to user. Do NOT proceed to render.
 
-## Step 5 — Auto-render (no user prompt)
+## Step 5 — Auto-render `[MECHANICAL]` (no user prompt)
 
-After sync-check passes (zero conflicts):
+Deterministic: render only the artifacts that were built. No LLM judgment needed for the dispatch decision.
+
+- **Build all:** render both xlsx + docx (after sync-check passes).
+- **Proposal only:** render docx only.
+- **WBS only:** render xlsx only.
+
+After sync-check passes (or immediately after dispatch return for single-target builds):
 
 ### 5a — WBS xlsx
 
@@ -170,16 +193,16 @@ Invoke `document-skills:docx` with:
 
 Output: `plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx`
 
-### Render block conditions
+### Render block conditions `[MECHANICAL]`
 
-Block render if any check fails:
+Boolean checks — block render if any check fails:
 - Any WBS row missing `[src:...]`
 - Any Proposal commitment in §1.4, §7, §9 missing `[src:...]`
 - Source CSV/MD files unreadable
 
 On block, list offending rows/sections, do NOT render, return user to Step 4.
 
-## Step 6 — State card
+## Step 6 — State card `[MECHANICAL]`
 
 Write `plans/{slug}-{date}/00_presale/_state-cards/03-build.md` (≤300 tokens, Vietnamese):
 - variant chosen
@@ -218,9 +241,15 @@ Bạn có thể:
   • /ba-presale handoff                — sang phase handoff sang /ba-start
 ```
 
-### Loop behavior during gate
+### Loop behavior during gate (Optimized — Pattern B)
 
-- **Bare prompts** = surgical edits. Lead parses intent, dispatches narrow edit packet (one section / one row) to relevant sub-agent. After edit returns, re-run sync-check on affected slice, then re-render only the changed file (xlsx or docx). Return 1-line confirm: `Updated. Re-rendered {file}.`
+- **Bare prompts** = surgical edits. Optimized flow:
+  1. `[JUDGMENT — Opus]` Lead parses user intent → identifies target artifact + section + exact change.
+  2. `[MECHANICAL — Sonnet]` Lead creates narrow edit packet → dispatches to relevant sub-agent with explicit `model: "sonnet"`.
+  3. `[MECHANICAL]` Wait for sub-agent return (~50 tokens).
+  4. `[JUDGMENT — Opus]` Re-run sync-check on affected slice only (not full matrix).
+  5. `[MECHANICAL]` If sync passes → re-render only the changed file (xlsx OR docx) via document-skills.
+  6. `[MECHANICAL]` Return 1-line confirm: `Updated. Re-rendered {file}.`
 - **NO history tracking** — feedback is not persisted as a separate artifact (per user policy). Only `_changelog/sync-*.md` records arbitration decisions.
 - **`/ba-presale handoff`** = advance gate. Pre-check that markdown + rendered files are coherent (mtimes line up).
 
@@ -234,3 +263,5 @@ Bạn có thể:
 - Workers resolving conflicts with each other — flag upward to lead.
 - Persisting feedback history (per user policy — surgical edits only, no log).
 - Cross-project recall.
+- **Spawning sub-agents without explicit `model: "sonnet"` parameter.** Silent model escalation (sub-agent inheriting Opus) is a cost multiplier. See `presale.model_enforcement` in `contract.yaml`.
+- **Using Opus for mechanical steps** (dispatch, render, file ops). See `presale.orchestration_mode.mechanical_steps` in `contract.yaml`.

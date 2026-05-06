@@ -122,18 +122,16 @@ Các lệnh khác:
   • "review Q{n}"          — xem chi tiết câu hỏi, nguồn suy luận
   • "add question: ..."    — bổ sung câu mới (agent gán ID + suggest)
   • "remove Q{n}"          — xoá câu không còn phù hợp
-  • "/ba-presale build"    — sang phase build WBS + Proposal (cần ít nhất 80% câu trả lời)
+  • "/ba-presale build"    — sang phase build (không yêu cầu trả lời hết — proceed bất kỳ lúc nào)
 ```
 
 ### Loop behavior
 
 - **Bare prompts** during this gate = surgical edits on `05-clarifications.md` only. Parse intent (answer / edit suggested / add / remove) and apply via Edit tool. After each edit, return 1-line confirm: `Q{n} updated. {X}/{N} answered.` Do NOT re-print the whole table unless user asks.
-- **`/ba-presale build`** = advance gate. Pre-check: ≥80% of questions must have `Status=Answered`. If not, print blocker:
-  ```
-  ⚠️ Cannot advance: {answered}/{N} questions answered ({pct}%). Need ≥80%.
-     Unanswered: Q{a}, Q{b}, Q{c}
-     Trả lời tiếp hoặc dùng "accept all suggestions" để chấp nhận suggested answer.
-  ```
+- **`/ba-presale build`** = advance gate. **No minimum answer threshold.** User can proceed at any time — the QnA list serves two purposes:
+  1. Quick-answer/remove for the user's own clarity before build.
+  2. Generate a table to send to the client (if project is not urgent).
+  In many cases the user wants to build the proposal immediately without waiting for client answers. Unanswered questions are carried forward as assumptions in WBS/Proposal with `[src:assumption:A{n}]` refs.
 - **"accept all suggestions"** = mass-update: copy every row's `Suggested Answer` into `Answered Answer` cell (add column if template uses separate cell; otherwise just flip Status→Answered with suggestion intact). Warn user: "Đã accept {N} suggestions. Bạn có thể review lại và edit từng câu bất cứ lúc nào trước khi build."
 
 ## Step 6 — Version bump on answer cycles

@@ -2,9 +2,11 @@
 
 Phase 4 of the presale lifecycle. Owner: `presale-lead` (inline, never delegate). Triggered by `/ba-presale handoff`.
 
+**Orchestration note:** Handoff is ~80% mechanical (file ops, template-fill, string matching). Only intake.md composition requires LLM synthesis. Use Bash for file operations, Sonnet-level effort for composition, and reserve Opus only if conflict resolution is needed during continuity check. See `presale.orchestration_mode` in `contract.yaml`.
+
 This step requires:
 - `plans/{slug}-{date}/00_presale/00-domain-primer.md`
-- `plans/{slug}-{date}/00_presale/05-clarifications.md` (≥80% Answered)
+- `plans/{slug}-{date}/00_presale/05-clarifications.md`
 - `plans/{slug}-{date}/00_presale/10-wbs-content.md` (+ `.csv`)
 - `plans/{slug}-{date}/00_presale/20-proposal-content.md`
 - `plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx`
@@ -47,11 +49,13 @@ Proceed? (reply 'ok' to start, or type a different command)
 
 Wait for `ok` before continuing.
 
-## Step 1 — Pre-flight
+## Step 1 — Pre-flight `[MECHANICAL]`
+
+Boolean file-existence checks. No LLM judgment needed.
 
 Verify all of the following exist:
 - `plans/{slug}-{date}/00_presale/00-domain-primer.md`
-- `plans/{slug}-{date}/00_presale/05-clarifications.md` (with ≥80% `Status=Answered`)
+- `plans/{slug}-{date}/00_presale/05-clarifications.md` (with `Status=Answered` rows — no minimum threshold)
 - `plans/{slug}-{date}/00_presale/10-wbs-content.md` + `.csv`
 - `plans/{slug}-{date}/00_presale/20-proposal-content.md`
 - `plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx`
@@ -59,21 +63,17 @@ Verify all of the following exist:
 
 On missing file → block with explicit list and the command that produces it (e.g., `Run /ba-presale build to produce WBS + Proposal`).
 
-On `05-clarifications.md` < 80% answered → block:
-```
-⚠️ Cannot handoff: only {answered}/{N} clarifications answered ({pct}%).
-   Options:
-   • Run /ba-presale clarify and answer remaining
-   • Reply "accept remaining suggestions" to mass-accept agent suggestions
-```
+## Step 2 — Create handoff structure `[MECHANICAL — Bash]`
 
-## Step 2 — Create handoff structure
+Pure file operations. Use Bash `mkdir -p` directly.
 
 Create (idempotent):
 - `plans/{slug}-{date}/01_intake/`
 - `plans/{slug}-{date}/01_intake/_sources/`
 
-## Step 3 — Mirror sources
+## Step 3 — Mirror sources `[MECHANICAL — Bash]`
+
+Pure file operations. Use Bash `cp -r` or `ln -s`. No LLM needed.
 
 Symlink (copy if symlinks unavailable) presale artifacts into `_sources/`:
 
@@ -85,7 +85,9 @@ Symlink (copy if symlinks unavailable) presale artifacts into `_sources/`:
 | `00_presale/10-wbs-content.md` | `_sources/10-wbs-content.md` |
 | `00_presale/20-proposal-content.md` | `_sources/20-proposal-content.md` |
 
-## Step 4 — Compose intake.md
+## Step 4 — Compose intake.md `[JUDGMENT — Sonnet-level synthesis]`
+
+This is the one step that needs LLM synthesis: extracting, rephrasing, and structuring facts from multiple source artifacts into a coherent intake document. However, it does NOT need Opus — the sources are already validated and locked. Sonnet-level composition is sufficient. The lead runs this inline but should treat it as template-fill + light synthesis, not deep analysis.
 
 Write `plans/{slug}-{date}/01_intake/intake.md` directly from presale artifacts. Vietnamese (matches `/ba-start` defaults). Every fact carries `[src:...]` ref back to the source-of-truth file.
 
@@ -151,7 +153,9 @@ Clarifications Q{n} in Stakeholders category>
 
 Write incrementally (skeleton first, append each section) per BA-kit Large Artifact Write Protocol.
 
-## Step 5 — Compose plan.md
+## Step 5 — Compose plan.md `[MECHANICAL — template fill]`
+
+Deterministic template fill from WBS phases. Minimal LLM needed — just extract phase names and map to module slugs.
 
 Write `plans/{slug}-{date}/01_intake/plan.md`:
 
@@ -179,7 +183,9 @@ Write `plans/{slug}-{date}/01_intake/plan.md`:
 6. /ba-start package               — compile final HTML
 ```
 
-## Step 6 — Generate handoff manifest
+## Step 6 — Generate handoff manifest `[MECHANICAL — template fill]`
+
+Deterministic: for each fact in intake.md, list its source ref. No judgment needed.
 
 Write `plans/{slug}-{date}/01_intake/handoff-manifest.md` — fact → source ref table:
 
@@ -201,7 +207,9 @@ Write `plans/{slug}-{date}/01_intake/handoff-manifest.md` — fact → source re
 - Proposal:          v{X.Y}
 ```
 
-## Step 7 — Continuity check (BLOCKING)
+## Step 7 — Continuity check `[MECHANICAL — string matching]` (BLOCKING)
+
+This is deterministic verification: check that specific strings from WBS/Proposal/Clarifications appear in intake.md. Use Grep/Bash for the checks where possible. Only escalate to LLM judgment if a semantic mismatch (not exact string) needs evaluation.
 
 Verify ALL of:
 
@@ -225,7 +233,7 @@ On ANY failure → block handoff with explicit list:
 Fix intake.md and re-run /ba-presale handoff.
 ```
 
-## Step 8 — State card
+## Step 8 — State card `[MECHANICAL]`
 
 Write `plans/{slug}-{date}/00_presale/_state-cards/04-handed-off.md` (≤300 tokens, Vietnamese):
 - intake.md + plan.md paths + versions
@@ -233,7 +241,7 @@ Write `plans/{slug}-{date}/00_presale/_state-cards/04-handed-off.md` (≤300 tok
 - bundle versions snapshot
 - next command: `/ba-start backbone --slug {slug} --date {date}`
 
-## Step 9 — Confirmation
+## Step 9 — Confirmation `[MECHANICAL]`
 
 ```
 ✅ Handoff complete.

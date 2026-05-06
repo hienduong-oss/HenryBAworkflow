@@ -9,7 +9,7 @@ trap 'rm -rf "${TMP_DIR}"' EXIT
 legacy_hits="$(
   cd "${ROOT_DIR}" &&
     rg -n "artifact-contract\\.md|plans/reports/final|plans/reports/drafts|plans/\\{date\\}-\\{slug\\}" \
-      AGENTS.md GEMINI.md CLAUDE.md skills core scripts codex templates \
+      CLAUDE.md skills core scripts templates platform \
       --glob '!core/contract.yaml' \
       --glob '!rules/ba-workflow.md' \
       --glob '!scripts/test-contract-sync.sh' \
@@ -59,8 +59,8 @@ bash -n "${ROOT_DIR}/scripts/ba-kit"
 bash -n "${ROOT_DIR}/scripts/check-token-budget.sh"
 bash "${ROOT_DIR}/scripts/check-token-budget.sh" >/dev/null
 
-cp "${ROOT_DIR}/codex/skills/ba-start/SKILL.md" "${TMP_DIR}/ba-start.before"
-bash "${ROOT_DIR}/scripts/generate-codex-assets.sh" >"${TMP_DIR}/generator.log"
-cmp "${TMP_DIR}/ba-start.before" "${ROOT_DIR}/codex/skills/ba-start/SKILL.md" >/dev/null
+cp "${ROOT_DIR}/platform/codex/skills/ba-start/SKILL.md" "${TMP_DIR}/ba-start.before"
+bash "${ROOT_DIR}/platform/codex/scripts/generate-codex-assets.sh" >"${TMP_DIR}/generator.log"
+cmp "${TMP_DIR}/ba-start.before" "${ROOT_DIR}/platform/codex/skills/ba-start/SKILL.md" >/dev/null
 
 echo "Contract sync checks passed."

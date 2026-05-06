@@ -1,75 +1,67 @@
 # BA-kit
 
-BA-kit là playbook Business Analysis cho môi trường AI agents như Claude Code, Codex, và Antigravity. Mục tiêu của repo này là biến agent thành một BA có quy trình rõ ràng, artifact có cấu trúc, và handoff đủ chuẩn để không phải “nhắc prompt thủ công” ở mỗi dự án.
+BA-kit là playbook Business Analysis cho môi trường AI agents (Claude Code, Codex, Antigravity). Biến agent thành một BA có quy trình rõ ràng, artifact có cấu trúc, và handoff đủ chuẩn để không phải "nhắc prompt thủ công" ở mỗi dự án.
 
-## Flow hiện tại
-
-Lifecycle chuẩn của BA-kit:
+## Hai lifecycle
 
 ```text
-Raw input
--> Intake + Gap Analysis
--> Requirements Backbone
--> FRD / Stories / Use Cases + Screen Contract Plus
--> DESIGN.md + wireframe-input.md + wireframe-map.md
--> User tự tạo mockup / wireframe
--> Final SRS + HTML package
+/ba-presale (upstream)                    /ba-start (downstream)
+┌─────────────────────────┐              ┌──────────────────────────────┐
+│ Phase 0: Bootstrap      │              │ Intake                       │
+│ Phase 1: Domain Study   │              │ Backbone                     │
+│ Phase 2: Clarify        │──handoff──>  │ FRD / Stories / SRS          │
+│ Phase 3: Build          │              │ Wireframe Handoff            │
+│ Phase 4: Handoff        │              │ Package                      │
+└─────────────────────────┘              └──────────────────────────────┘
 ```
 
-Điểm quan trọng:
-- `/ba-start wireframes` vẫn giữ nguyên tên command để tương thích ngược.
-- Nhưng Step 9 không còn gọi MCP để generate UI.
-- Step 9 chỉ chuẩn bị bộ handoff cho wireframe thủ công:
-  - `designs/{slug}/DESIGN.md`
-  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md`
-  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md`
-  - `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md`
+### `/ba-presale` — Upstream (client-facing deliverables)
 
-## Vai trò từng artifact
+Chạy từ client project folder. Auto-derive slug/date từ cwd.
 
-- `DESIGN.md`
-  Dùng để khóa design tổng thể: visual tone, màu sắc, typography, layout principles, navigation schema, menu/header/footer, component patterns, responsive rules, anti-patterns.
+| Phase | Xử lý | Output |
+|-------|--------|--------|
+| 0 — Bootstrap | Tạo skeleton, classify files | `00_presale/00-inputs/` |
+| 1 — Domain Study | Research domain, synthesize primer | `00-domain-primer.md` (VN) |
+| 2 — Clarify | Gap analysis, 8-15 questions + suggested answers | `05-clarifications.md` (EN) |
+| 3 — Build | WBS + Proposal (parallel), sync-check, auto-render | `.xlsx` + `.docx` |
+| 4 — Handoff | Compose intake.md, continuity check | `01_intake/intake.md` |
 
-- `wireframe-input.md`
-  Dùng để khóa constraint ở mức màn hình/flow: màn hình nào phải có, portal/menu schema nào phải theo, state nào phải thể hiện, action/label nào là non-negotiable, và active-menu evidence nào phải xuất hiện.
+### `/ba-start` — Downstream (BA artifacts)
 
-- `wireframe-map.md`
-  Dùng làm checklist handoff: screen nào user phải tự vẽ, supporting states nào cần có, và sau khi vẽ xong thì phải attach hình/link vào đâu trong SRS.
+| Step | Xử lý | Output |
+|------|--------|--------|
+| Intake | Parse, normalize, scope lock | `01_intake/intake.md` |
+| Backbone | Requirements backbone, portal matrix | `02_backbone/backbone.md` |
+| FRD | Functional requirements per module | `03_modules/{module}/frd.md` |
+| Stories | User stories + acceptance criteria | `03_modules/{module}/user-stories.md` |
+| SRS | Use cases, screen specs, Screen Contract Plus | `03_modules/{module}/srs.md` |
+| Wireframes | DESIGN.md + constraint pack + handoff checklist | Manual wireframe handoff |
+| Package | Validate + compile HTML | `04_compiled/` |
 
-- `SRS`
-  Là nơi chứa Use Case, Screen Contract Plus, Screen Inventory, và phần mô tả màn hình chi tiết. BA-kit/BA viết phần screen descriptions; user chỉ tự attach mockup thủ công vào section tương ứng.
-
-## Ai làm gì
-
-- BA-kit / BA:
-  - viết intake, backbone, FRD, stories, SRS core
-  - sinh `DESIGN.md`, `wireframe-input.md`, `wireframe-map.md`
-  - viết `Screen Descriptions` trong SRS như pha enrich sau wireframe, không tái định nghĩa portal/menu đã khóa
-
-- User / Designer:
-  - dựa trên `DESIGN.md`, `wireframe-input.md`, Use Case, Screen Contract Plus, Screen Inventory để tự tạo wireframe/mockup
-  - tự dán image/link/mockup vào đúng section trong SRS
-
-Mockup không phải source of truth. Source of truth vẫn là backbone, Use Case, Screen Contract Plus, Screen Inventory, và Screen Descriptions trong SRS.
-
-## Cấu trúc thư mục
+## Cấu trúc thư mục (trong client project)
 
 ```text
 plans/
   {slug}-{date}/
-    01_intake/
+    00_presale/           ← /ba-presale output
+      00-inputs/
+      00-domain-primer.md
+      05-clarifications.md
+      10-wbs-content.md + .csv
+      20-proposal-content.md
+      _output/            ← rendered xlsx + docx
+      _state-cards/
+      _changelog/
+    01_intake/            ← handoff bridge
     02_backbone/
     03_modules/
       {module_slug}/
         frd.md
         user-stories.md
         srs.md
-        srs-group-a.md
-        srs-group-b.md
-        srs-group-c.md
         wireframe-input.md
         wireframe-map.md
-        wireframe-state.md
     04_compiled/
 
 designs/
@@ -77,21 +69,32 @@ designs/
     DESIGN.md
 ```
 
-## Teamwork và modular architecture
+## Cấu trúc repo BA-kit
 
-BA-kit hỗ trợ làm việc nhóm bằng Git theo 2 tầng:
-- System-level:
-  - `01_intake/`
-  - `02_backbone/`
-- Module-level:
-  - `03_modules/{module_slug}/`
+```text
+bakit/
+  core/           ← contract.yaml + contract-behavior.md (canonical)
+  rules/          ← workflow, quality, presale standards, diagram style
+  agents/         ← agent definitions (presale-lead, wbs-builder, etc.)
+  skills/         ← skill + step files (ba-presale, ba-start, ba-do, etc.)
+  templates/      ← artifact templates + style spec
+  scripts/        ← CLI (ba-kit), utilities, sync scripts
+  docs/           ← onboarding docs
+  designs/        ← placeholder for DESIGN.md examples
+  platform/
+    codex/
+      CODEX.md    ← entry point for Codex
+      agents/     ← Codex agent definitions
+      skills/     ← Codex skill definitions
+      scripts/    ← Codex installer + asset generator
+    gemini/
+      GEMINI.md   ← entry point for Antigravity
+      scripts/    ← Antigravity installer
+  CLAUDE.md       ← entry point for Claude Code
+  install.sh      ← Claude Code installer
+```
 
-Quy tắc quan trọng:
-- Các module không được tự định nghĩa global navigation, portal actors, hay UX direction riêng.
-- Những quyết định dùng chung phải được khóa ở `02_backbone` qua `Portal Matrix` và ở `designs/{slug}/DESIGN.md` qua `Navigation Schema`.
-- `/ba-start wireframes --module ...` chỉ chuẩn bị constraint/handoff cho module đó; nó không tự sinh mockup.
-
-## Cài đặt nhanh
+## Cài đặt
 
 ### Claude Code
 
@@ -101,83 +104,64 @@ cd bakit
 ./install.sh
 ```
 
-Sau đó restart Claude Code. Claude sẽ dùng:
-- `CLAUDE.md`
-- `skills/`
-- `rules/`
-- `templates/`
-- shared core trong `~/.claude/ba-kit/`
+Sau đó restart Claude Code. Assets được sync vào `~/.claude/`.
 
 ### Codex
 
-Mở repo này trực tiếp trong Codex là dùng được ngay qua `AGENTS.md`.
+Mở repo trực tiếp trong Codex — dùng ngay qua `platform/codex/CODEX.md`.
 
-Nếu muốn cài bundle lâu dài:
-
+Hoặc cài bundle:
 ```bash
-bash scripts/install-codex-ba-kit.sh
+bash platform/codex/scripts/install-codex-ba-kit.sh
 ```
 
 ### Antigravity
 
 ```bash
-bash scripts/install-antigravity-ba-kit.sh
+bash platform/gemini/scripts/install-antigravity-ba-kit.sh
 ```
 
-Script này:
-- cài CLI `ba-kit`
-- ghi installation manifest
-- tạo Knowledge Item workflow cho Antigravity dựa trên flow manual wireframe handoff hiện tại
+## Sử dụng
 
-## Ví dụ sử dụng
-
-### Claude Code
+### Presale (từ client project folder)
 
 ```text
-/ba-start
-/ba-start backbone --slug hr-app
-/ba-start srs --slug hr-app --module auth-flow
-/ba-start wireframes --slug hr-app --module auth-flow
-/ba-start status --slug hr-app
+/ba-presale              ← bootstrap + domain study
+/ba-presale clarify      ← gap analysis + questions
+/ba-presale build        ← WBS + Proposal (chọn: all / proposal only / WBS only)
+/ba-presale handoff      ← bridge sang /ba-start
 ```
 
-Ý nghĩa của bước `wireframes`:
-- hỏi/chốt `DESIGN.md` nếu cần
-- build `wireframe-input.md`
-- build `wireframe-map.md`
-- đánh dấu `wireframe-state.md`
-- không generate hình UI
-
-### Codex
+### BA lifecycle
 
 ```text
-Use AGENTS.md and skills/ba-start/SKILL.md.
-Build the requirements backbone first, then emit FRD, stories, SRS core, and manual wireframe handoff artifacts.
-Do not generate wireframes directly. Let the user create and attach the final mockup manually.
+/ba-start backbone
+/ba-start frd --module auth
+/ba-start stories --module auth
+/ba-start srs --module auth
+/ba-start wireframes --module auth
+/ba-start package
 ```
 
-### Antigravity
+### Utilities
 
 ```text
-Read skills/ba-start/SKILL.md and run srs for slug warehouse-rfp module auth-flow.
-Then run wireframes for the same target, but only prepare DESIGN.md, wireframe-input.md, and wireframe-map.md.
-The user will create and attach the mockup manually.
+/ba-do          ← route freeform BA text
+/ba-impact      ← analyze requirement changes
+/ba-next        ← detect next step
 ```
 
 ## Nâng cấp
 
 ```bash
-ba-kit doctor
-ba-kit update
+ba-kit update    # pull + reinstall all runtimes
+ba-kit sync      # quick-sync source → ~/.claude/ (no reinstall)
+ba-kit doctor    # check runtime readiness
 ```
 
-`ba-kit doctor` kiểm tra runtime readiness và `ba-kit update` sẽ refresh các runtime đã cài mà không đụng vào artifact dự án.
+## Tài liệu thêm
 
-## Tài liệu nên đọc tiếp
-
-- [GitBook-ready Docs](gitbook/documentation/README.md)
 - [Getting Started](docs/getting-started.md)
 - [Codex Setup](docs/codex-setup.md)
 - [Skill Catalog](docs/skill-catalog.md)
 - [BA Methodology Guide](docs/ba-methodology-guide.md)
-- [Design Artifacts](designs/README.md)

@@ -10,7 +10,7 @@
 - Status: queued | running | completed | needs-repartition | blocked | failed | stalled
 - Started At: {started-at}
 - Last Heartbeat At: {last-heartbeat-at}
-- Stall Threshold Minutes: 10
+- Stall Threshold Minutes: 5
 - Expected Outputs:
   - {output-1}
 - Latest Milestone Or Blocker: {milestone-or-blocker}

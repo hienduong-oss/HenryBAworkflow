@@ -59,6 +59,20 @@ Also infer `impact` when:
 
 Do not mutate artifacts directly from a bare correction statement. Route to impact first.
 
+## On-Demand Research Trigger
+
+When the user asks about a topic, domain, or requirement that is **not covered in the existing Domain Primer** for the current project:
+
+1. Recognize that the topic is outside current domain scope
+2. Create a focused research brief using `templates/research-brief-template.md` (MUST/SHOULD/NICE-TO-HAVE structure)
+3. Invoke `ba-researcher` agent with the focused brief to gather facts, patterns, risks, and sources
+4. Present research findings to the user with implications for the BA workstream
+5. If the user confirms the topic is relevant, add the research to the Domain Primer or create a supplementary research note
+
+**Do not** auto-run research without user prompting. Research is on-demand, not automatic. The trigger is the user's question about an uncovered topic.
+
+On-demand research should be **narrow and focused** — one specific topic per research brief, not a full domain scan.
+
 ## Resolution Rules
 
 Use the resolution order from `resolution.*`.
@@ -176,13 +190,12 @@ Long-running orchestrations such as `/ba-presale` must protect the conversation 
 Recognize the following subcommands in addition to the BA-kit core set:
 
 - `presale` — initialize lifecycle, run Bootstrap, then Domain Study. Stops at the Domain Study user gate.
-- `presale next` — advance to the next presale phase (gated transitions only).
-- `presale lock <phase>` — snapshot and freeze an artifact. Once locked, no mutation without `presale feedback`.
-- `presale render` — render xlsx + docx finals from markdown sources via document-skills. Render is **never** automatic.
+- `presale clarify` — advance to clarify phase (gap analysis + questions).
+- `presale build` — build WBS and/or Proposal (user selects target: all / proposal only / WBS only). Auto-renders after sync-check passes.
 - `presale feedback` — accept client feedback log, generate change packet, dispatch surgical updates, re-run sync-check.
 - `presale status` — report current presale phase, locked artifacts, pending gates.
 - `presale handoff` — generate `intake.md`, source mirrors, and handoff manifest; bridge to `/ba-start`.
-- A bare prompt during a presale phase edits the current artifact via Edit tool (no rerender).
+- A bare prompt during a presale gate = surgical edit on the current artifact + auto re-render of affected output.
 
 ### Multi-Agent Contract
 
@@ -193,7 +206,7 @@ Recognize the following subcommands in addition to the BA-kit core set:
 
 ### User Gates
 
-Per `presale.user_gates`. After Domain Study, after WBS+Proposal sync-check, after QnA, and before handoff. The lead must stop and explicitly instruct the user how to advance (`/ba-presale next`).
+Per `presale.user_gates`. After Domain Study, after Clarify, after Build, and before handoff. The lead must stop and explicitly instruct the user the next command (e.g., `/ba-presale clarify`, `/ba-presale build`, `/ba-presale handoff`).
 
 ### Auto-Bootstrap
 
@@ -211,7 +224,9 @@ Every fact in WBS, Proposal, and QnA carries an inline source ref using one of t
 
 ### Render Discipline
 
-- Triggered only by `/ba-presale render`. Never auto-render on edit.
+- Render is automatic after sync-check passes during `/ba-presale build`. No separate `render` command.
+- For single-target builds (Proposal only / WBS only), render immediately after dispatch returns.
+- Surgical edits during the build gate auto re-render only the affected file (xlsx OR docx).
 - Inputs: markdown content + CSV intermediate + style spec (`templates.output_style_spec`).
 - Outputs: `paths.presale_wbs_xlsx`, `paths.presale_proposal_docx` only.
 - Render must NOT mutate the markdown sources.
@@ -239,6 +254,58 @@ Post-handoff, locked WBS + Proposal are the source of truth. If `/ba-start backb
 - Delegating assembly, merge, render, conflict arbitration, or handoff.
 - Skipping the Domain Study user gate.
 - Modifying locked artifacts without `/ba-presale feedback`.
+
+## Orchestration Optimization (Pattern B)
+
+Minimize token spend by separating judgment points from mechanical steps. An agent should only "think" when the next action requires evaluation, comparison, or synthesis. Deterministic routing, file operations, and conditional dispatch do not need LLM judgment.
+
+### Model Enforcement
+
+Every `Agent()` tool call that spawns a sub-agent MUST include an explicit `model` parameter matching `presale.models.{role}` from `contract.yaml`. Sub-agents must NEVER inherit the parent orchestrator's model. This prevents silent model escalation (e.g., a Sonnet worker running on Opus because the lead forgot to specify).
+
+Validation rule: if a delegation packet targets `wbs-builder` or `proposal-writer`, the Agent call must pass `model: "sonnet"`. If it targets a surgical edit on a single section, it must also pass `model: "sonnet"`.
+
+### Judgment vs Mechanical Classification
+
+**Judgment points** (require LLM — use the model assigned to the decision owner):
+- Domain study synthesis (reading inputs, web research, producing primer)
+- Clarify gap analysis (identifying missing information across 8 categories)
+- Sync-check comparison (reading two artifacts, detecting semantic conflicts)
+- Conflict resolution anchoring (deciding which source wins per priority order)
+- Surgical edit intent parsing (understanding what the user wants changed)
+- Cross-artifact consistency check (UC ↔ screen ↔ wireframe alignment)
+
+**Mechanical steps** (deterministic — use Bash, conditional logic, or lowest-cost model):
+- Bootstrap → Domain Study auto-chain: always happens, no branching
+- Build parallel dispatch: always dispatch both WBS + Proposal, no evaluation needed
+- Render dispatch after sync: `if zero_conflicts AND all_source_refs → render`. Boolean check.
+- Handoff file mirror: `mkdir` + `cp`/symlink. Pure file operations.
+- Handoff continuity check: grep WBS phase names in intake.md. String matching.
+- SRS group concat: append fragments in fixed order A→F. No evaluation.
+- Surgical edit dispatch after intent parsed: create packet + call Agent. Template fill.
+- Surgical edit re-render after sync: `if sync_pass → render affected_file`. Boolean.
+
+### Applying Pattern B in Step Files
+
+Step files should mark each sub-step with `[JUDGMENT]` or `[MECHANICAL]` to make the classification explicit. When a step is mechanical:
+
+1. Prefer Bash tool for file operations (mkdir, cp, symlink, cat).
+2. Use conditional logic in the step narrative rather than asking the LLM to "decide."
+3. If an LLM call is unavoidable for a mechanical step (e.g., template-fill compose), use the lowest-cost model specified in `presale.models` (typically Sonnet).
+4. Never route a mechanical step through Opus when Sonnet or Bash can handle it.
+
+### Surgical Edit Loop Optimization
+
+When the user sends a bare prompt during a build gate:
+
+1. `[JUDGMENT — Opus]` Parse user intent → identify target artifact + section + change.
+2. `[MECHANICAL — Sonnet]` Create edit packet from parsed intent → dispatch to sub-agent.
+3. Wait for sub-agent return (~50 tokens).
+4. `[JUDGMENT — Opus]` Re-run sync-check on affected slice only.
+5. `[MECHANICAL — Bash/Sonnet]` If sync passes → re-render affected file (xlsx OR docx).
+6. `[MECHANICAL]` Return 1-line confirm.
+
+Steps 2, 3, 5, 6 do not need Opus context. The lead should minimize context passed to these mechanical steps.
 
 ## Large Artifact Write Protocol
 
