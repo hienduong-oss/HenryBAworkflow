@@ -67,32 +67,44 @@ Or ask Codex to run:
 4. If UI is involved, point it at the relevant project `DESIGN.md` and the module `wireframe-input.md` / `wireframe-map.md` artifacts.
 5. For collaboration, use `ba-collab` for module claims, review packets, conflict checks, and approval-gated GitHub handoff.
 6. Use `/ba-start` for full workflow runs and the matching explicit subcommand for reruns.
-7. For rerun commands, pass `--slug <slug>` when more than one project may exist.
-8. If one slug has multiple dated artifact sets, Codex should stop and ask which date to use instead of silently taking the latest set.
-9. When a requirement or rule changes during `frd`, `stories`, `srs`, `wireframes`, or `package`, route through `/ba-start impact --slug <slug>` before mutating downstream artifacts unless the edit is clearly wording-only.
-10. If the user describes a change in natural language without naming a subcommand, infer the equivalent of `impact` when the project set already exists.
-11. If the user sends only a short correction statement such as `Không có nhóm admin user`, treat it as change evidence for `impact`, not as permission to edit artifacts directly.
-12. Ask for assumptions, open questions, and a draft output.
-13. If you installed the Codex conversion, ask Codex to use `ba-do` from `~/.codex/skills/ba-do/SKILL.md` for freeform routing, `ba-start` from `~/.codex/skills/ba-start/SKILL.md` for explicit lifecycle execution, and the registered BA agents from `~/.codex/agents`.
-14. Unless you explicitly override it, BA-kit should use Shadcn UI as the default component baseline for wireframe constraints and UI handoff.
-15. Before Step 9 is run, BA-kit should ask for or confirm the design decisions needed to persist the project runtime artifact `designs/{slug}/DESIGN.md`, then use that file as the system design document.
-16. Unless you explicitly override it, BA deliverables should be written in Vietnamese.
-17. Treat the dated artifact-set token as `YYMMDD-HHmm` across both report filenames and `plans/{date}-{slug}/plan.md`.
-18. When delegating, pass only narrow artifact slices and exact excerpts, not full upstream documents.
-19. If a delegated worker reports missing context or `NEEDS_REPARTITION`, split the scope and rerun only that slice.
-20. For non-trivial delegation, use the packet structure from `templates/sub-agent-handoff-template.md` or the equivalent snippet embedded in `ba-start`.
-21. For `srs`, resolve the exact backbone and user-stories artifacts first and pull the FRD only when it exists or is required instead of scanning every report in `plans/reports/final/` and `plans/reports/drafts/`.
-22. For `frd` and `stories`, resolve the exact backbone prerequisite first and begin authoring from that file instead of scanning every report in `plans/reports/final/`.
-23. If only legacy report names like `002-intake-form.md` exist, stop and migrate or rerun them explicitly; do not infer the current slug/date from legacy filenames.
-24. If context truncation happens after the target workflow was already confirmed, recover from the resolved command and exact artifacts on disk instead of asking the user to restate the task.
-25. Once the user explicitly approves a mutating rerun step, keep that step locked for the current run and do not fall back to generic "what do you want me to do with this document?" prompts.
-25. For non-trivial delegated work, create a dedicated tracker under `plans/{date}-{slug}/delegation/` and pass its path into the worker packet.
-26. Treat a delegated slice as likely stalled when its tracker has no heartbeat for more than 10 minutes and the target artifact has not advanced.
+7. Use `/ba-start options --slug <slug>` when intake should brainstorm solution options before the backbone is written.
+8. Use `/ba-start options --slug <slug> --select option-02` to lock the chosen direction after reviewing the option pack.
+9. Use `/ba-start options --slug <slug> --skip` when the team explicitly wants to bypass optioning and move on.
+10. The option pack and comparison live under `plans/{slug}-{date}/01_intake/options/`.
+11. For rerun commands, pass `--slug <slug>` when more than one project may exist.
+12. If one slug has multiple dated artifact sets, Codex should stop and ask which date to use instead of silently taking the latest set.
+13. When a requirement or rule changes during `frd`, `stories`, `srs`, `wireframes`, or `package`, route through `/ba-start impact --slug <slug>` before mutating downstream artifacts unless the edit is clearly wording-only.
+14. If the user describes a change in natural language without naming a subcommand, infer the equivalent of `impact` when the project set already exists.
+15. If the user sends only a short correction statement such as `Không có nhóm admin user`, treat it as change evidence for `impact`, not as permission to edit artifacts directly.
+16. Ask for assumptions, open questions, and a draft output.
+17. If you installed the Codex conversion, ask Codex to use `ba-do` from `~/.codex/skills/ba-do/SKILL.md` for freeform routing, `ba-start` from `~/.codex/skills/ba-start/SKILL.md` for explicit lifecycle execution, and the registered BA agents from `~/.codex/agents`.
+18. Unless you explicitly override it, BA-kit should use Shadcn UI as the default component baseline for wireframe constraints and UI handoff.
+19. Before Step 9 is run, BA-kit should ask for or confirm the design decisions needed to persist the project runtime artifact `designs/{slug}/DESIGN.md`, then use that file as the system design document.
+20. Unless you explicitly override it, BA deliverables should be written in Vietnamese.
+21. Treat the dated artifact-set token as `YYMMDD-HHmm` across both report filenames and `plans/{slug}-{date}/01_intake/plan.md`.
+22. When delegating, pass only narrow artifact slices and exact excerpts, not full upstream documents.
+23. If a delegated worker reports missing context or `NEEDS_REPARTITION`, split the scope and rerun only that slice.
+24. For non-trivial delegation, use the packet structure from `templates/sub-agent-handoff-template.md` or the equivalent snippet embedded in `ba-start`.
+25. For `srs`, resolve the exact backbone and user-stories artifacts first and pull the FRD only when it exists or is required instead of scanning every report in `plans/reports/final/` and `plans/reports/drafts/`.
+26. For `frd` and `stories`, resolve the exact backbone prerequisite first and begin authoring from that file instead of scanning every report in `plans/reports/final/`.
+27. If only legacy report names like `002-intake-form.md` exist, stop and migrate or rerun them explicitly; do not infer the current slug/date from legacy filenames.
+28. If context truncation happens after the target workflow was already confirmed, recover from the resolved command and exact artifacts on disk instead of asking the user to restate the task.
+29. Once the user explicitly approves a mutating rerun step, keep that step locked for the current run and do not fall back to generic "what do you want me to do with this document?" prompts.
+30. For non-trivial delegated work, create a dedicated tracker under `plans/{slug}-{date}/delegation/` and pass its path into the worker packet.
+31. Treat a delegated slice as likely stalled when its tracker has no heartbeat for more than 10 minutes and the target artifact has not advanced.
 
 Global command helpers after Codex install:
 - `ba-do` — preferred freeform router for BA requests
 - `ba-impact` — run change-impact triage without mutating artifacts
 - `ba-next` — inspect the current artifact set and recommend the next BA command
+
+Use `options` when intake needs multiple solution directions before backbone. The commands are:
+
+```text
+/ba-start options --slug warehouse-rfp
+/ba-start options --slug warehouse-rfp --select option-02
+/ba-start options --slug warehouse-rfp --skip
+```
 
 ## Prompt Patterns
 
@@ -103,7 +115,8 @@ Use the installed `ba-do` skill from ~/.codex/skills/ba-do/SKILL.md.
 Route this BA request to the correct BA-kit command and then follow that workflow:
 "Parse the requirements in docs/raw/warehouse-rfp.pdf.
 Default to `hybrid` mode for a solo IT BA.
-Build the requirements backbone first, then emit FRD, user stories, use case specifications, Screen Contract Plus, manual wireframe handoff artifacts, final screen descriptions, and FRD/SRS HTML only when each artifact is justified.
+If intake recommends multiple solution directions, create the option pack + comparison before backbone.
+Then build the requirements backbone and emit FRD, user stories, use case specifications, Screen Contract Plus, manual wireframe handoff artifacts, final screen descriptions, and FRD/SRS HTML only when each artifact is justified.
 If wireframe support is needed, ask me for design decisions and persist `designs/{slug}/DESIGN.md` before Step 9."
 ```
 
@@ -111,11 +124,22 @@ If wireframe support is needed, ask me for design decisions and persist `designs
 
 ```text
 Use AGENTS.md and skills/ba-start/SKILL.md.
-Run the equivalent of `/ba-start wireframes --slug warehouse-rfp`.
+Run the equivalent of `/ba-start wireframes --slug warehouse-rfp --module auth-flow`.
 Use the existing Screen Contract Plus artifacts only.
 Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask to refresh it before preparing the manual wireframe handoff pack.
 If more than one dated set exists for `warehouse-rfp`, stop and ask me which date to use.
 Do not regenerate intake, FRD, or user stories.
+```
+
+### Options Before Backbone
+
+```text
+Use AGENTS.md and skills/ba-start/SKILL.md.
+Run the equivalent of `/ba-start options --slug warehouse-rfp`.
+If the option pack already exists under `plans/{slug}-{date}/01_intake/options/`, review it first.
+If one option is accepted, run `/ba-start options --slug warehouse-rfp --select option-02`.
+If optioning is unnecessary, run `/ba-start options --slug warehouse-rfp --skip`.
+Keep the decision explicit before `/ba-start backbone --slug warehouse-rfp`.
 ```
 
 ### Change Impact Triage
@@ -179,7 +203,7 @@ Keep the package scope narrow: regenerate final FRD and SRS HTML when those mark
 Use AGENTS.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start status --slug warehouse-rfp`.
 Print artifact names, exists or missing status, last-modified dates, the persisted backbone, the explicit wireframe state, and any persisted wireframe input/map artifacts when present.
-Also print any delegation trackers under `plans/{date}-{slug}/delegation/`, including `running`, `blocked`, `needs-repartition`, or likely stalled slices.
+Also print any delegation trackers under `plans/{slug}-{date}/delegation/`, including `running`, `blocked`, `needs-repartition`, or likely stalled slices.
 ```
 
 ### Publish To Notion
