@@ -7,8 +7,8 @@ This step requires:
 
 ## Memory Read Scope
 
-- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`, `paths.backbone`
-- **May read:** `paths.plan`, `paths.frd` (when exists), `paths.project_memory` or (`paths.memory_hot_vocabulary` + `paths.memory_hot_decisions`) when shard mode is active
+- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`, `paths.backbone_index`
+- **May read:** targeted `paths.backbone` sections, `paths.plan`, `paths.frd` (when exists), `paths.project_memory` or (`paths.memory_hot_vocabulary` + `paths.memory_hot_decisions`) when shard mode is active
 - **Must NOT read:** `log.md`, `cold/`, `warm/` shards, unrelated module shards
 
 ## Governance Gate
@@ -27,9 +27,11 @@ Run Step 7 only.
 
 - Resolve slug, date, and module using the shared contract.
 - Require `paths.backbone`.
+- Prefer `paths.backbone_index` for routing. If it is missing and the backbone is large, stop and ask to refresh the index.
 - If backbone is missing, print the exact missing path and stop.
 - Run a narrow stories preflight:
-  - read only `paths.backbone`
+  - read `paths.backbone_index` first
+  - read only targeted `paths.backbone` sections
   - read `paths.plan` only when it adds needed scope context
   - read `paths.frd` only when it already exists and adds needed vocabulary or workflow structure
   - do not scan unrelated module folders once slug, date, and module are resolved
@@ -37,6 +39,7 @@ Run Step 7 only.
 ## Output
 
 - `paths.stories`
+- `paths.stories_index`
 
 ## Step 7 - Produce user stories
 
@@ -49,8 +52,9 @@ Generate Agile user stories from the backbone feature map and FR draft using [..
 
 Execution rules:
 
-- Start from the exact backbone artifact only, plus the exact plan path when genuinely needed.
+- Start from `paths.backbone_index`, then the exact targeted backbone sections, plus the exact plan path when genuinely needed.
 - Pull the FRD only when it already exists or the current mode requires it.
 - If the user already confirmed that story generation should proceed, continue from the resolved backbone instead of reopening discovery.
 
 Save to `paths.stories`.
+After generation, create or refresh `paths.stories_index` using [../../../templates/user-stories-index-template.md](../../../templates/user-stories-index-template.md). Keep it as a navigator over epics, stories, acceptance-criteria counts, screen IDs, and source headings.

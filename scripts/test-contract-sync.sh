@@ -57,6 +57,32 @@ from pathlib import Path
 
 contract_path = Path(sys.argv[1])
 contract = json.loads(contract_path.read_text(encoding="utf-8"))
+paths = contract.get("paths", {})
+commands = contract.get("commands", {})
+required_paths = {
+    "source_chunk_index",
+    "backbone_index",
+    "stories_index",
+    "srs_index",
+}
+missing_paths = sorted(required_paths - set(paths))
+if missing_paths:
+    raise SystemExit(f"Missing token optimization path(s): {', '.join(missing_paths)}")
+
+required_outputs = {
+    "intake": {"source_summary", "source_chunks_dir", "source_chunk_index"},
+    "backbone": {"backbone", "backbone_index"},
+    "stories": {"stories", "stories_index"},
+    "srs": {"srs", "srs_group", "wireframe_input", "srs_index"},
+}
+for command, expected in required_outputs.items():
+    outputs = set(commands.get(command, {}).get("outputs", []))
+    missing = sorted(expected - outputs)
+    if missing:
+        raise SystemExit(
+            f"Command '{command}' missing token optimization output(s): {', '.join(missing)}"
+        )
+
 activation = contract.get("activation", {})
 signals = set(activation.get("signals", {}))
 thresholds = activation.get("thresholds", {})
@@ -96,11 +122,80 @@ for level in ("modular", "program"):
     validate_rule(thresholds[level], f"activation.thresholds.{level}")
 PY
 
+python3 - "${ROOT_DIR}/templates/manifest.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+required_templates = {
+    "source-chunk-index-template.md",
+    "backbone-index-template.md",
+    "user-stories-index-template.md",
+    "srs-index-template.md",
+}
+missing = sorted(required_templates - set(manifest))
+if missing:
+    raise SystemExit(f"Missing token optimization template(s): {', '.join(missing)}")
+PY
+
+python3 - "${ROOT_DIR}" <<'PY'
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+checks = {
+    "core/contract-behavior.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
+    "skills/ba-start/steps/backbone.md": ["paths.backbone_index"],
+    "skills/ba-start/steps/frd.md": ["paths.backbone_index"],
+    "skills/ba-start/steps/stories.md": ["paths.backbone_index", "paths.stories_index"],
+    "skills/ba-start/steps/srs.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
+    "skills/ba-start/steps/package.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
+    "skills/ba-start/steps/impact.md": ["affected_node_ids", "owner_artifact", "stale_artifacts", "read_escalation"],
+}
+for rel_path, tokens in checks.items():
+    text = (root / rel_path).read_text(encoding="utf-8")
+    missing = [token for token in tokens if token not in text]
+    if missing:
+        raise SystemExit(f"{rel_path} missing index-first token(s): {', '.join(missing)}")
+PY
+
+SOURCE_FIXTURE="${TMP_DIR}/large-source.md"
+{
+  printf '# Large Source\n\n'
+  for i in $(seq 1 24); do
+    printf '## Section %02d\n\n' "${i}"
+    printf 'Requirement %02d explains actor behavior, validation rules, workflow constraints, and reporting expectations for the BA source extraction test.\n\n' "${i}"
+  done
+} >"${SOURCE_FIXTURE}"
+
+SOURCE_CACHE_ROOT="${TMP_DIR}/source-cache/{source_hash}"
+SOURCE_EXTRACT_MANIFEST="${TMP_DIR}/source-extract-manifest.json"
+python3 "${ROOT_DIR}/scripts/source-extract.py" "${SOURCE_FIXTURE}" \
+  --cache-root "${SOURCE_CACHE_ROOT}" \
+  --chunk-chars 900 >"${SOURCE_EXTRACT_MANIFEST}"
+SOURCE_CACHE_DIR="$(python3 - "${SOURCE_EXTRACT_MANIFEST}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+print(manifest["cache_dir"])
+PY
+)"
+if [[ ! -f "${SOURCE_CACHE_DIR}/chunk-index.md" ]]; then
+  echo "Missing source chunk index: ${SOURCE_CACHE_DIR}/chunk-index.md" >&2
+  exit 1
+fi
+
 python3 -m py_compile \
   "${ROOT_DIR}/scripts/source-extract.py" \
+  "${ROOT_DIR}/scripts/context-budget.py" \
   "${ROOT_DIR}/scripts/design-snapshot.py" \
   "${ROOT_DIR}/scripts/stitch-state.py" \
   "${ROOT_DIR}/scripts/runtime-parity-normalize.py"
+
+python3 "${ROOT_DIR}/scripts/context-budget.py" --repo "${ROOT_DIR}" --command status >/dev/null
 
 bash -n "${ROOT_DIR}/scripts/ba-kit"
 bash -n "${ROOT_DIR}/scripts/check-token-budget.sh"

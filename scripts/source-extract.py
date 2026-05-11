@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable
 
@@ -150,6 +151,65 @@ def first_sentences(text: str, limit: int = 8) -> list[str]:
             break
     return result
 
+def keywords_for(text: str, limit: int = 8) -> list[str]:
+    words = re.findall(r"[A-Za-zÀ-ỹ0-9][A-Za-zÀ-ỹ0-9_-]{2,}", text.lower())
+    stopwords = {
+        "and", "the", "for", "with", "that", "this", "from", "are", "was", "were",
+        "các", "cho", "với", "của", "được", "trong", "một", "những", "khi", "này",
+    }
+    counts: dict[str, int] = {}
+    for word in words:
+        if word in stopwords:
+            continue
+        counts[word] = counts.get(word, 0) + 1
+    return [
+        word
+        for word, _ in sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:limit]
+    ]
+
+def short_excerpt(text: str, limit: int = 140) -> str:
+    clean = re.sub(r"\s+", " ", text.strip())
+    if len(clean) <= limit:
+        return clean
+    return clean[: limit - 3].rstrip() + "..."
+
+def first_heading(text: str) -> str:
+    headings = candidate_headings(text, limit=1)
+    return headings[0] if headings else "(no heading detected)"
+
+def write_chunk_index(cache_dir: Path, source: Path, result: ExtractResult, chunk_paths: list[str], chunks: list[str], source_hash: str) -> None:
+    generated_at = datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    lines = [
+        f"# Source Chunk Index: {source.name}",
+        "",
+        "## Metadata",
+        "",
+        "| Field | Value |",
+        "| --- | --- |",
+        "| index_type | source_chunk |",
+        "| source_artifact | `manifest.json` |",
+        f"| source_hash | {source_hash} |",
+        f"| generated_at | {generated_at} |",
+        "| generated_by_command | `ba-kit source-extract` |",
+        "| stale_status | current |",
+        f"| coverage_summary | {len(chunks)} chunk(s) extracted from `{source.name}` |",
+        "",
+        "## Chunk Index",
+        "",
+        "| Chunk ID | Path | Heading / Section | Source Range | Keywords | Short Excerpt |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for index, (chunk_path, chunk) in enumerate(zip(chunk_paths, chunks), start=1):
+        chunk_id = f"chunk-{index:02d}"
+        rel_path = Path(chunk_path).name
+        heading = first_heading(chunk).replace("|", "\\|")
+        keywords = ", ".join(keywords_for(chunk)).replace("|", "\\|")
+        excerpt = short_excerpt(chunk).replace("|", "\\|")
+        lines.append(
+            f"| {chunk_id} | `chunks/{rel_path}` | {heading} | chunk {index} | {keywords} | {excerpt} |"
+        )
+    (cache_dir / "chunk-index.md").write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
 
 def write_summary(cache_dir: Path, path: Path, result: ExtractResult, chunk_count: int) -> None:
     headings = candidate_headings(result.text)
@@ -186,7 +246,7 @@ def write_chunks(cache_dir: Path, chunks: list[str]) -> list[str]:
 
 def copy_to_promoted(cache_dir: Path, promoted_root: Path) -> None:
     promoted_root.mkdir(parents=True, exist_ok=True)
-    for name in ("manifest.json", "summary.md"):
+    for name in ("manifest.json", "summary.md", "chunk-index.md"):
         shutil.copy2(cache_dir / name, promoted_root / name)
     target_chunks = promoted_root / "chunks"
     if target_chunks.exists():
@@ -199,7 +259,7 @@ def main() -> int:
     parser.add_argument("source")
     parser.add_argument("--cache-root", required=True)
     parser.add_argument("--promote-root")
-    parser.add_argument("--chunk-chars", type=int, default=4000)
+    parser.add_argument("--chunk-chars", type=int, default=2500)
     parser.add_argument("--copy-raw", action="store_true")
     args = parser.parse_args()
 
@@ -229,6 +289,7 @@ def main() -> int:
         chunks = [result.text.strip()]
     chunk_paths = write_chunks(cache_dir, chunks)
     write_summary(cache_dir, source, result, len(chunk_paths))
+    write_chunk_index(cache_dir, source, result, chunk_paths, chunks, source_hash)
 
     if args.copy_raw:
         raw_dir = cache_dir / "raw"
@@ -244,6 +305,7 @@ def main() -> int:
         "page_count": result.page_count,
         "cache_dir": str(cache_dir),
         "summary_path": str(cache_dir / "summary.md"),
+        "chunk_index_path": str(cache_dir / "chunk-index.md"),
         "chunk_count": len(chunk_paths),
         "chunk_paths": chunk_paths,
     }

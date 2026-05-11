@@ -7,9 +7,9 @@ This step requires:
 
 ## Memory Read Scope
 
-- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`
-- **May read:** `paths.project_memory` (compact only, consistency check), `paths.memory_index` (health overview and activation state)
-- **Must NOT read:** `log.md`, `cold/`, `warm/` shards (unless a specific cross-ref check explicitly needs a shard)
+- **Must read:** `core/contract.yaml`, `core/contract-behavior.md`, `paths.backbone_index` when it exists
+- **May read:** `paths.stories_index`, `paths.srs_index`, `paths.project_memory` (compact only, consistency check), `paths.memory_index` (health overview and activation state)
+- **Must NOT read:** raw source, full intake, `log.md`, `cold/`, `warm/` shards, or full source-of-truth artifacts for cross-reference discovery when indexes are current
 
 ## Scope
 
@@ -35,6 +35,8 @@ Run a final packaging and quality pass:
 
 - Keep the default package scope narrow: validate the existing artifact set, then regenerate `paths.compiled_frd` when FRD exists and `paths.compiled_srs` when SRS exists.
 - Do not treat `package` as a full rebuild of intake, backbone, stories, and SRS drafts.
+- Use `paths.backbone_index`, `paths.stories_index`, and `paths.srs_index` for cross-reference discovery when they are current.
+- Read full markdown only for the artifact currently being converted to HTML, or emit `READ_ESCALATION` when an index is missing, stale, or contradictory.
 - Verify all deliverables follow their templates.
 - Check cross-references between the backbone and every emitted downstream artifact.
 - When FRD and SRS exist, check their cross-references against stories.

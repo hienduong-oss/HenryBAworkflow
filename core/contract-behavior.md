@@ -193,6 +193,9 @@ Packet rules:
 - Read only the exact upstream artifacts needed by the active step.
 - Use `templates/manifest.json` or CLI extraction helpers instead of loading full templates when only one group is needed.
 - Reuse summaries and excerpts instead of rereading large raw sources when normalized artifacts already exist.
+- For large source inputs, read `paths.source_summary` and `paths.source_chunk_index` before selecting chunk files.
+- After `paths.backbone_index`, `paths.stories_index`, or `paths.srs_index` exists, read the index first and open only targeted sections from the source artifact.
+- Treat index files as navigators only; they do not replace `paths.backbone`, `paths.stories`, or `paths.srs` as source-of-truth artifacts.
 
 ## Large Artifact Write Protocol
 
@@ -332,14 +335,14 @@ Every command has deterministic read scope. Commands must navigate: summary → 
 
 | Command | Must Read | May Read | Must NOT Read |
 | --- | --- | --- | --- |
-| intake | contract.yaml, contract-behavior.md | paths.project_memory (compact only) | memory shards, log.md, cold/ |
+| intake | contract.yaml, contract-behavior.md | paths.source_summary, paths.source_chunk_index, selected source chunks, paths.project_memory (compact only) | memory shards, log.md, cold/ |
 | backbone | contract.yaml, contract-behavior.md, paths.intake, paths.plan (when exists) | selected option file only when optioning is `completed`; paths.project_memory, paths.memory_index (nav only), paths.memory_hot_vocabulary, paths.memory_hot_decisions | log.md, cold/, warm/ |
-| impact | contract.yaml, contract-behavior.md, paths.intake, paths.backbone | paths.project_memory, paths.memory_index, paths.memory_hot_*, selected warm/ module shard, relevant downstream artifacts; log.md only for explicit audit | cold/ (unless escalated) |
-| frd | contract.yaml, contract-behavior.md, paths.backbone, paths.plan | paths.project_memory or hot vocabulary+decisions shards | log.md, cold/, warm/, unrelated module shards |
-| stories | contract.yaml, contract-behavior.md, paths.backbone | paths.plan, paths.frd (if exists), paths.project_memory or hot shards | log.md, cold/, warm/, unrelated module shards |
-| srs | contract.yaml, contract-behavior.md, paths.backbone, paths.stories | paths.project_memory or hot shards, module warm shard, paths.frd (if exists) | log.md, cold/, other module shards |
-| wireframes | contract.yaml, contract-behavior.md, paths.wireframe_input | paths.project_memory or paths.memory_hot_decisions, paths.design_doc, module warm shard | log.md, cold/, other module shards |
-| package | contract.yaml, contract-behavior.md | paths.project_memory (compact, consistency check), paths.memory_index (health overview) | log.md, cold/, warm/ shards |
+| impact | contract.yaml, contract-behavior.md, paths.intake, paths.backbone_index when present, paths.backbone | paths.project_memory, paths.memory_index, paths.memory_hot_*, selected warm/ module shard, relevant downstream indexes and artifacts; log.md only for explicit audit | cold/ (unless escalated) |
+| frd | contract.yaml, contract-behavior.md, paths.backbone_index, paths.plan | targeted paths.backbone sections, paths.project_memory or hot vocabulary+decisions shards | log.md, cold/, warm/, unrelated module shards, full paths.backbone when index is current |
+| stories | contract.yaml, contract-behavior.md, paths.backbone_index | targeted paths.backbone sections, paths.plan, paths.frd (if exists), paths.project_memory or hot shards | log.md, cold/, warm/, unrelated module shards, full paths.backbone when index is current |
+| srs | contract.yaml, contract-behavior.md, paths.backbone_index, paths.stories_index | targeted paths.backbone and paths.stories sections, paths.srs_index when refreshing, paths.project_memory or hot shards, module warm shard, paths.frd (if exists) | log.md, cold/, other module shards, full paths.backbone or paths.stories when indexes are current |
+| wireframes | contract.yaml, contract-behavior.md, paths.wireframe_input | paths.project_memory or paths.memory_hot_decisions, paths.design_doc, module warm shard, paths.srs_index for targeted screen lookup | log.md, cold/, other module shards |
+| package | contract.yaml, contract-behavior.md, paths.backbone_index when present | paths.stories_index, paths.srs_index, paths.project_memory (compact, consistency check), paths.memory_index (health overview) | raw source, full intake, log.md, cold/, warm/ shards, full source-of-truth artifacts for cross-reference discovery when indexes are current |
 | status | contract.yaml, contract-behavior.md | paths.project_home, paths.project_memory header, paths.memory_index (activation + freshness) | log.md (unless --audit), warm/ shards, cold/ |
 
 ### Index-First Navigation Rule

@@ -30,8 +30,10 @@ Ask the user to provide one of:
 
 File reading approach:
 
-- PDF: prefer `ba-kit source-extract <file>` first, then read the cached summary and only the relevant chunks
-- Markdown or text: read directly
+- PDF: prefer `ba-kit source-extract <file>` first, then read the cached summary, `chunk-index.md`, and only the relevant chunks
+- Markdown or text over 20 KB: run `ba-kit source-extract <file>` first; do not read the raw file directly
+- Markdown or text up to 20 KB: may read directly, but prefer source cache when the file is likely to be reused
+- Pasted text over roughly 8 KB: stage it as a source file and run `ba-kit source-extract` before normalization
 - Images: use multimodal reading
 - Word (`.docx`): use multimodal extraction or ask the user to export to PDF or Markdown first
 
@@ -52,6 +54,7 @@ Read the source material and extract content into [../../../templates/intake-for
 When a staged source cache exists:
 
 - read `summary.md` first
+- read `chunk-index.md` before selecting chunk files
 - open only the relevant chunk files for the current normalization pass
 - avoid dumping the entire raw source into context when normalized excerpts are enough
 

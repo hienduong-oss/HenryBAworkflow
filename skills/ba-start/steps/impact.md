@@ -84,8 +84,30 @@ Print:
 - change type
 - source of truth to update
 - current source of truth used for analysis
+- affected_node_ids
+- owner_artifact
+- stale_artifacts
+- read_escalation
 - affected artifacts
 - unaffected artifacts
 - recommended path
 - exact commands
 - only the focused questions that are truly required
+
+Use this delta-first output schema:
+
+```text
+Impact Delta
+
+affected_node_ids: [scope | actor | FR/NFR | story | UC | SCR | rule | message IDs]
+owner_artifact: [intake | backbone | stories | srs | wireframe artifacts]
+stale_artifacts: [indexes or artifacts that must be refreshed by the rerun]
+read_escalation: [none | READ_ESCALATION: impact read {path} due to {reason}]
+```
+
+Rules:
+
+- Map the change to `affected_node_ids` before opening broad downstream context.
+- Use `owner_artifact` to choose the smallest rerun path.
+- Include index files in `stale_artifacts` when a CR can invalidate `paths.backbone_index`, `paths.stories_index`, `paths.srs_index`, `paths.wireframe_input`, or `paths.wireframe_map`.
+- If a CR cannot be mapped to a node, emit `read_escalation` and ask focused questions instead of scanning the full artifact set.

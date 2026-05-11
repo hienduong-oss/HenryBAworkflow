@@ -19,6 +19,7 @@
     "source_manifest": "plans/{slug}-{date}/00_source/manifest.json",
     "source_summary": "plans/{slug}-{date}/00_source/summary.md",
     "source_chunks_dir": "plans/{slug}-{date}/00_source/chunks",
+    "source_chunk_index": "plans/{slug}-{date}/00_source/chunk-index.md",
     "project_home": "plans/{slug}-{date}/PROJECT-HOME.md",
     "design_root": "designs/{slug}",
     "compiled_root": "plans/{slug}-{date}/04_compiled",
@@ -33,10 +34,13 @@
     "option_item": "plans/{slug}-{date}/01_intake/options/option-{option}.md",
     "options_comparison": "plans/{slug}-{date}/01_intake/options/comparison.md",
     "backbone": "plans/{slug}-{date}/02_backbone/backbone.md",
+    "backbone_index": "plans/{slug}-{date}/02_backbone/backbone-index.md",
     "module_root": "plans/{slug}-{date}/03_modules/{module_slug}",
     "frd": "plans/{slug}-{date}/03_modules/{module_slug}/frd.md",
     "stories": "plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md",
+    "stories_index": "plans/{slug}-{date}/03_modules/{module_slug}/user-stories-index.md",
     "srs": "plans/{slug}-{date}/03_modules/{module_slug}/srs.md",
+    "srs_index": "plans/{slug}-{date}/03_modules/{module_slug}/srs-index.md",
     "srs_group": "plans/{slug}-{date}/03_modules/{module_slug}/srs-group-{group}.md",
     "wireframe_input": "plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md",
     "wireframe_map": "plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md",
@@ -77,7 +81,7 @@
       "module_required": false,
       "mutable": true,
       "requires": [],
-      "outputs": ["project_home", "intake", "plan"]
+      "outputs": ["project_home", "source_summary", "source_chunks_dir", "source_chunk_index", "intake", "plan"]
     },
     "impact": {
       "module_required": false,
@@ -95,7 +99,7 @@
       "module_required": false,
       "mutable": true,
       "requires": ["intake"],
-      "outputs": ["project_home", "backbone", "project_memory"]
+      "outputs": ["project_home", "backbone", "backbone_index", "project_memory"]
     },
     "frd": {
       "module_required": true,
@@ -107,13 +111,13 @@
       "module_required": true,
       "mutable": true,
       "requires": ["backbone"],
-      "outputs": ["stories"]
+      "outputs": ["stories", "stories_index"]
     },
     "srs": {
       "module_required": true,
       "mutable": true,
       "requires": ["backbone", "stories"],
-      "outputs": ["srs", "wireframe_input"]
+      "outputs": ["srs", "srs_group", "srs_index", "wireframe_input"]
     },
     "wireframes": {
       "module_required": true,
@@ -226,7 +230,34 @@
       "delegation_slice_count": {
         "source": "count active/queued trackers under paths.delegation_root, excluding archive",
         "compact_fallback": 0
+      },
+      "source_chunk_count": {
+        "source": "count chunk files under paths.source_chunks_dir",
+        "compact_fallback": 0
+      },
+      "backbone_bytes": {
+        "source": "byte size of paths.backbone",
+        "compact_fallback": 0
+      },
+      "stories_bytes": {
+        "source": "byte size of paths.stories",
+        "compact_fallback": 0
+      },
+      "srs_total_bytes": {
+        "source": "sum byte size of paths.srs and paths.srs_group files",
+        "compact_fallback": 0
+      },
+      "artifact_total_bytes": {
+        "source": "sum byte size of active BA artifacts under paths.project_root",
+        "compact_fallback": 0
       }
+    },
+    "context_thresholds": {
+      "source_chunk_count": 8,
+      "backbone_bytes": 25000,
+      "stories_bytes": 25000,
+      "srs_total_bytes": 30000,
+      "artifact_total_bytes": 80000
     },
     "lifecycle": {
       "auto_escalation": true,
