@@ -465,7 +465,119 @@ Mục tiêu:
 - phát hiện regression sớm
 - chứng minh tối ưu có hiệu quả trên project thật
 
-## 12. Thứ tự triển khai khuyến nghị
+## 12. Metadata freshness cho index
+
+Mỗi index phải có metadata đủ để runtime biết index còn đáng tin hay đã stale.
+
+Metadata tối thiểu:
+
+- `index_type`: `source_chunk | backbone | stories | srs`
+- `source_artifact`: path artifact gốc
+- `source_hash`: hash nội dung artifact gốc tại thời điểm index được sinh
+- `generated_at`: thời điểm sinh index
+- `generated_by_command`: command sinh hoặc refresh index
+- `stale_status`: `current | possibly-stale | stale`
+- `coverage_summary`: mô tả ngắn index đang cover phần nào
+
+Quy tắc freshness:
+
+- nếu `source_hash` không khớp artifact hiện tại, index là `stale`
+- nếu `impact` đánh dấu artifact có thể bị ảnh hưởng nhưng rerun chưa chạy, index là `possibly-stale`
+- nếu index thiếu metadata freshness, runtime phải xem index là `possibly-stale`
+- downstream command được dùng `possibly-stale` index để route sơ bộ, nhưng phải emit warning và xác nhận bằng section liên quan trước khi viết artifact
+
+## 13. Failure và degraded behavior
+
+Thiết kế compression-first cần nói rõ khi nào fail, khi nào degrade.
+
+### 13.1 Source extraction
+
+- Nếu input lớn vượt ngưỡng nhưng `source-extract` không chạy được, `intake` phải stop và báo lý do.
+- Nếu source nhỏ hơn ngưỡng, có thể đọc trực tiếp nhưng vẫn nên ghi nhận rằng source không được cached.
+- Nếu `chunk-index.md` không sinh được khi `chunk_count >= 8`, `intake` phải stop thay vì tiếp tục bằng broad-read.
+
+### 13.2 Backbone index
+
+- Sau khi tạo hoặc rerun `backbone.md`, nếu backbone dưới `25 KB` mà index generation fail, runtime có thể tiếp tục với warning.
+- Nếu backbone từ `25 KB` trở lên mà `backbone-index.md` không sinh được, downstream index-first enforcement phải block cho đến khi index được tạo.
+- Nếu downstream command thấy `backbone-index.md` stale, nó phải refresh index hoặc emit `READ_ESCALATION` trước khi mở full backbone.
+
+### 13.3 Stories và SRS index
+
+- Nếu `stories` hoặc `SRS` vượt ngưỡng mà index thiếu, command tiếp theo phải stop và yêu cầu refresh index.
+- Nếu artifact nhỏ hơn ngưỡng, full-read fallback được phép trong giai đoạn chuyển tiếp nhưng phải ghi rõ degraded behavior.
+
+### 13.4 Package
+
+- `package` được phép đọc full artifact đang convert sang HTML.
+- `package` không được đọc full artifact chỉ để khám phá cross-reference khi index hợp lệ đã tồn tại.
+- Nếu index bị stale, `package` phải report stale index và stop hoặc yêu cầu refresh, không tự quét toàn bộ project set.
+
+### 13.5 Impact
+
+- Nếu CR map được vào node cụ thể, `impact` phải dùng delta-first path.
+- Nếu CR không map được vào node cụ thể, `impact` được escalation nhưng phải emit `READ_ESCALATION`.
+- Nếu escalation làm read scope vượt budget, `impact` phải dừng với focused questions thay vì quét toàn bộ artifact set.
+
+## 14. Implementation decomposition
+
+Không nên triển khai thiết kế này như một plan lớn. Scope nên tách thành bốn implementation plan độc lập.
+
+### Plan 1 - Contract và index artifacts
+
+Mục tiêu:
+
+- thêm paths cho `source_chunk_index`, `backbone_index`, `stories_index`, `srs_index`
+- thêm template tối thiểu cho từng index
+- thêm outputs vào `core/contract.yaml`
+- thêm contract/parity checks cho path và read-scope envelope
+
+Không làm trong plan này:
+
+- chưa đổi downstream behavior sang index-first
+- chưa enforce size-based activation
+
+### Plan 2 - Source extract hardening
+
+Mục tiêu:
+
+- nâng `source-extract` để sinh `chunk-index.md`
+- áp dụng threshold input lớn cho `md/txt`
+- giảm chunk size mặc định
+- xử lý pasted text lớn bằng source cache
+- thêm test chứng minh input lớn không bị đọc thẳng
+
+Đây là plan có tác động token nhanh nhất.
+
+### Plan 3 - Backbone, stories, và SRS index-first reads
+
+Mục tiêu:
+
+- sinh `backbone-index.md` sau backbone
+- sinh `user-stories-index.md` sau stories
+- sinh `srs-index.md` sau SRS assembly
+- sửa `frd`, `stories`, và `srs` để đọc index trước rồi mới mở section liên quan
+
+Điều kiện vào plan:
+
+- Plan 1 đã có contract paths
+- Plan 2 đã ổn định source-side index behavior
+
+### Plan 4 - Impact, package, và runtime context budget
+
+Mục tiêu:
+
+- đổi `impact` sang delta-first
+- thêm output schema cho `affected_node_ids`, `owner_artifact`, `stale_artifacts`, `read_escalation`
+- siết `package` bằng index read contract
+- thêm runtime context budget estimator
+- bật size-based enforcement sau khi index coverage đủ
+
+Điều kiện vào plan:
+
+- Plan 3 đã có index coverage cho backbone/stories/SRS
+
+## 15. Thứ tự triển khai khuyến nghị
 
 ### Pha 0 - contract hóa artifact điều hướng
 
@@ -506,7 +618,7 @@ Mục tiêu:
 1. tách thêm deterministic prose khỏi `contract-behavior.md`
 2. chuyển thêm logic sang machine-readable manifest hoặc CLI helper
 
-## 13. Rủi ro và trade-off
+## 16. Rủi ro và trade-off
 
 ### Trade-off chấp nhận
 
@@ -526,7 +638,7 @@ Mục tiêu:
 - dùng threshold rõ ràng cho context-size activation
 - cho phép escalation có lý do thay vì cấm tuyệt đối
 
-## 14. Kết luận
+## 17. Kết luận
 
 Nếu mục tiêu số một là giảm token nhanh nhất, BA-kit không nên chỉ vá guardrail.
 
