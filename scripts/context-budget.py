@@ -50,6 +50,7 @@ def main() -> int:
     repo = Path(args.repo).resolve()
     contract = json.loads((repo / "core" / "contract.yaml").read_text(encoding="utf-8"))
     paths = contract["paths"]
+    profiles = contract.get("artifact_profiles", {})
 
     rows = []
     total = 0
@@ -60,15 +61,15 @@ def main() -> int:
         rendered = render_path(template, slug=args.slug, date=args.date, module=args.module)
         size = 0 if "{" in rendered else size_for(repo, rendered)
         total += size
-        rows.append((key, rendered, size))
+        rows.append((key, profiles.get(key, "unclassified"), rendered, size))
 
     print(f"Context budget for command: {args.command}")
     print("")
-    print("| Path Key | Resolved Path | Bytes |")
-    print("| --- | --- | --- |")
-    for key, rendered, size in rows:
-        print(f"| {key} | `{rendered}` | {size} |")
-    print(f"| TOTAL | | {total} |")
+    print("| Path Key | Profile | Resolved Path | Bytes |")
+    print("| --- | --- | --- | --- |")
+    for key, profile, rendered, size in rows:
+        print(f"| {key} | {profile} | `{rendered}` | {size} |")
+    print(f"| TOTAL | | | {total} |")
     return 0
 
 

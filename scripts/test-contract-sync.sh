@@ -301,7 +301,13 @@ python3 -m py_compile \
   "${ROOT_DIR}/scripts/stitch-state.py" \
   "${ROOT_DIR}/scripts/runtime-parity-normalize.py"
 
-python3 "${ROOT_DIR}/scripts/context-budget.py" --repo "${ROOT_DIR}" --command status >/dev/null
+CONTEXT_BUDGET_OUTPUT="$(
+  python3 "${ROOT_DIR}/scripts/context-budget.py" --repo "${ROOT_DIR}" --command status
+)"
+if [[ "${CONTEXT_BUDGET_OUTPUT}" != *"| Profile |"* ]]; then
+  echo "context-budget output missing Profile column" >&2
+  exit 1
+fi
 
 bash -n "${ROOT_DIR}/scripts/ba-kit"
 bash -n "${ROOT_DIR}/scripts/check-token-budget.sh"
