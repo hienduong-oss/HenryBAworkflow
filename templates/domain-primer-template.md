@@ -9,7 +9,7 @@ LANGUAGE: Vietnamese by default (per BA-kit CLAUDE.md).
 # Domain Primer — {{client_name}} / {{project_name}}
 
 > **Mục đích:** Tóm lược domain, business model, và bối cảnh khách hàng để WBS + Proposal được ước lượng & viết đúng ngữ cảnh.
-> **Nguồn:** `00-inputs/` + WebSearch (nếu có) + tri thức nền của agent.
+> **Nguồn:** `00_inputs/` + WebSearch (nếu có) + tri thức nền của agent.
 > **Trạng thái:** {{draft|reviewed|locked}}
 > **Ngày:** {{YYYY-MM-DD}}
 
@@ -53,13 +53,13 @@ LANGUAGE: Vietnamese by default (per BA-kit CLAUDE.md).
 - Q: {{...}}
 
 ## 8. Nguồn tham chiếu
-- `00-inputs/requirements/...`
-- `00-inputs/discussions/...`
+- `00_inputs/requirements/...`
+- `00_inputs/discussions/...`
 - WebSearch: {{url + ngày truy cập}}
 
 ---
 
 <!-- HANDOFF NOTE:
 Mỗi mục trong WBS/Proposal kế tiếp NÊN có thể trace ngược về một section của file này
-hoặc về `00-inputs/` gốc, để khi handoff sang /ba-start backbone không mất context.
+hoặc về `00_inputs/` gốc, để khi handoff sang /ba-start backbone không mất context.
 -->

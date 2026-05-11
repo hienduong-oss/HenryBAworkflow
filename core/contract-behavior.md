@@ -122,6 +122,16 @@ If exploration consumes context or the host truncates conversation history:
 2. Continue from the next unresolved step when those values are still unambiguous.
 3. Do not ask the user to restate the original request merely because exploration consumed context.
 
+### Presale Context-Loss Recovery
+
+When context is lost mid-presale (`/ba-presale` lifecycle), read state cards before attempting to reconstruct phase state from full artifacts:
+
+1. Read `plans/{slug}-{date}/00_presale/_state-cards/` — each card is ≤300 tokens and records phase id, output paths, key decisions, open issues, and next gate.
+2. Identify the highest-numbered card to determine the last completed phase.
+3. Resume from the next gate indicated in that card.
+4. Only read full presale artifacts (`00-domain-primer.md`, `05-clarifications.md`, `10-wbs-content.md`, `20-proposal-content.md`) when the state card references a specific open issue that requires artifact context.
+5. Do not re-run completed phases. State cards are authoritative for phase completion status.
+
 ## Accepted-Scope Execution Lock
 
 After the user explicitly approves a mutating rerun step:
@@ -306,7 +316,7 @@ Every command has deterministic read scope. Commands must navigate: summary → 
 | Command | Must Read | May Read | Must NOT Read |
 | --- | --- | --- | --- |
 | intake | contract.yaml, contract-behavior.md | paths.project_memory (compact only) | memory shards, log.md, cold/ |
-| backbone | contract.yaml, contract-behavior.md, paths.intake | paths.project_memory, paths.memory_index (nav only), paths.memory_hot_vocabulary, paths.memory_hot_decisions | log.md, cold/, warm/ |
+| backbone | contract.yaml, contract-behavior.md, paths.intake | paths.project_memory, paths.memory_index (nav only), paths.memory_hot_vocabulary, paths.memory_hot_decisions, paths.handoff_manifest (when _sources/ mirror exists — presale-originated projects only) | log.md, cold/, warm/ |
 | impact | contract.yaml, contract-behavior.md, paths.intake, paths.backbone | paths.project_memory, paths.memory_index, paths.memory_hot_*, selected warm/ module shard, relevant downstream artifacts; log.md only for explicit audit | cold/ (unless escalated) |
 | frd | contract.yaml, contract-behavior.md, paths.backbone, paths.plan | paths.project_memory or hot vocabulary+decisions shards | log.md, cold/, warm/, unrelated module shards |
 | stories | contract.yaml, contract-behavior.md, paths.backbone | paths.plan, paths.frd (if exists), paths.project_memory or hot shards | log.md, cold/, warm/, unrelated module shards |
@@ -314,6 +324,11 @@ Every command has deterministic read scope. Commands must navigate: summary → 
 | wireframes | contract.yaml, contract-behavior.md, paths.wireframe_input | paths.project_memory or paths.memory_hot_decisions, paths.design_doc, module warm shard | log.md, cold/, other module shards |
 | package | contract.yaml, contract-behavior.md | paths.project_memory (compact, consistency check), paths.memory_index (health overview) | log.md, cold/, warm/ shards |
 | status | contract.yaml, contract-behavior.md | paths.project_home, paths.project_memory header, paths.memory_index (activation + freshness) | log.md (unless --audit), warm/ shards, cold/ |
+| **presale: bootstrap** | contract.yaml, contract-behavior.md | cwd file listing (top-level + 1 deep) | plans/, .git/, .claude/, node_modules/, any presale artifact |
+| **presale: domain-study** | contract.yaml, contract-behavior.md, 00_inputs/ (all classified files) | WebSearch results (when domain knowledge is thin) | 00_presale/ artifacts not yet produced, plans/ BA artifacts |
+| **presale: clarify** | contract.yaml, contract-behavior.md, 00_presale/00-domain-primer.md | 00_inputs/ (targeted files only when a gap cannot be resolved from Domain Primer alone) | Full 00_inputs/ re-scan, plans/ BA artifacts |
+| **presale: build** | contract.yaml, contract-behavior.md, 00_presale/00-domain-primer.md, 00_presale/05-clarifications.md | 00_presale/_state-cards/03a-wbs-sync-payload.md, 00_presale/_state-cards/03b-proposal-sync-payload.md (sync-check); full 10-wbs-content.md / 20-proposal-content.md only when conflict requires surrounding context | 00_inputs/ raw files (already synthesized), plans/ BA artifacts |
+| **presale: handoff** | contract.yaml, contract-behavior.md, 00_presale/00-domain-primer.md, 00_presale/05-clarifications.md, 00_presale/10-wbs-content.md, 00_presale/20-proposal-content.md | 00_inputs/ (for reference bundle section only) | plans/ BA artifacts (intake.md is being created, not read) |
 
 ### Index-First Navigation Rule
 

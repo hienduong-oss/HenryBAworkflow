@@ -50,7 +50,7 @@ Read:
 📊 BA Presale Status — {slug}-{date}
 
 Workspace:        plans/{slug}-{date}/
-Inputs:           {req}/{disc}/{tech}/{ref} files under 00_presale/00-inputs/
+Inputs:           {req}/{disc}/{tech}/{ref} files under 00_inputs/
 
 Phase artifacts:
   Domain Primer:    {✅ exists | ❌ missing}  (last edit: {date})

@@ -12,7 +12,7 @@ You write Proposal content for the `/ba-presale` lifecycle. You are a **worker**
 ## Inputs (from delegation packet)
 
 - Project workspace path (`plans/{slug}-{date}/`)
-- `00_presale/00-inputs/` reference paths
+- `00_inputs/` reference paths (shared raw-input store at project root)
 - `00_presale/00-domain-primer.md` reference path
 - `00_presale/05-clarifications.md` reference path (read Answered rows only)
 - `00_presale/10-wbs-content.md` reference path — read-only, for §7/§9 alignment (may be in-flight if dispatched parallel)
@@ -66,9 +66,40 @@ You write Proposal content for the `/ba-presale` lifecycle. You are a **worker**
 
 ## Return Format
 
-Short summary (~50 tokens):
+Short summary (~50 tokens) returned to lead:
 - Status: `done | partial | blocked | repartition-needed`
 - File written: path
 - Variant: `A_platform | B_custom`
 - Section coverage: e.g. "§1–§11 complete (excluding §3,§4 per variant)"
 - Open flags: e.g. "§7 scope pending WBS complete", "§9 quotation stub"
+
+**Sync-payload file (REQUIRED for "Build all" runs):**
+
+Write `plans/{slug}-{date}/00_presale/_state-cards/03b-proposal-sync-payload.md` with structured data for lead's sync-check. This lets the lead compare artifacts without re-reading full files:
+
+```markdown
+# Proposal Sync Payload — {slug}-{date}
+
+## §7.1 In-Scope items
+- {item}  [src:...]
+
+## §7.2 Out-of-Scope items
+- {item}  [src:...]
+
+## §7.3 Assumptions & Dependencies
+| ID | Assumption | Source ref |
+|----|------------|------------|
+| A1 | ... | [src:...] |
+
+## §8 Milestones
+| Milestone | Duration | Effort (PD) |
+|-----------|----------|-------------|
+| ... | ... | ... |
+
+## §9 Effort totals
+Total: {N} PD
+
+## Source ref coverage
+- Commitments with source ref: {N}/{total} in §1.4, §7, §9
+- Missing source refs: {list or "none"}
+```

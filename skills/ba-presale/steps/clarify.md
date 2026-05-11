@@ -6,7 +6,7 @@ Triggered by user command `/ba-presale clarify` (never auto-advances from domain
 
 This step requires:
 - `plans/{slug}-{date}/00_presale/00-domain-primer.md` (completed + user-reviewed)
-- `00-inputs/` (all classes)
+- `00_inputs/` (all classes)
 - `templates/clarifications-template.md`
 - `rules/ba-presale-standards.md` §1, §5
 
@@ -25,7 +25,7 @@ Before touching the filesystem, print this block in English (short, concise):
 Phase 2 — Identify gaps and produce answerable question list.
 
 Will:
-  1. Re-read Domain Primer + 00-inputs
+  1. Re-read Domain Primer + 00_inputs
   2. Run gap analysis across 8 BA categories (stakeholders, scope,
      success criteria, compliance, UI, process, tech, commercial)
   3. Synthesize 8–15 English clarifying questions
@@ -44,7 +44,7 @@ Wait for `ok` before continuing.
 ## Step 1 — Re-read inputs
 
 - Read `00-domain-primer.md` in full (all 8 sections, especially §5 Assumptions, §6 Risks, §7 Preliminary Open Questions).
-- Re-skim `00-inputs/requirements/*`, `00-inputs/discussions/*`, `00-inputs/technical/*`.
+- Domain Primer already synthesizes `00_inputs/`. Do NOT re-skim raw inputs unless a specific gap in Step 2 cannot be resolved from the Primer alone — in that case, open only the relevant file(s), not the full class.
 - Do NOT re-run WebSearch unless a new external fact is genuinely required.
 
 ## Step 2 — Gap analysis across 8 BA categories
@@ -63,7 +63,7 @@ For each category, list what is **known**, **inferred**, **missing**. Keep this 
 | 8 | Commercial | Budget range, timeline anchor, payment model, engagement type |
 
 Rules:
-- Every gap must trace to a fact (or absence) in Domain Primer / `00-inputs/`.
+- Every gap must trace to a fact (or absence) in Domain Primer / `00_inputs/`.
 - If a category is already well-covered, fewer or no questions for it — do NOT pad.
 - Target: **8–15 total questions** (not per-category; spread according to actual gaps).
 

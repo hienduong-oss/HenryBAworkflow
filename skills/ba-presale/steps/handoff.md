@@ -15,7 +15,7 @@ This step requires:
 
 ## Scope
 
-Bridge presale to `/ba-start`. Compose `01_intake/intake.md` and `01_intake/plan.md` directly from presale artifacts — do NOT re-ask the user for any scope input already captured in Domain Primer / Clarifications / WBS / Proposal. Mirror source-of-truth files into `_sources/`. Run continuity check. Block on any failure.
+Bridge presale to `/ba-start`. Compose `01_intake/intake.md` and `01_intake/plan.md` directly from presale artifacts — do NOT re-ask the user for any scope input already captured in Domain Primer / Clarifications / WBS / Proposal. Mirror presale analysis artifacts (not raw inputs — those live at `00_inputs/` shared by both flows) into `_sources/`. Run continuity check. Block on any failure.
 
 ## Pre-run description block (MANDATORY)
 
@@ -29,7 +29,7 @@ Phase 4 — Compose intake.md from presale artifacts (no re-ask).
 
 Will:
   1. Pre-flight: verify Domain Primer + Clarifications + WBS + Proposal exist
-  2. Create plans/{slug}-{date}/01_intake/ + _sources/ mirror
+  2. Create plans/{slug}-{date}/01_intake/ + _sources/ mirror (presale analysis only, not raw inputs)
   3. Compose intake.md (§1 Goals → §7 Reference Bundle) from existing sources
   4. Compose plan.md (mode selection, next /ba-start commands)
   5. Run continuity check (WBS phases, Proposal commitments, clarifications)
@@ -39,7 +39,7 @@ Output:
   plans/{slug}-{date}/01_intake/intake.md
   plans/{slug}-{date}/01_intake/plan.md
   plans/{slug}-{date}/01_intake/handoff-manifest.md
-  plans/{slug}-{date}/01_intake/_sources/  (mirror of presale artifacts)
+  plans/{slug}-{date}/01_intake/_sources/  (mirror of presale analysis artifacts — raw inputs stay at 00_inputs/)
 
 Next: /ba-start backbone
 
@@ -75,11 +75,10 @@ Create (idempotent):
 
 Pure file operations. Use Bash `cp -r` or `ln -s`. No LLM needed.
 
-Symlink (copy if symlinks unavailable) presale artifacts into `_sources/`:
+Symlink (copy if symlinks unavailable) presale analysis artifacts into `_sources/`. Raw inputs are NOT mirrored — they live at `00_inputs/` (shared across both flows):
 
 | Source | Mirrored as |
 |--------|-------------|
-| `00_presale/00-inputs/` | `_sources/00-inputs/` |
 | `00_presale/00-domain-primer.md` | `_sources/00-domain-primer.md` |
 | `00_presale/05-clarifications.md` | `_sources/05-clarifications.md` |
 | `00_presale/10-wbs-content.md` | `_sources/10-wbs-content.md` |
@@ -91,6 +90,8 @@ This is the one step that needs LLM synthesis: extracting, rephrasing, and struc
 
 Write `plans/{slug}-{date}/01_intake/intake.md` directly from presale artifacts. Vietnamese (matches `/ba-start` defaults). Every fact carries `[src:...]` ref back to the source-of-truth file.
 
+**Inline manifest generation:** As you write each section of `intake.md`, simultaneously append the corresponding fact→source rows to `handoff-manifest.md`. This avoids a second pass over the document. See Step 6 for the manifest header and bundle versions table (written after intake.md is complete).
+
 Structure:
 
 ```markdown
@@ -100,11 +101,11 @@ Structure:
 > Presale bundle date: {YYYY-MM-DD} | Handoff version: v1.0
 
 ## 1. Business Goals
-<extract from Proposal §1.1 Business Context + §1.4 Objectives + 00-inputs/requirements>
+<extract from Proposal §1.1 Business Context + §1.4 Objectives + 00_inputs/requirements>
 - Goal: ...  [src:proposal:§1.1] [src:client:RFP§1]
 
 ## 2. Stakeholders
-<extract from 00-inputs/discussions + Proposal §9.2 Team Structure + answered
+<extract from 00_inputs/discussions + Proposal §9.2 Team Structure + answered
 Clarifications Q{n} in Stakeholders category>
 | Role | Side | Influence |
 |------|------|-----------|
@@ -142,7 +143,7 @@ Clarifications Q{n} in Stakeholders category>
 | R1 | ... | H | ... [src:domain:§6.R1] |
 
 ## 8. Reference Bundle
-- Client raw:         _sources/00-inputs/
+- Client raw:         ../00_inputs/  (shared across presale + ba-start)
 - Domain context:     _sources/00-domain-primer.md
 - Clarifications:     _sources/05-clarifications.md
 - Scope authority:    _sources/10-wbs-content.md
@@ -151,7 +152,7 @@ Clarifications Q{n} in Stakeholders category>
                       ../00_presale/_output/20-proposal-final.docx
 ```
 
-Write incrementally (skeleton first, append each section) per BA-kit Large Artifact Write Protocol.
+Write incrementally (skeleton first, append each section) per BA-kit Large Artifact Write Protocol. For each section written, append the corresponding rows to `handoff-manifest.md` before moving to the next section.
 
 ## Step 5 — Compose plan.md `[MECHANICAL — template fill]`
 
@@ -183,22 +184,18 @@ Write `plans/{slug}-{date}/01_intake/plan.md`:
 6. /ba-start package               — compile final HTML
 ```
 
-## Step 6 — Generate handoff manifest `[MECHANICAL — template fill]`
+## Step 6 — Finalize handoff manifest `[MECHANICAL — template fill]`
 
-Deterministic: for each fact in intake.md, list its source ref. No judgment needed.
+Manifest rows were written inline during Step 4. This step only adds the header and bundle versions table.
 
-Write `plans/{slug}-{date}/01_intake/handoff-manifest.md` — fact → source ref table:
+Write the header and footer of `plans/{slug}-{date}/01_intake/handoff-manifest.md`:
 
 ```markdown
 # Handoff Manifest — {slug}-{date}
 
 | Fact in intake.md | Section | Source ref |
 |-------------------|---------|------------|
-| Goal: increase conversion 20% | §1 | [src:client:RFP§1.2] |
-| In-scope: payment integration | §3.1 | [src:wbs:3.3] |
-| Constraint: VND only currency | §4 | [src:proposal:§7.3] |
-| Clarified: SSO = SAML 2.0      | §5 | [src:clarify:Q2] |
-| ... | ... | ... |
+{rows already written inline during Step 4}
 
 ## Bundle Versions
 - Domain Primer:     {date}
@@ -207,9 +204,15 @@ Write `plans/{slug}-{date}/01_intake/handoff-manifest.md` — fact → source re
 - Proposal:          v{X.Y}
 ```
 
-## Step 7 — Continuity check `[MECHANICAL — string matching]` (BLOCKING)
+## Step 7 — Continuity check `[MECHANICAL — Bash/Grep FIRST]` (BLOCKING)
 
-This is deterministic verification: check that specific strings from WBS/Proposal/Clarifications appear in intake.md. Use Grep/Bash for the checks where possible. Only escalate to LLM judgment if a semantic mismatch (not exact string) needs evaluation.
+**Execution rule:** MUST use Bash/Grep for all string-matching checks. Only escalate to LLM judgment when a semantic mismatch (not exact string) requires interpretation. Do NOT use LLM for checks that Grep can answer deterministically.
+
+```bash
+# Example Bash checks (adapt paths to resolved slug/date)
+grep -c "P1\|P2\|P3" plans/{slug}-{date}/01_intake/intake.md
+grep -c "\[src:" plans/{slug}-{date}/01_intake/intake.md
+```
 
 Verify ALL of:
 
@@ -250,7 +253,7 @@ Generated:
   plans/{slug}-{date}/01_intake/intake.md
   plans/{slug}-{date}/01_intake/plan.md
   plans/{slug}-{date}/01_intake/handoff-manifest.md
-  plans/{slug}-{date}/01_intake/_sources/  (mirror)
+  plans/{slug}-{date}/01_intake/_sources/  (mirror, presale analysis only)
 
 Presale bundle (read-only reference for downstream):
   plans/{slug}-{date}/00_presale/*

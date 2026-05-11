@@ -66,7 +66,7 @@ HANDOFF RULE (CRITICAL):
 
 ## Assumptions Made by Agent (for suggested answers)
 
-When no direct source exists in Domain Primer / `00-inputs/`, the agent has inferred a default. These should be reviewed alongside the suggested answers:
+When no direct source exists in Domain Primer / `00_inputs/`, the agent has inferred a default. These should be reviewed alongside the suggested answers:
 
 | Assumption ID | Description | Used in Q# |
 |---------------|-------------|-----------|

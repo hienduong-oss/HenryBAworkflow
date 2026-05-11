@@ -10,7 +10,7 @@ This step requires:
 
 ## Scope
 
-Auto-derive workspace slug + date from the current working directory, classify existing files into `00-inputs/`, and create the `plans/{slug}-{date}/00_presale/` skeleton. **Never ask the user to organize files. Never ask for slug/date unless cwd is clearly not a project folder.**
+Auto-derive workspace slug + date from the current working directory, classify existing files into `00_inputs/` (shared raw-input store at project root), and create the `plans/{slug}-{date}/00_presale/` skeleton. **Never ask the user to organize files. Never ask for slug/date unless cwd is clearly not a project folder.**
 
 ## Pre-run description block (MANDATORY)
 
@@ -25,7 +25,7 @@ Phase 0+1 — Workspace setup and domain synthesis.
 Will:
   1. Derive slug = basename(cwd), date = today
   2. Create 00_presale/ skeleton inside existing project folder
-  3. Classify existing files → 00-inputs/{requirements,discussions,technical,references}
+  3. Classify existing files → 00_inputs/{requirements,discussions,technical,references}
   4. Read all inputs + run thorough WebSearch (always, every project)
   5. Synthesize Domain Primer (Vietnamese, 8 sections)
 
@@ -54,20 +54,20 @@ Rules (in order):
    Bootstrapping presale at {cwd} (slug={slug}, date={date})
    ```
 
-## Step 2 — Create presale skeleton
+## Step 2 — Create skeleton
 
-The project folder (`plans/{slug}-{date}/`) is assumed to already exist (user created it or it was set up externally). Bootstrap only creates the presale sub-structure inside it.
+The project folder (`plans/{slug}-{date}/`) is assumed to already exist (user created it or it was set up externally). Bootstrap creates the shared raw-input store at project root AND the presale sub-structure.
 
 Create (idempotent — skip if exists):
+- `plans/{slug}-{date}/00_inputs/{requirements,discussions,technical,references}/` (shared across presale + ba-start)
 - `plans/{slug}-{date}/00_presale/`
-- `plans/{slug}-{date}/00_presale/00-inputs/{requirements,discussions,technical,references}/`
 - `plans/{slug}-{date}/00_presale/_state-cards/`
 - `plans/{slug}-{date}/00_presale/_changelog/`
 - `plans/{slug}-{date}/00_presale/_output/`
 
 Do NOT create `plans/{slug}-{date}/` itself or `01_intake/` — those are created by their owning phases (handoff creates `01_intake/`).
 
-All presale artifact paths: use `paths.presale_*` from `core/contract.yaml` — do NOT hardcode.
+All presale artifact paths: use `paths.presale_*` from `core/contract.yaml` — do NOT hardcode. Raw input path: use `paths.raw_inputs`.
 
 ## Step 3 — Re-run detection
 
@@ -94,22 +94,22 @@ Walk cwd top-level and one level deep (exclude `plans/`, `.git/`, `.claude/`, `n
 
 | Class | Filename patterns | Target |
 |-------|------------------|--------|
-| requirements | rfp, scope, brief, business, requirement, spec, sow | `00-inputs/requirements/` |
-| discussions | meeting, note, email, chat, call, transcript, summary | `00-inputs/discussions/` |
-| technical | api, schema, payload, erd, sequence, swagger, openapi, postman, sample | `00-inputs/technical/` |
-| references | anything else useful (industry, competitor, regulation, standard) | `00-inputs/references/` |
+| requirements | rfp, scope, brief, business, requirement, spec, sow | `00_inputs/requirements/` |
+| discussions | meeting, note, email, chat, call, transcript, summary | `00_inputs/discussions/` |
+| technical | api, schema, payload, erd, sequence, swagger, openapi, postman, sample | `00_inputs/technical/` |
+| references | anything else useful (industry, competitor, regulation, standard) | `00_inputs/references/` |
 
 Rules:
 - Filename keywords first. When ambiguous, read first ~500 chars to infer class.
 - Still unsure → `references/`.
 - **Move** (not copy) files living in cwd root only.
-- **Skip** files already under `00-inputs/` (idempotent).
+- **Skip** files already under `00_inputs/` (idempotent).
 - **Never modify** file contents.
 
 ## Step 5 — Empty workspace fallback
 
 If cwd contains zero classifiable files:
-- Capture the user's originating prompt (or last user message) into `plans/{slug}-{date}/00_presale/00-inputs/requirements/_initial-prompt.md`.
+- Capture the user's originating prompt (or last user message) into `plans/{slug}-{date}/00_inputs/requirements/_initial-prompt.md`.
 - Proceed to Step 6.
 
 ## Step 6 — State card
@@ -129,5 +129,5 @@ No user gate here. This is deterministic — bootstrap always chains to domain-s
 - Asking user to organize files.
 - Asking user for slug/date when cwd is a valid project folder.
 - Modifying file contents.
-- Re-classifying files already in `00-inputs/` (idempotent).
+- Re-classifying files already in `00_inputs/` (idempotent).
 - Creating `presale/{slug}-{date}/...` at repo root (legacy layout — removed).

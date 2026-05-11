@@ -30,11 +30,12 @@ Standards for the upstream presale lifecycle (`/ba-presale`). Sit alongside [BA 
 
 - Fully automatic. Agent NEVER asks user to organize files.
 - Scan project folder (top-level + 1 deep, exclude `plans/`, `.git/`, `.claude/`, `node_modules/`), classify each file into one of:
-  - `00_presale/00-inputs/requirements/` — RFP, business docs, scope docs
-  - `00_presale/00-inputs/discussions/` — meeting notes, emails, chat logs
-  - `00_presale/00-inputs/technical/` — API specs, schemas, sample payloads, tech docs
-  - `00_presale/00-inputs/references/` — anything else useful
-- Empty folder + text-only requirement → still proceed; capture originating user prompt as `00_presale/00-inputs/requirements/_initial-prompt.md`.
+  - `00_inputs/requirements/` — RFP, business docs, scope docs
+  - `00_inputs/discussions/` — meeting notes, emails, chat logs
+  - `00_inputs/technical/` — API specs, schemas, sample payloads, tech docs
+  - `00_inputs/references/` — anything else useful
+- `00_inputs/` lives at project root (`plans/{slug}-{date}/00_inputs/`), shared across presale and ba-start flows.
+- Empty folder + text-only requirement → still proceed; capture originating user prompt as `00_inputs/requirements/_initial-prompt.md`.
 - Do NOT modify file contents. Move/copy only.
 
 ---
@@ -55,13 +56,33 @@ Standards for the upstream presale lifecycle (`/ba-presale`). Sit alongside [BA 
 When WBS and Proposal disagree during Phase 3 sync-check:
 1. Lead identifies the conflict precisely (cite both sides + WBS row ID / Proposal §).
 2. Anchor decision to **requirement source of truth**, in priority order:
-   - `00-inputs/` client raw
+   - `00_inputs/` client raw (shared across presale + ba-start)
    - Answered clarifications (`05-clarifications.md`)
    - Domain primer (validated)
    - Documented assumption (lowest)
 3. Never resolve by "stronger side" or recency.
 4. Log decision in `_changelog/sync-*.md` with `[src:...]` ref justifying the choice.
 5. Dispatch surgical fix packet to whichever side is wrong. Loop until zero conflicts.
+
+### Sync Changelog Schema
+
+Each entry in `_changelog/sync-{YYYYMMDD-HHmm}.md` MUST follow this structure:
+
+```markdown
+# Sync Changelog — {YYYYMMDD-HHmm}
+
+| # | Conflict | WBS side | Proposal side | Resolution | Source anchor | Fixed in |
+|---|----------|----------|---------------|------------|---------------|----------|
+| 1 | Effort mismatch P2 | 8 PD [src:wbs:P2] | 10 PD [src:proposal:§9] | Use WBS value | [src:client:RFP§3.2] | proposal §9 |
+```
+
+Fields:
+- **Conflict**: short description of the disagreement
+- **WBS side**: WBS value + row ID
+- **Proposal side**: Proposal value + section
+- **Resolution**: which side was corrected and to what value
+- **Source anchor**: the `[src:...]` ref that justified the decision
+- **Fixed in**: which artifact received the surgical edit
 
 ---
 
@@ -73,6 +94,7 @@ Every fact in WBS, Proposal, and every clarification answer must carry an inline
 - `[src:clarify:Q<n>]` — Answered clarification
 - `[src:assumption:A<n>]` — explicit assumption
 - `[src:wbs:<id>]` — used in Proposal to reference WBS row
+- `[src:intake:§<n>]` — used in backbone/downstream artifacts to reference a fact in `01_intake/intake.md`
 
 Rules:
 - A row/section with no source ref → blocked from auto-render.
@@ -107,13 +129,13 @@ Rules:
 The handoff must:
 
 1. Compose `plans/{slug}-{date}/01_intake/intake.md` directly from the source-of-truth bundle:
-   - `00_presale/00-inputs/*` (client raw)
+   - `00_inputs/*` (client raw — shared across presale + ba-start, no mirror needed)
    - `00_presale/00-domain-primer.md`
    - `00_presale/05-clarifications.md` (Answered rows)
    - `00_presale/10-wbs-content.md` (LOCKED)
    - `00_presale/20-proposal-content.md` (LOCKED)
 2. **Never re-ask the user** for scope, stakeholders, goals, or commitments already captured in presale artifacts.
-3. Mirror the 5 source files into `01_intake/_sources/` so backbone can re-read originals.
+3. Mirror the 4 presale analysis files into `01_intake/_sources/` so backbone can re-read originals. `00_inputs/` is NOT mirrored — both flows access it directly at project root.
 4. Produce `01_intake/handoff-manifest.md` — table mapping every fact in `intake.md` to its source ref.
 5. Structure `intake.md` so `/ba-start backbone` can extract:
    - Business goals ← Proposal §1 + Domain Primer §1 + client raw

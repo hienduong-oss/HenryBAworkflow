@@ -97,7 +97,7 @@ templates:
 inputs:
   - plans/{slug}-{date}/00_presale/00-domain-primer.md
   - plans/{slug}-{date}/00_presale/05-clarifications.md (Answered rows only)
-  - 00_presale/00-inputs/  (read on demand)
+  - 00_inputs/  (read on demand)
 language: English
 source_ref_format: see rules/ba-presale-standards.md §5
 write_scope: target_md + target_csv only
@@ -131,24 +131,28 @@ Both dispatched in PARALLEL via single message containing two Agent tool calls (
 
 **Skip this step entirely if build target is "Proposal only" or "WBS only".** Sync-check only applies when both artifacts are built in the same run.
 
-This is a true judgment point — the lead must read both artifacts, detect semantic conflicts, and anchor resolution to source priority. Opus is justified here.
+This is a true judgment point — the lead must detect semantic conflicts and anchor resolution to source priority. Opus is justified here.
 
-After both sub-agents return, lead reads both artifacts in full and runs the check matrix:
+**Token-optimized read:** After both sub-agents return, read the sync-payload files first — NOT the full artifacts:
+- `00_presale/_state-cards/03a-wbs-sync-payload.md`
+- `00_presale/_state-cards/03b-proposal-sync-payload.md`
 
-| Check | WBS source | Proposal source | Action on mismatch |
+Run the check matrix against the structured payloads. Only open the full `10-wbs-content.md` or `20-proposal-content.md` when a conflict requires reading the exact surrounding context (e.g., ambiguous wording, multi-row dependency).
+
+| Check | WBS source (payload) | Proposal source (payload) | Action on mismatch |
 |-------|------------|-----------------|--------------------|
-| Phase rows | §2 (WBS table) | §7.1 (In-Scope) | Conflict |
-| Effort totals | §3 (Phase summary) | §9 (WBS & Quotation) | Conflict |
-| Deliverables | per WP description | §7.1 (In-Scope items) | Conflict |
-| Exclusions | §5 (Exclusions) | §7.2 (Out-of-Scope) | Conflict |
-| Timeline | sum effort vs §8 milestones | §8 (Master Schedule) | Conflict if infeasible |
-| Assumptions | §4 (Assumptions) | §7.3 (Assumptions & Dependencies) | Conflict |
-| Source refs | every row | every commitment | Block render if missing |
+| Phase rows | Phase rows table | §7.1 In-Scope items | Conflict |
+| Effort totals | Effort totals | §9 Effort totals | Conflict |
+| Deliverables | Phase rows → Deliverables col | §7.1 In-Scope items | Conflict |
+| Exclusions | Exclusions list | §7.2 Out-of-Scope items | Conflict |
+| Timeline | sum effort vs payload §8 milestones | §8 Milestones | Conflict if infeasible |
+| Assumptions | Assumptions table | §7.3 Assumptions table | Conflict |
+| Source refs | Source ref coverage | Source ref coverage | Block render if missing |
 
 ### Conflict resolution
 
 For each conflict, anchor decision to source priority:
-1. `00-inputs/` client raw
+1. `00_inputs/` client raw
 2. Answered clarification (`05-clarifications.md`)
 3. Validated Domain Primer
 4. Documented assumption (lowest)

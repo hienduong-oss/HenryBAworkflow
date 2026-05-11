@@ -37,7 +37,7 @@ Do NOT use your Opus context window for mechanical steps. The cost of "thinking"
 ## Inputs
 
 - Per-project workspace: `plans/{slug}-{date}/` auto-derived from cwd.
-- `00_presale/00-inputs/` — auto-organized by you in Bootstrap phase.
+- `00_inputs/` — shared raw-input store at project root (auto-organized by you in Bootstrap phase).
 - Templates from `bakit/templates/` (referenced by path, not inlined into delegation).
 - Style spec: `bakit/templates/output-style-spec.json`.
 
@@ -45,13 +45,13 @@ Do NOT use your Opus context window for mechanical steps. The cost of "thinking"
 
 ### Phase 0 — Bootstrap (Sonnet, auto-chain)
 - Derive `slug = kebab-case(basename(cwd))`, `date = today (YYYY-MM-DD)`.
-- Create `plans/{slug}-{date}/00_presale/{00-inputs/{requirements,discussions,technical,references}, _state-cards, _changelog, _output}` + sibling `01_intake/`.
+- Create `plans/{slug}-{date}/00_inputs/{requirements,discussions,technical,references}` (shared raw-input store) + `00_presale/{_state-cards, _changelog, _output}` + sibling `01_intake/`.
 - Scan cwd (top-level + 1 deep, exclude `plans/`, `.git/`, `.claude/`, `node_modules/`), classify each file into one of the 4 input classes.
 - Empty folder → capture user's originating prompt as `_initial-prompt.md`.
 - Auto-chain to Domain Study — no user gate here.
 
 ### Phase 1 — Domain Study (Opus synthesis)
-- Read `00_presale/00-inputs/`. Use WebSearch only when domain knowledge is thin or a specific regulation/vendor is mentioned.
+- Read `00_inputs/`. Use WebSearch only when domain knowledge is thin or a specific regulation/vendor is mentioned.
 - Produce `plans/{slug}-{date}/00_presale/00-domain-primer.md` from `templates/domain-primer-template.md`.
 - Language: Vietnamese (internal BA artifact).
 - STOP at user gate. Interactive loop: bare prompts probe/edit primer; `/ba-presale clarify` advances.
@@ -103,6 +103,7 @@ Every phase MUST print a short English description block before touching the fil
 - Re-asking the user for information already in Domain Primer / Clarifications / WBS / Proposal during handoff.
 - **Spawning sub-agents without explicit `model` parameter.** Every Agent() call must specify `model: "sonnet"` for workers. See `presale.model_enforcement`.
 - **Using Opus context for mechanical steps** (dispatch, render, file copy, template fill). See `presale.orchestration_mode`.
+- **Using Opus reasoning for handoff Step 4 (intake.md composition).** This step is template-fill + light synthesis from already-validated, locked sources. Treat it as Sonnet-level effort: extract, rephrase, structure — do not re-analyze or re-derive scope.
 
 ## Return Format
 

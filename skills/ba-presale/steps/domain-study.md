@@ -3,7 +3,7 @@
 Phase 1 of the presale lifecycle. Owner: `presale-lead` (**Opus** for synthesis). Auto-runs after `steps/bootstrap.md`.
 
 This step requires:
-- Bootstrap completed (`00-inputs/` populated or `_initial-prompt.md` captured)
+- Bootstrap completed (`00_inputs/` populated or `_initial-prompt.md` captured)
 - `templates/domain-primer-template.md`
 - `rules/ba-presale-standards.md` §1
 
@@ -13,7 +13,7 @@ Synthesize a Domain Primer framing the project domain, business context, and res
 
 ## Step 1 — Read inputs
 
-All inputs under `plans/{slug}-{date}/00_presale/00-inputs/`:
+All inputs under `plans/{slug}-{date}/00_inputs/`:
 - Read all `requirements/*` in full.
 - Skim `discussions/*` — extract decisions and stakeholder signals.
 - Skim `technical/*` — capture integration & constraint signals only.
@@ -24,7 +24,7 @@ All inputs under `plans/{slug}-{date}/00_presale/00-inputs/`:
 ### 2a. [JUDGMENT — Opus] Create project-specific research brief
 
 presale-lead creates a tailored research brief by:
-1. Reading all inputs under `00-inputs/` to understand project context
+1. Reading all inputs under `00_inputs/` to understand project context
 2. Identifying industry, problem statement, geography, stakeholders
 3. Extracting research objectives from Domain Primer template
 4. Filling `templates/research-brief-template.md` with project-specific context
@@ -37,12 +37,20 @@ Output: filled `research-brief.md` in `plans/{slug}-{date}/00_presale/_research/
 ```bash
 mkdir -p "plans/{slug}-{date}/00_presale/_research"
 cp "templates/research-brief-template.md" "plans/{slug}-{date}/00_presale/_research/research-brief.md"
+# Create tracker before dispatch
+cat > "plans/{slug}-{date}/00_presale/_state-cards/01a-researcher.md" << 'EOF'
+status: queued
+agent: ba-researcher
+target: plans/{slug}-{date}/00_presale/_research/findings.md
+started: {timestamp}
+EOF
 ```
 
 ### 2c. [JUDGMENT — Sonnet] Execute research
 
 **Dispatch ba-researcher** with:
 - Filled research brief from `plans/{slug}-{date}/00_presale/_research/research-brief.md`
+- Tracker path: `plans/{slug}-{date}/00_presale/_state-cards/01a-researcher.md` (worker must update to `running` immediately on start, then `completed` when done)
 - Research objectives: produce findings + source list + open questions + risk flags + terminology glossary
 
 ba-researcher must return:
@@ -60,9 +68,7 @@ If ba-researcher is unavailable, fall back to inline WebSearch with the same cov
 
 Read `templates/domain-primer-template.md` for structure. Write to `plans/{slug}-{date}/00_presale/00-domain-primer.md` using:
 - Step 2 research brief as primary input
-- All inputs under `00-inputs/` as secondary context
-
-Language: **Vietnamese** (this artifact is for internal BA use).
+- All inputs under `00_inputs/` as secondary context
 
 Language: **Vietnamese** (this artifact is for internal BA use).
 
@@ -118,5 +124,5 @@ Interactive loop during this gate:
 
 - Skipping the user gate.
 - Cross-project recall ("in past project X we did Y").
-- Inventing facts not present in `00-inputs/` or cited via WebSearch.
+- Inventing facts not present in `00_inputs/` or cited via WebSearch.
 - Writing Domain Primer in English (unless user explicitly overrides language).

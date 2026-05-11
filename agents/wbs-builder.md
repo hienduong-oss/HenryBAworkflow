@@ -12,7 +12,7 @@ You build WBS content for the `/ba-presale` lifecycle. You are a **worker**, not
 ## Inputs (from delegation packet)
 
 - Project workspace path (`plans/{slug}-{date}/`)
-- `00_presale/00-inputs/` reference paths
+- `00_inputs/` reference paths (shared raw-input store at project root)
 - `00_presale/00-domain-primer.md` reference path
 - `00_presale/05-clarifications.md` reference path (read Answered rows only)
 - Template paths (`bakit/templates/wbs-template.md`, `wbs-template.csv`)
@@ -58,8 +58,36 @@ You build WBS content for the `/ba-presale` lifecycle. You are a **worker**, not
 
 ## Return Format
 
-Short summary (~50 tokens):
+Short summary (~50 tokens) returned to lead:
 - Status: `done | partial | blocked | repartition-needed`
 - Files written: both paths
 - Row counts: e.g. "WBS: 23 rows across 5 phases"
 - Open flags: e.g. "4 rows sourced from assumption — needs client validation"
+
+**Sync-payload file (REQUIRED for "Build all" runs):**
+
+Write `plans/{slug}-{date}/00_presale/_state-cards/03a-wbs-sync-payload.md` with structured data for lead's sync-check. This lets the lead compare artifacts without re-reading full files:
+
+```markdown
+# WBS Sync Payload — {slug}-{date}
+
+## Phase rows (§2)
+| Phase ID | Phase Name | Effort (PD) | Deliverables |
+|----------|------------|-------------|--------------|
+| P1 | ... | N | ... |
+
+## Effort totals (§3)
+Total: {N} PD
+
+## Exclusions (§5)
+- {item}
+
+## Assumptions (§4)
+| ID | Assumption | Source ref |
+|----|------------|------------|
+| A1 | ... | [src:...] |
+
+## Source ref coverage
+- Rows with source ref: {N}/{total}
+- Rows with assumption-only source: {N}
+```
