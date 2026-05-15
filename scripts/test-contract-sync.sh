@@ -214,6 +214,105 @@ if missing:
     raise SystemExit(f"Missing token optimization template(s): {', '.join(missing)}")
 PY
 
+python3 - "${ROOT_DIR}/templates/manifest.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+required_reverse_templates = {
+    "reverse-baseline-lock-template.md",
+    "reverse-index-template.md",
+}
+missing = sorted(required_reverse_templates - set(manifest))
+if missing:
+    raise SystemExit(f"Missing reverse lane template(s): {', '.join(missing)}")
+PY
+
+python3 - "${ROOT_DIR}/core/contract.yaml" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+contract = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+paths = contract.get("paths", {})
+commands = contract.get("commands", {})
+profiles = contract.get("artifact_profiles", {})
+reverse_section = contract.get("reverse", {})
+
+# Verify reverse path keys exist
+required_reverse_paths = {
+    "reverse_root",
+    "reverse_baseline_lock",
+    "reverse_index",
+    "reverse_focus_excerpts",
+    "reverse_evidence_ledger",
+    "reverse_drift_state",
+    "reverse_read_manifest",
+    "behavior_reverse",
+}
+missing_paths = sorted(required_reverse_paths - set(paths))
+if missing_paths:
+    raise SystemExit(f"Missing reverse lane path(s): {', '.join(missing_paths)}")
+
+# Verify reverse commands exist
+required_reverse_commands = {
+    "reverse",
+    "reverse_status",
+    "reverse_refresh",
+    "reverse_promote",
+    "reverse_impact",
+}
+missing_commands = sorted(required_reverse_commands - set(commands))
+if missing_commands:
+    raise SystemExit(f"Missing reverse lane command(s): {', '.join(missing_commands)}")
+
+# Verify reverse artifact profiles
+required_reverse_profiles = {
+    "reverse_baseline_lock": "machine_facing",
+    "reverse_index": "agent_facing",
+    "reverse_focus_excerpts": "agent_facing",
+    "reverse_evidence_ledger": "agent_facing",
+    "reverse_drift_state": "machine_facing",
+    "reverse_read_manifest": "machine_facing",
+}
+for key, expected in required_reverse_profiles.items():
+    actual = profiles.get(key)
+    if actual != expected:
+        raise SystemExit(
+            f"Reverse artifact profile mismatch for {key}: expected {expected}, got {actual}"
+        )
+
+# Verify reverse section exists and canonical=false
+if not reverse_section:
+    raise SystemExit("Missing 'reverse' section in contract.yaml")
+if reverse_section.get("canonical") is not False:
+    raise SystemExit("contract.yaml reverse.canonical must be false")
+if not reverse_section.get("evidence_zone"):
+    raise SystemExit("contract.yaml reverse.evidence_zone must be true")
+
+# Verify reverse artifacts are NOT in source_of_truth_order
+sot_order = contract.get("source_of_truth_order", [])
+reverse_keys = set(required_reverse_profiles.keys())
+sot_violations = sorted(reverse_keys & set(sot_order))
+if sot_violations:
+    raise SystemExit(
+        f"Reverse artifact(s) must not appear in source_of_truth_order: {', '.join(sot_violations)}"
+    )
+
+# Verify behavior_shards entries for reverse commands
+shards = contract.get("behavior_shards", {})
+for cmd in required_reverse_commands:
+    if cmd not in shards:
+        raise SystemExit(f"Missing behavior_shards entry for reverse command: {cmd}")
+    if "behavior_reverse" not in shards[cmd]:
+        raise SystemExit(
+            f"behavior_shards.{cmd} must include behavior_reverse"
+        )
+
+print("Reverse lane contract checks passed.")
+PY
+
 python3 - "${ROOT_DIR}/templates" <<'PY'
 import sys
 from pathlib import Path
@@ -270,6 +369,9 @@ checks = {
     "skills/ba-start/steps/wireframes.md": ["validate-navigation-consistency.py"],
     "skills/ba-start/steps/package.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
     "skills/ba-start/steps/impact.md": ["affected_node_ids", "owner_artifact", "stale_artifacts", "read_escalation"],
+    "skills/ba-start/steps/reverse.md": ["blocking HITL gate", "unverifiable_in_v1", "source files"],
+    "skills/ba-start/steps/reverse-status.md": ["reverse_baseline_lock", "stale_status"],
+    "skills/ba-start/steps/reverse-impact.md": ["as_built_drift", "future_state_request", "mixed_change"],
 }
 for rel_path, tokens in checks.items():
     text = (root / rel_path).read_text(encoding="utf-8")
@@ -317,7 +419,14 @@ python3 -m py_compile \
   "${ROOT_DIR}/scripts/design-snapshot.py" \
   "${ROOT_DIR}/scripts/validate-navigation-consistency.py" \
   "${ROOT_DIR}/scripts/stitch-state.py" \
-  "${ROOT_DIR}/scripts/runtime-parity-normalize.py"
+  "${ROOT_DIR}/scripts/runtime-parity-normalize.py" \
+  "${ROOT_DIR}/scripts/reverse_guardrail_common.py" \
+  "${ROOT_DIR}/scripts/reverse-preflight.py" \
+  "${ROOT_DIR}/scripts/reverse-validate-index.py" \
+  "${ROOT_DIR}/scripts/reverse-build-excerpts.py" \
+  "${ROOT_DIR}/scripts/reverse-trace-audit.py" \
+  "${ROOT_DIR}/scripts/reverse-drift-check.py" \
+  "${ROOT_DIR}/scripts/reverse-read-audit.py"
 
 CONTEXT_BUDGET_OUTPUT="$(
   python3 "${ROOT_DIR}/scripts/context-budget.py" --repo "${ROOT_DIR}" --command status

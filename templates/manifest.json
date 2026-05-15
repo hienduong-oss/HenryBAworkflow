@@ -286,5 +286,23 @@
         ]
       }
     }
+  },
+  "reverse-baseline-lock-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Reverse Baseline Lock"
+        ]
+      }
+    }
+  },
+  "reverse-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Reverse Index"
+        ]
+      }
+    }
   }
 }

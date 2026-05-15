@@ -18,13 +18,13 @@ Muc tieu cua file nay la khoa tran kich thuoc cho instruction surface cua BA-kit
 
 ```json
 {
-  "version": 9,
+  "version": 10,
   "captured_at": "2026-05-15",
   "units": "bytes",
-  "notes": "Baselines updated after flow-guardrail-token-optimization phases 4-6: mutation receipts, snapshot-first summaries, and output mode contracts added to step files and runtime policies.",
+  "notes": "Baselines updated after reverse mode contract and artifact-lane extension: reverse path family, commands, artifact profiles, behavior rules, and templates added to contract.yaml and contract-behavior.md.",
   "files": [
-    { "path": "core/contract.yaml", "baseline": 13648, "max": 14200, "label": "machine contract" },
-    { "path": "core/contract-behavior.md", "baseline": 13168, "max": 13500, "label": "shared behavior contract" },
+    { "path": "core/contract.yaml", "baseline": 17016, "max": 18000, "label": "machine contract" },
+    { "path": "core/contract-behavior.md", "baseline": 17262, "max": 18000, "label": "shared behavior contract" },
     { "path": "core/behavior/intake.md", "baseline": 700, "max": 4500, "label": "intake behavior shard" },
     { "path": "core/behavior/backbone.md", "baseline": 2332, "max": 4500, "label": "backbone behavior shard" },
     { "path": "core/behavior/impact.md", "baseline": 2032, "max": 4500, "label": "impact behavior shard" },
@@ -58,56 +58,56 @@ Muc tieu cua file nay la khoa tran kich thuoc cho instruction surface cua BA-kit
     },
     {
       "name": "shared_entry_runtime",
-      "baseline": 30169,
-      "max": 34000,
+      "baseline": 37631,
+      "max": 39500,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "skills/ba-start/SKILL.md"]
     },
     {
       "name": "intake_runtime_bundle",
-      "baseline": 36192,
-      "max": 38000,
+      "baseline": 43654,
+      "max": 46000,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/intake.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/intake.md"]
     },
     {
       "name": "backbone_runtime_bundle",
-      "baseline": 38129,
-      "max": 40000,
+      "baseline": 45591,
+      "max": 48000,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/backbone.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/backbone.md"]
     },
     {
       "name": "impact_runtime_bundle",
-      "baseline": 36917,
-      "max": 39000,
+      "baseline": 44379,
+      "max": 47000,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/impact.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/impact.md"]
     },
     {
       "name": "module_authoring_runtime_bundle",
-      "baseline": 37906,
-      "max": 40000,
+      "baseline": 45368,
+      "max": 48000,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/module-authoring.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/frd.md", "skills/ba-start/steps/stories.md"]
     },
     {
       "name": "srs_core_bundle",
-      "baseline": 40981,
-      "max": 46000,
+      "baseline": 48443,
+      "max": 51000,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/srs.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/srs.md", "skills/ba-start/steps/srs-core.md", "skills/ba-start/steps/srs-assembly.md"]
     },
     {
       "name": "srs_runtime_bundle",
-      "baseline": 43981,
-      "max": 50000,
+      "baseline": 51443,
+      "max": 54000,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/srs.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/srs.md", "skills/ba-start/steps/srs-core.md", "skills/ba-start/steps/srs-wireframes.md", "skills/ba-start/steps/srs-assembly.md"]
     },
     {
       "name": "wireframes_runtime_bundle",
-      "baseline": 35499,
-      "max": 38000,
+      "baseline": 42961,
+      "max": 45500,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/wireframes.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/wireframes.md"]
     },
     {
       "name": "package_status_next_runtime_bundle",
-      "baseline": 38666,
-      "max": 41000,
+      "baseline": 46128,
+      "max": 49000,
       "paths": ["core/contract.yaml", "core/contract-behavior.md", "core/behavior/package-status-next.md", "skills/ba-start/SKILL.md", "skills/ba-start/steps/package.md", "skills/ba-start/steps/status.md"]
     }
   ]

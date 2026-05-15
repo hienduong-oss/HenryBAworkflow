@@ -239,3 +239,62 @@ When shard memory exists:
 A command may escalate its read scope only when the index routes to an additional shard, the user states an explicit audit/context need, or missing shard routing would otherwise require guessing.
 
 Emit: `READ_ESCALATION: {command} read {path} due to {reason}.`
+
+## Reverse Mode Behavior
+
+Reverse mode is a first-class lane for reconstructing as-built documentation from existing code and artifacts. It operates under stricter read and truth constraints than the forward lifecycle.
+
+### Snapshot Truth
+
+- All reverse claims are valid only against `documented_commit` recorded in `paths.reverse_baseline_lock`.
+- `documented_commit` is the git commit hash captured at the time of the initial `reverse` scan.
+- Any claim that cannot be traced to a file read during the baseline scan must be marked as an assumption, not a finding.
+- After a `reverse_refresh`, all prior evidence entries must be re-validated against the new commit before being treated as current.
+
+### As-Built vs Future-State Separation
+
+- Never mix as-built findings and future-state requirements in the same artifact.
+- `as_built_drift`: behavior that exists in code but is absent or contradicts the documented baseline.
+- `future_state_request`: a desired behavior not yet implemented — routes to the forward lifecycle (backbone, FRD, stories).
+- `mixed_change`: a change that contains both as-built and future-state elements — must be split before promotion.
+- `reverse_impact` classifies each pending item into one of these three lanes before any promotion is allowed.
+
+### No-Broad-Read Rule
+
+- After the initial baseline scan (`reverse` command), only files listed in `paths.reverse_read_manifest` may be re-read without escalation.
+- Reading any file not in the manifest requires emitting: `READ_ESCALATION: {command} read {path} due to {reason}.`
+- The baseline scan itself may read broadly to build the manifest; subsequent commands must use the manifest as the allowlist.
+- `paths.reverse_focus_excerpts` contains pre-extracted content for allowlisted focus areas — prefer excerpts over reopening full source files.
+
+### Source-Only Constraint (v1)
+
+- Reverse mode v1 operates on static source files only: code, config, docs, and schema files committed to the repository.
+- No runtime probes, no application execution, no live endpoint verification, no database queries.
+- If a claim requires runtime verification, mark it as `unverifiable_in_v1` in the evidence ledger.
+
+### Reverse Artifact Classification
+
+- `paths.reverse_baseline_lock` — `machine_facing`: JSON record of `documented_commit`, scan timestamp, and focus areas. Not a source of truth.
+- `paths.reverse_index` — `agent_facing`: navigator index of scanned artifacts and their evidence status. Not a source of truth.
+- `paths.reverse_focus_excerpts` — `agent_facing`: focused excerpts per selected focus area. Not a source of truth.
+- `paths.reverse_evidence_ledger` — `agent_facing`: trace records linking file evidence to promoted claims. Not a source of truth.
+- `paths.reverse_drift_state` — `machine_facing`: current drift classification vs `documented_commit`. Not a source of truth.
+- `paths.reverse_read_manifest` — `machine_facing`: audit log of all files read during reverse scan. Not a source of truth.
+- None of the above are in `source_of_truth_order`. Canonical artifacts (backbone, SRS, FRD) remain the source of truth.
+
+### Promotion Gate
+
+- Evidence may only be promoted to canonical artifacts via `reverse_promote`.
+- `reverse_promote` requires explicit user approval per promotion batch.
+- Only `as_built_drift` items may be promoted directly to backbone or SRS.
+- `future_state_request` items must be routed through the forward lifecycle (backbone → FRD → stories).
+- `mixed_change` items must be split by `reverse_impact` before promotion is allowed.
+
+### Argument Parsing for Reverse Commands
+
+- `reverse` — optional `--focus <area>` to scope the baseline scan; optional `--commit <hash>` to pin `documented_commit`.
+- `reverse status` — no additional arguments.
+- `reverse refresh` — optional `--commit <hash>` to update `documented_commit`.
+- `reverse promote` — requires `--evidence-ids <id,...>` to identify the ledger entries to promote.
+- `reverse impact` — optional `--evidence-ids <id,...>` to classify a subset; defaults to all unclassified entries.
+
