@@ -369,6 +369,9 @@ checks = {
     "skills/ba-start/steps/wireframes.md": ["validate-navigation-consistency.py"],
     "skills/ba-start/steps/package.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
     "skills/ba-start/steps/impact.md": ["affected_node_ids", "owner_artifact", "stale_artifacts", "read_escalation"],
+    "skills/ba-start/steps/reverse.md": ["blocking HITL gate", "unverifiable_in_v1", "source files"],
+    "skills/ba-start/steps/reverse-status.md": ["reverse_baseline_lock", "stale_status"],
+    "skills/ba-start/steps/reverse-impact.md": ["as_built_drift", "future_state_request", "mixed_change"],
 }
 for rel_path, tokens in checks.items():
     text = (root / rel_path).read_text(encoding="utf-8")
