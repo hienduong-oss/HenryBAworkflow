@@ -34,6 +34,7 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 /ba-start package --slug <slug>
 /ba-start status --slug <slug>
 /ba-start next --slug <slug>
+/ba-start reverse --slug <slug> [--focus <area>] [--commit <hash>]
 ```
 
 ## Step Dispatch
@@ -43,15 +44,18 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 | no subcommand | `steps/intake.md`, then downstream gated steps | full lifecycle |
 | `intake` | `steps/intake.md` | Steps 1-4 |
 | `impact` | `steps/impact.md` | analysis only |
-| `options` | `steps/options.md` | pre-backbone solution optioning |
+| `options` | `steps/options.md` | pre-backbone optioning |
 | `backbone` | `steps/backbone.md` | Step 5 |
 | `frd` | `steps/frd.md` | Step 6 |
 | `stories` | `steps/stories.md` | Step 7 |
-| `srs` | `steps/srs.md` | SRS router; loads narrower SRS step files on demand |
+| `srs` | `steps/srs.md` | SRS router; loads narrower step files |
 | `wireframes` | `steps/wireframes.md` | Step 9 standalone |
 | `package` | `steps/package.md` | Step 12 |
 | `status` | `steps/status.md` | inspection only |
-| `next` | `../../core/workflows/next.md` | BA-facing next-step recommendation; no mutation |
+| `next` | `../../core/workflows/next.md` | next-step recommendation; no mutation |
+| `reverse` | `steps/reverse.md` | scan/lock; refresh; promote |
+| `reverse status` | `steps/reverse-status.md` | progress; no mutation |
+| `reverse impact` | `steps/reverse-impact.md` | classify evidence |
 
 ## Fast Execution Contract
 

@@ -47,6 +47,11 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 /ba-start package --slug <slug>
 /ba-start status --slug <slug>
 /ba-notion srs --slug <slug> --page <url|id> --mode overwrite
+/ba-start reverse --slug <slug> [--focus <area>] [--commit <hash>]
+/ba-start reverse status --slug <slug>
+/ba-start reverse refresh --slug <slug> [--commit <hash>]
+/ba-start reverse promote --slug <slug> --evidence-ids <id,...>
+/ba-start reverse impact --slug <slug> [--evidence-ids <id,...>]
 ```
 
 ## Subcommands
@@ -62,6 +67,11 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 | `wireframes` | Re-run Step 9 from the persisted wireframe input pack or exact fallback sources | Wireframe input pack plus an approved or refreshable project `DESIGN.md`, or exact Group B + Group C / merged SRS fallback |
 | `package` | Run quality review, validate existing packaged HTML artifacts, and regenerate only the needed packaged outputs | Emitted artifact set and non-missing wireframe state |
 | `status` | Print artifact checklist with dates | Resolved slug and dated set |
+| `reverse` | Scan committed source files, lock the baseline commit, and build the reverse evidence index | None (creates `00_reverse/` lane) |
+| `reverse status` | Print reverse lane progress: baseline lock, index freshness, evidence counts, drift state | `reverse_baseline_lock` |
+| `reverse refresh` | Re-scan against a new commit and update drift state | `reverse_baseline_lock` |
+| `reverse promote` | Promote validated `as_built_drift` evidence to canonical backbone or SRS | `reverse_baseline_lock`, `reverse_evidence_ledger`, `--evidence-ids` |
+| `reverse impact` | Classify evidence entries as `as_built_drift`, `future_state_request`, or `mixed_change` | `reverse_baseline_lock`, `reverse_focus_excerpts` |
 
 Subcommand targeting rules:
 
