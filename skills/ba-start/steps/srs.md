@@ -60,6 +60,19 @@ Run Steps 8-11 only. This path is intentionally split to avoid loading the full 
 - `paths.wireframe_input`
 - any wireframe artifacts and state produced during Step 9
 
+## Memory Capture
+
+After SRS is approved by user, promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Screen naming conventions and SCR-ID assignments | `warm/modules/{module_slug}.md` | When screen inventory is locked |
+| Reusable rule codes (CR-xxx) and message codes (MSG-xxx) | `warm/modules/{module_slug}.md` | When common rules/messages are established |
+| Navigation schema decisions (portal ownership, active-menu rules) | `hot/approved-decisions.md` (MEM-DEC) | When navigation schema is locked |
+| Validation rule patterns confirmed for this domain | `warm/modules/{module_slug}.md` | When domain-specific validation patterns are locked |
+
+Set `Confidence: high` for user-confirmed items.
+
 ## Execution Order
 
 ```text

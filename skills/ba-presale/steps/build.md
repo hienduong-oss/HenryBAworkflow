@@ -358,3 +358,16 @@ Bạn có thể:
 - Cross-project recall.
 - **Spawning sub-agents without explicit `model: "sonnet"` parameter.** Silent model escalation (sub-agent inheriting Opus) is a cost multiplier. See `presale.model_enforcement` in `contract.yaml`.
 - **Using Opus for mechanical steps** (dispatch, render, file ops). See `presale.orchestration_mode.mechanical_steps` in `contract.yaml`.
+
+## Memory Capture
+
+After Build is approved by user (before `/ba-presale handoff`), promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Proposal variant decision (A_platform vs B_custom) and rationale | Global memory (`project` type) | After variant is resolved |
+| Scope boundaries confirmed in WBS (in-scope phases, out-of-scope exclusions) | Global memory (`project` type) | After sync-check passes |
+| Commercial constraints confirmed (budget range, timeline anchor, engagement type) | Global memory (`project` type) | After Answered clarifications are locked |
+| Conflict resolution decisions (which source won, why) | `_changelog/sync-{YYYYMMDD-HHmm}.md` | After each sync-check cycle |
+
+**Note:** Presale has no project memory shard yet — use global Claude memory (`project` type) for presale-phase captures. Project memory shard is initialized during `/ba-start backbone`. Set `Confidence: high` for client-confirmed facts, `medium` for agent-inferred decisions.

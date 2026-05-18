@@ -144,6 +144,10 @@ No user gate here. This is deterministic — bootstrap always chains to domain-s
 - Re-classifying files already in `00_inputs/` (idempotent).
 - Creating `presale/{slug}-{date}/...` at repo root (legacy layout — removed).
 
+## Memory Capture
+
+Bootstrap is mechanical — no decisions are made. Skip memory capture for this step.
+
 ## Presale Context-Loss Recovery
 
 When context is lost mid-presale:

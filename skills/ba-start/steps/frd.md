@@ -119,3 +119,16 @@ Produce the FRD from the backbone using [../../../templates/frd-template.md](../
 - Do NOT write a UC that fails the 20-point checklist — fix first, then write.
 
 Save to `paths.frd`.
+
+## Memory Capture
+
+After FRD is approved by user, promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Business rules that override or extend backbone decisions | `hot/approved-decisions.md` (MEM-DEC) | When BR contradicts or refines a backbone decision |
+| Actor-specific workflow decisions (e.g., actor X cannot do Y) | `warm/modules/{module_slug}.md` | Per module, when UC flow is locked |
+| Integration constraints confirmed during FRD | `warm/modules/{module_slug}.md` | When integration point is locked |
+| Push-back triggers from FRD review (scope items rejected) | `hot/pushback-triggers.md` | When user explicitly rejects a UC or BR |
+
+Set `Confidence: high` for user-confirmed items, `medium` for FRD-inferred items.

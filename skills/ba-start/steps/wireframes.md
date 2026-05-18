@@ -153,3 +153,16 @@ After the handoff pack is complete:
 - Use `states.wireframe` values only: `completed`, `skipped`, `not-applicable`, `missing`.
 - This step is read-only on upstream BA artifacts.
 - It may regenerate only: `DESIGN.md`, wireframe input pack, wireframe map, and wireframe state marker.
+
+## Memory Capture
+
+After wireframe handoff is completed, promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Design direction decisions (visual tone, color, typography, component feel) | `hot/approved-decisions.md` (MEM-DEC) | When DESIGN.md is approved |
+| Navigation schema + active-menu rules (if not already captured in SRS) | `hot/approved-decisions.md` (MEM-DEC) | When navigation schema is locked |
+| Anti-patterns explicitly rejected during design review | `hot/pushback-triggers.md` | When user explicitly rejects a design direction |
+| Screen grouping decisions (which screens are primary vs. supporting states) | `warm/modules/{module_slug}.md` | When screen grouping is locked |
+
+Set `Confidence: high` for user-confirmed design decisions.

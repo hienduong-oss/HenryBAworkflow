@@ -19,6 +19,7 @@
 | impact_ref | [tham chiếu impact run hoặc SHORT_CIRCUIT nếu chỉ là wording-only] |
 | supersedes | [Memory ID bị thay thế, nếu có] |
 | superseded_by | [con trỏ ngược khi bản thay thế tồn tại, tùy chọn] |
+| related_to | [[MEM-DEC-NN\|extends]] hoặc [[MEM-DEC-NN\|contradicts]] hoặc [[MEM-DEC-NN\|blocks]] |
 
 ## Nội dung đã promotion (Promoted Content)
 

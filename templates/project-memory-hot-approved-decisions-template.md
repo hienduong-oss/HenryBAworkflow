@@ -10,9 +10,9 @@
 
 ## Bảng quyết định (Decision Table)
 
-| Decision ID | Chủ đề | Quyết định đã chốt | Nguồn xác nhận | Ảnh hưởng artifact | Ngày chốt |
-| --- | --- | --- | --- | --- | --- |
-| MEM-DEC-01 | [Scope / Actor / Navigation / Rule / Architecture] | [Nội dung quyết định rõ ràng] | [User / Backbone / Impact run] | [backbone, stories, srs] | [YYYY-MM-DD] |
+| Decision ID | Chủ đề | Quyết định đã chốt | Nguồn xác nhận | Ảnh hưởng artifact | Ngày chốt | Confidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| MEM-DEC-01 | [Scope / Actor / Navigation / Rule / Architecture] | [Nội dung quyết định rõ ràng] | [User / Backbone / Impact run] | [backbone, stories, srs] | [YYYY-MM-DD] | [high \| medium \| low] |
 
 ## Giả định đã chấp nhận (Accepted Assumptions)
 

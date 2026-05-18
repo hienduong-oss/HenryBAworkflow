@@ -297,3 +297,16 @@ Next command:
 - Generating intake.md without source refs.
 - Mutating presale artifacts during handoff (presale bundle is read-only at this stage).
 - Auto-running `/ba-start backbone` after handoff. User must trigger explicitly.
+
+## Memory Capture
+
+Handoff is the transition point from presale to `/ba-start`. After continuity check passes, promote key presale facts to global memory for use during backbone:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Project slug, date, engagement mode, module breakdown | Global memory (`project` type) | After handoff completes |
+| Key scope decisions (in-scope phases, out-of-scope items) | Global memory (`project` type) | After continuity check passes |
+| Remaining open questions (Status=Skipped) that need resolution in backbone | Global memory (`project` type) | When open questions exist at handoff |
+| Stakeholder roles confirmed in intake.md | Global memory (`project` type) | After intake.md is composed |
+
+**Note:** These global memory entries serve as the seed for the project memory shard that `/ba-start backbone` will initialize. Set `Confidence: high` for client-confirmed facts, `medium` for agent-inferred items.

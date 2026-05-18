@@ -200,3 +200,16 @@ AC-{n}-{m}-3: {Negative path label}
 - Do NOT write a story that fails INVEST — fix first, then write.
 - Do NOT write AC that uses vague language — rewrite before writing to artifact.
 - Flag stories that need splitting before writing them; do not silently write an oversized story.
+
+## Memory Capture
+
+After stories are approved by user, promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Persona definitions confirmed during story review | `hot/canonical-vocabulary.md` | When a new role-specific persona is locked |
+| Story split decisions (why a story was split, what boundary was used) | `warm/modules/{module_slug}.md` | When a split decision is non-obvious |
+| AC boundary decisions (what counts as edge case vs. negative path for this domain) | `warm/modules/{module_slug}.md` | When a domain-specific AC pattern is established |
+| Push-back triggers (story intents explicitly rejected or descoped) | `hot/pushback-triggers.md` | When user explicitly rejects a story |
+
+Set `Confidence: high` for user-confirmed items.

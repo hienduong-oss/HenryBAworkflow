@@ -179,3 +179,9 @@ Each time user enters "accept all" or completes a batch round:
 - Rendering xlsx at this phase (render happens only during `/ba-presale build`).
 - Auto-advancing to build without user command.
 - Cross-project recall.
+
+## Memory Capture
+
+Clarify produces a question list — decisions are not locked until Build. Skip project memory promotion at this step.
+
+Exception: if the user explicitly answers a question with a confirmed client fact (Status=Answered), and that fact is a material constraint (e.g., "client confirmed: no mobile app, web only"), capture it as a `project` memory entry with `Confidence: high` in the global memory system for use during Build.

@@ -21,9 +21,9 @@
 
 ## Module Shard (Warm)
 
-| Module Slug | Đường dẫn | Trạng thái | Ghi chú |
-| --- | --- | --- | --- |
-| [module-slug] | `warm/modules/[module-slug].md` | [active \| stale \| empty] | [Ghi chú ngắn] |
+| Module Slug | Đường dẫn | Trạng thái | Keywords | Ghi chú |
+| --- | --- | --- | --- | --- |
+| [module-slug] | `warm/modules/[module-slug].md` | [active \| stale \| empty] | [keyword1, keyword2, keyword3] | [Ghi chú ngắn] |
 
 ## Cold Archive
 

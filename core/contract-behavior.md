@@ -191,6 +191,21 @@ When `paths.project_memory` (compact mode) exceeds 80 lines:
 
 Trigger compaction before writing new entries when the file is already over 80 lines. Do not let it grow unbounded across runs.
 
+**MEM-COR consolidation trigger:** When `hot/approved-decisions.md` accumulates ≥5 `MEM-COR-*` entries on the same topic:
+1. Merge them into a single `MEM-DEC-*` entry with `Confidence: high`.
+2. Move the individual `MEM-COR-*` entries to `cold/` with `superseded_by: <new MEM-DEC-ID>` trace.
+3. Record the consolidation in `log.md`.
+
+## Decision Staleness Rule
+
+A decision entry in `hot/approved-decisions.md` is considered stale when it has not been referenced or refreshed across ≥2 approved `impact` runs since its `Ngày chốt`.
+
+When stale decisions are detected:
+1. Flag the entry in the `Shard Health` table of `memory-index.md` with status `stale`.
+2. On the next `impact` run, surface the stale entries to the user for re-confirmation or archival.
+3. Do not silently use a stale decision as authoritative — note its staleness when referencing it.
+4. After user re-confirms: update `Ngày chốt` and set `Confidence: high`. After user archives: move to `cold/` with `superseded_by: archived`.
+
 ## Log Rotation Rule
 
 `log.md` is append-only by default. Rotate when either condition is met:

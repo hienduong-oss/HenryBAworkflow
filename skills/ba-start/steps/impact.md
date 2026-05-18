@@ -113,3 +113,16 @@ Print:
 A command may escalate its read scope only when: the index explicitly routes to an additional shard; the user states an explicit audit or context need; missing shard routing would otherwise require guessing.
 
 Emit: `READ_ESCALATION: {command} read {path} due to {reason}.`
+
+## Memory Capture
+
+After impact analysis is approved and rerun path is confirmed, promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Approved change decision (what changed, why, which artifacts affected) | `hot/approved-decisions.md` (MEM-DEC) | After user approves rerun path |
+| Rejected change (scope items explicitly rejected during impact review) | `hot/pushback-triggers.md` | When user explicitly rejects a proposed change |
+| Stale decisions identified during impact read | `hot/approved-decisions.md` — flag `Confidence: low` | When a decision has not been touched across ≥2 impact runs |
+| Updated vocabulary terms (if change introduces new actors, portals, or terms) | `hot/canonical-vocabulary.md` | When new canonical terms are confirmed |
+
+**Note:** `impact` is the primary trigger for refreshing stale memory entries. After each approved impact run, check `hot/approved-decisions.md` for entries whose `Ngày chốt` predates this run by ≥2 impact cycles — surface them for re-confirmation.

@@ -77,3 +77,14 @@ If the user later manually inserts wireframe images or links into the markdown s
 - `package` is a validation-and-compile step, not a full rebuild.
 - HTML output belongs under `paths.compiled_root`.
 - Keep markdown artifacts as the source of truth.
+
+## Memory Capture
+
+Package is a validation-and-compile step — it does not generate new decisions. However, if the quality pass surfaces inconsistencies that require user decisions to resolve:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Cross-artifact consistency decisions (e.g., canonical field name chosen when conflict found) | `hot/canonical-vocabulary.md` | When a naming conflict is resolved during packaging |
+| Delivery scope decisions (which artifacts are included/excluded from the package) | `hot/approved-decisions.md` (MEM-DEC) | When user explicitly scopes the delivery package |
+
+If no new decisions are made during packaging, skip memory capture for this step.

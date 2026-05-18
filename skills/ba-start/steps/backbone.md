@@ -155,3 +155,17 @@ Every filed-back memory item must carry: `source_artifact`, `source_ids`, `promo
 - Packet rules: pass objective, exact target path, write scope, trace IDs, and targeted upstream excerpts only. Do not attach full merged artifacts.
 - If a packet grows beyond a concise brief plus targeted excerpts, repartition before delegating.
 - If a worker returns `NEEDS_REPARTITION`, rerun only the overloaded slice.
+
+## Memory Capture
+
+After backbone is approved by user, promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Canonical vocabulary (actor names, portal IDs, module slugs, key terms) | `hot/canonical-vocabulary.md` | Every backbone run |
+| Scope lock decisions (in-scope / out-of-scope boundaries) | `hot/approved-decisions.md` (MEM-DEC) | Every backbone run |
+| Portal matrix + navigation schema decisions | `hot/approved-decisions.md` (MEM-DEC) | When portal matrix is locked |
+| Push-back triggers (scope items explicitly rejected, actors excluded) | `hot/pushback-triggers.md` | When user explicitly rejects a scope item |
+| Module-level feature map summary | `warm/modules/{module_slug}.md` | Per module, when feature map is locked |
+
+Use `templates/project-memory-fileback-record-template.md` for each promotion. Set `Confidence: high` for user-confirmed decisions, `medium` for backbone-inferred decisions.

@@ -147,3 +147,9 @@ Interactive loop during this gate:
 - Cross-project recall ("in past project X we did Y").
 - Inventing facts not present in `00_inputs/` or cited via WebSearch.
 - Writing Domain Primer in English (unless user explicitly overrides language).
+
+## Memory Capture
+
+Domain Study produces research findings, not locked decisions. No promotion to project memory at this step.
+
+Exception: if the user explicitly confirms a domain fact or constraint during the interactive gate (e.g., "yes, this is a regulated industry"), capture it as a `project` memory entry with `Confidence: high` in the global memory system (not project memory — presale has no project memory shard yet).
