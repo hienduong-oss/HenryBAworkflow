@@ -1,5 +1,21 @@
 # BA Start Step - Stories
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action** before reading any artifact:
+```
+step: stories
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+progress: ""
+last_write: ""
+resume_hint: ""
+```
+After each incremental epic/story group write, update `progress` (e.g., "Epic 2/4 done"), `last_write`, and `resume_hint`.
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 
 - `core/contract.yaml`

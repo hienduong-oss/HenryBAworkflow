@@ -1,5 +1,17 @@
 # BA Start Step - Impact
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action**:
+```
+step: impact
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+```
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 
 - `core/contract.yaml`
@@ -11,6 +23,8 @@ This step requires:
 - **May read:** `paths.project_memory`, `paths.memory_index`, `paths.memory_hot_*`, selected `warm/` module shard (Modular/Program only); relevant downstream artifacts (frd, stories, srs, wireframe artifacts); `log.md` only when user explicitly requests audit/recent history
 - **Must NOT read:** `cold/` (unless explicitly escalated)
 - **Note:** `impact` is the only broad-read command. Only it may read across `warm/` module shards by default in Modular/Program activation.
+
+**Memory freshness check:** Before using `paths.project_memory`, check its `Last Refresh Source` header. If it predates the last approved backbone or impact run, read it for context but note which entries may be stale. After the impact analysis is approved, offer to refresh the affected memory entries as part of the rerun path.
 
 ## Promotion Guidance
 
@@ -89,3 +103,13 @@ Print:
 - recommended path
 - exact commands
 - only the focused questions that are truly required
+
+## Broad-Read Exception
+
+`impact` is the only command that may read across `warm/` module shards by default when Modular or Program activation is detected. `log.md` may be read only when the user explicitly requests audit or recent-history context.
+
+## Escalation Rule
+
+A command may escalate its read scope only when: the index explicitly routes to an additional shard; the user states an explicit audit or context need; missing shard routing would otherwise require guessing.
+
+Emit: `READ_ESCALATION: {command} read {path} due to {reason}.`

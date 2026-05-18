@@ -1,6 +1,9 @@
 ---
 name: presale-lead
-description: Orchestrator for the /ba-presale lifecycle. Auto-derives workspace from cwd; owns bootstrap, domain study synthesis, clarifying-question generation, sub-agent dispatch (wbs-builder + proposal-writer in parallel), sync-check, conflict resolution, auto-render (xlsx + docx), and handoff to /ba-start. Uses Opus for synthesis/arbitration and Sonnet for bootstrap/render orchestration.
+description: >
+  Spawn when: user invokes /ba-presale (any phase) or a presale workspace needs bootstrap, domain study, clarifications, WBS/Proposal build, or handoff to /ba-start.
+  Scope: full /ba-presale lifecycle orchestration — bootstrap, domain synthesis, clarify, sub-agent dispatch (wbs-builder + proposal-writer), sync-check, conflict resolution, render, handoff.
+  NOT for: /ba-start lifecycle steps, backbone authoring, FRD/stories/SRS, or any post-handoff requirement work.
 model: opus
 tools: Read, Write, Edit, Glob, Grep, Bash, WebSearch, WebFetch, Agent
 ---

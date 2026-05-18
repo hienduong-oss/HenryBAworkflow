@@ -41,45 +41,76 @@
     "default_sheet_name": "Sheet1",
     "sheets": {
       "WBS": {
-        "freeze_panes": "B2",
-        "header_row": {
-          "background": "#2B4C7E",
-          "font_color": "#FFFFFF",
-          "font_size": 11,
-          "bold": true,
-          "alignment_horizontal": "center",
-          "alignment_vertical": "middle",
-          "row_height": 28,
-          "border_bottom": {"style": "thick", "color": "#000000"}
+        "freeze_panes": "A1",
+        "formatting_order": [
+          "writeSpreadsheet (data first)",
+          "formatCells with wrapStrategy:WRAP (wrap + alignment)",
+          "formatCells with backgroundColor (colors LAST — applying colors before wrap resets wrap to default)"
+        ],
+        "columns": {
+          "A": {"header": "#", "width_px": 60, "note": "WBS ID — integer for EPIC rows, decimal for feature rows"},
+          "B": {"header": "Category", "width_px": 220, "note": "EPIC name ALL CAPS for EPIC rows; empty for feature rows"},
+          "C": {"header": "Function", "width_px": 220, "note": "Task name at feature-card level — PM-readable without context"},
+          "D": {"header": "Sub-Function", "width_px": 260, "note": "Actor-perspective description: 'Actor does X and sees Y'"},
+          "E": {"header": "Actor", "width_px": 120, "note": "Specific actor: 'User (Nara App)', 'Group Admin', 'System', 'Tech Lead', 'BA', 'DevOps'"},
+          "F": {"header": "Notes", "width_px": 380, "note": "Full behavioral spec + edge cases + [src:...] refs. No implementation detail."},
+          "G": {"header": "Web/mobile\n(day)", "width_px": 90, "note": "FE/mobile effort. Use 0 if not applicable, never leave blank."},
+          "H": {"header": "Backend\n(day)", "width_px": 90, "note": "BE effort. Use 0 if not applicable, never leave blank."}
         },
-        "data_row": {
-          "font_size": 10,
-          "alignment_vertical": "top",
-          "wrap_text": true,
-          "alternate_fill": "#F2F2F2"
+        "row_types": {
+          "header": {
+            "background": "#37474F",
+            "font_color": "#FFFFFF",
+            "bold": true,
+            "alignment_horizontal": "center",
+            "alignment_vertical": "middle",
+            "wrap_text": true,
+            "row_height": 36
+          },
+          "group_header": {
+            "note": "Col A = 'GROUP X', col B = GROUP NAME ALL CAPS, cols C-H empty",
+            "font_color": "#FFFFFF",
+            "bold": true,
+            "alignment_vertical": "middle",
+            "background": "per group_color_scheme.header_bg"
+          },
+          "epic": {
+            "note": "Col A = integer WBS ID, col B = EPIC NAME ALL CAPS, cols C-H empty",
+            "bold": true,
+            "alignment_vertical": "middle",
+            "background": "per group_color_scheme.epic_tint"
+          },
+          "feature": {
+            "note": "Col A = decimal WBS ID, col B empty, cols C-H filled",
+            "wrap_text": true,
+            "alignment_vertical": "top",
+            "background": "#FFFFFF"
+          },
+          "ref": {
+            "note": "Cross-sheet reference. Col A = 'REF', col B = group name, col C = '-> See RQFX'",
+            "background": "#FFF9C4",
+            "font_color": "#5D4037",
+            "bold": true
+          },
+          "footer": {
+            "note": "Last row. Col A = 'Coding man-hour (man.day)', cols B-F empty, col G = 0, col H = 0",
+            "bold_col_a": true
+          }
         },
-        "hierarchy_levels": {
-          "level_1": {"bold": true, "font_size": 11, "indent": 0, "fill": "#DDEBF7"},
-          "level_2": {"bold": false, "font_size": 10, "indent": 1},
-          "level_3": {"italic": true, "font_size": 10, "indent": 2, "font_color": "#404040"}
+        "group_color_scheme": {
+          "GROUP_A": {"label": "Nara App", "header_bg": "#1A3C6E", "epic_tint": "#DCE9F7"},
+          "GROUP_B": {"label": "Payment", "header_bg": "#1D6A8A", "epic_tint": "#D8EEF5"},
+          "GROUP_C": {"label": "Feature Improvements", "header_bg": "#2E4A3E", "epic_tint": "#D8EDE3"},
+          "GROUP_D": {"label": "Closed Category & QR", "header_bg": "#6A1E8A", "epic_tint": "#EDE0F5"}
         },
-        "totals_row": {
-          "background": "#FFC000",
-          "bold": true,
-          "border_top": {"style": "thick", "color": "#000000"}
-        },
-        "column_widths": {
-          "WBS_ID": 10,
-          "Work_Package": 45,
-          "Description": 50,
-          "Effort_PD": 12,
-          "Dependencies": 18,
-          "Phase": 15,
-          "Owner": 15,
-          "Notes": 30
-        },
-        "number_formats": {
-          "Effort_PD": "#,##0.0"
+        "content_rules": {
+          "row_atomicity": "1 row = 1 actor + 1 action + 1 observable outcome. If Notes needs 'and then' / 'also' / 'as well as' → split into 2 rows.",
+          "epic_creation": "Create new EPIC when: (1) features serve a distinct user journey, (2) primary actor differs, or (3) clear dependency boundary exists. Not just because features 'seem different'.",
+          "split_triggers": ["Actor differs", "Trigger differs", "Screen/state differs", "FE/BE effort significantly different", "Can fail independently in UAT"],
+          "no_split_when": ["Sub-steps of same action (e.g. validate field A + B → one 'Form validation' row)", "FE and BE of same feature (use cols G+H)"],
+          "function_depth": "Feature-card level — PM-readable without reading Sub-Function. Not too detailed (no file paths), not too vague (no 'Nara App changes').",
+          "sub_function_depth": "Actor-perspective acceptance condition — dev knows when it's done. Not a repeat of Function, not implementation detail.",
+          "effort_cols": "Fill both G and H. Use 0 for inapplicable side. Leave 0 when unestimated — estimator fills later."
         }
       },
       "QnA": {
@@ -116,6 +147,9 @@
         },
         "status_color_map": {
           "Answered": "#C6EFCE",
+          "Assumed": "#FFF2CC",
+          "Draft": "#F2F2F2",
+          "Skipped": "#EDEDED",
           "Pending": "#FFEB9C",
           "Blocked": "#FFC7CE"
         }
@@ -197,6 +231,7 @@
       "font_size": 11,
       "color": "#404040",
       "line_spacing": 1.15,
+      "_line_spacing_note": "When implementing with docx npm: use LINE_115 = Math.round(240 * 1.15) = 276 with LineRuleType.AUTO. Do NOT use PT(1.15) — PT() produces twips for font/margin, not line spacing units. 240 = single spacing in LineRuleType.AUTO.",
       "alignment": "justify",
       "space_after_pt": 6,
       "first_line_indent_cm": 0
@@ -235,13 +270,34 @@
       },
       "border_color": "#DEE2E6",
       "border_size_pt": 0.5,
-      "cell_padding_cm": 0.1
+      "cell_padding_cm": 0.1,
+      "google_docs_compat": {
+        "required": true,
+        "note": "Google Docs uses tblGrid/gridCol as source of truth for column width, not tblW. Word auto-fits; Google Docs does not.",
+        "page_width_dxa": 9072,
+        "page_width_note": "A4 minus 2.5cm margins on each side",
+        "implementation": {
+          "width": "{ size: 9072, type: WidthType.DXA }",
+          "columnWidths": "Array(colCount).fill(Math.floor(9072 / colCount)) — generates tblGrid",
+          "layout": "TableLayoutType.FIXED — disables autofit"
+        }
+      }
     },
     "proposal_cells": {
       "positive": {"background": "#D4EDDA", "note": "SotaTek-built, strong capability, recommended"},
       "gap": {"background": "#F8D7DA", "note": "Platform gap, excluded, weak coverage"},
       "conditional": {"background": "#FFF3CD", "note": "Conditional, partial coverage"},
       "subtotal": {"background": "#2B4C7E", "font_color": "#FFFFFF", "bold": true}
+    },
+    "rendering_rules": {
+      "line_spacing_constant": "const LINE_115 = Math.round(240 * 1.15); // = 276. Apply to ALL paragraph types: body, bullet, sub-bullet, blockquote.",
+      "inline_markdown": "ALL paragraph functions (bodyPara, bulletPara, subBulletPara, blockquote) MUST call parseInlineMarkdown(text) instead of plain TextRun({text}). Failure causes **bold** and *italic* markers to render as literal characters.",
+      "paragraph_functions_checklist": [
+        "bodyPara → parseInlineMarkdown, line: LINE_115",
+        "bulletPara (level 0) → parseInlineMarkdown, line: LINE_115",
+        "subBulletPara (level 1) → parseInlineMarkdown, line: LINE_115",
+        "blockquotePara → parseInlineMarkdown, line: LINE_115"
+      ]
     },
     "cover_page": {
       "show": true,

@@ -1,5 +1,17 @@
 # BA Start Step - Package
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action**:
+```
+step: package
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+```
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 
 - `core/contract.yaml`
@@ -59,3 +71,9 @@ Output:
 When the engagement does not include SRS, package only the artifacts that were actually emitted and requested for stakeholder handoff.
 
 If the user later manually inserts wireframe images or links into the markdown source, preserve those references in the packaged HTML instead of trying to regenerate design assets.
+
+## Packaging Behavior
+
+- `package` is a validation-and-compile step, not a full rebuild.
+- HTML output belongs under `paths.compiled_root`.
+- Keep markdown artifacts as the source of truth.

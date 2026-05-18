@@ -2,6 +2,18 @@
 
 Phase 2 of the presale lifecycle. Owner: `presale-lead` (**Opus** for gap analysis + question synthesis).
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action**:
+```
+step: clarify
+status: running
+command: /ba-presale clarify
+started: <ISO timestamp>
+updated: <ISO timestamp>
+```
+On complete, update `status: completed` and `updated`.
+
 Triggered by user command `/ba-presale clarify` (never auto-advances from domain-study).
 
 This step requires:
@@ -84,10 +96,25 @@ Rules per row:
 - **ID** — Q1, Q2, …
 - **Category** — one of the 8 categories above
 - **Question** — single-intent, English, no bundled asks
-- **Suggested Answer** — agent's best-guess based on Domain Primer + inputs (never "N/A" — always offer something with a source ref like `[src:domain:§3]` or `[src:assumption:A1]`)
-- **Status** — `Draft` (default)
+- **Suggested Answer** — agent's best-guess based on Domain Primer + inputs (never "N/A" — always offer something with a source ref)
+- **Status** — see Assumed vs Answered rule below
 - **Impact** — short note on what scope/WBS/proposal section this affects if answered differently
 - **Notes** — free-form (dependency between questions, follow-up needed, etc.)
+
+### Assumed vs Answered (CRITICAL distinction)
+
+When populating `Suggested Answer` and `Status`:
+
+- If answer comes from a **client document, email, meeting, or Q&A sheet** → `Status = Answered`, prefix = `**ANSWERED [src:...]:**`
+- If answer comes from **ANY agent research** (SSH access, code reading, domain study, spec analysis, logical inference, domain primer synthesis) → `Status = Assumed`, prefix = `**ASSUMED [basis: <source>]:**`
+
+**Never mark an item `Answered` unless a human stakeholder explicitly confirmed it.**
+All `Assumed` items must state their basis so proposal/WBS authors know the confidence level.
+
+Examples:
+- `**ASSUMED [basis: SSH server access 2026-05-14]:** Zeus uses token-based API...`
+- `**ASSUMED [basis: domain research, Metaps spec §3]:** Payment For uses link-based redirect...`
+- `**ANSWERED [src:client:Q&A-sheet-2026-05-15]:** TCOS profile sync is OUT OF SCOPE.`
 
 **Do NOT mark any question as "blocking" or "priority" — flat list.**
 

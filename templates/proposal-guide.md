@@ -459,6 +459,11 @@ For each module (e.g., Common, Member Portal, Admin Portal, System Components):
 
 ### 7. Project Scope
 
+> **DUPLICATION GUARD (CRITICAL):** §7 is only included when §2 (Scope Modules) was intentionally kept high-level (e.g., Variant A platform proposals with brief scope overview).
+> If §2 already contains a full Phase 1 / Phase 2+ breakdown with in-scope, out-of-scope, and assumptions → **skip §7 entirely**, OR replace it with a single cross-reference paragraph:
+> *"See §2 Scope Modules for the full scope definition, phasing breakdown, and assumptions."*
+> Never duplicate scope content across §2 and §7 — it creates conflicting sources of truth.
+
 #### 7.1 In-Scope
 
 **Content:**
@@ -659,6 +664,9 @@ This section has two variants. Choose based on project type.
 16. **Don't use color inconsistently**: Green = positive/SotaTek-built, red/pink = gap/excluded, yellow = conditional.
 17. **WBS function descriptions should be behavioral**: "Magic link & OTP login (email input -> send OTP -> verify 6-digit code -> session token issued)" — not just "Login feature".
 18. **Payment milestones should protect both parties**: Common split: 50% signing / 40% demo / 10% final delivery.
+19. **Discovery phase only when genuine uncertainty exists**: Include a discovery phase only when there are real unknowns that cannot be scoped without investigation — unknown third-party schemas, undefined data models, vendor selection still open, or unconfirmed regulatory requirements. For projects with clear, well-defined scope, go straight into delivery. Signals discovery IS needed: SotaTek has not accessed the target integration system; scope items explicitly flagged TBD pending discovery; client data model is undocumented. Signals discovery is NOT needed: all integrations documented; scope fully locked; no open technical unknowns.
+20. **Pricing, effort, and timeline are NOT the BA's to fill**: Leave all commercial numbers — fixed price, effort totals, calendar duration, team headcount costs, payment milestone amounts — as `[TBD — PM/Tech Lead to fill]`. The BA owns structure, scope narrative, WBS feature breakdown, assumptions, and Q&A. PM and Tech Lead own all numbers because they are the ones building it.
+21. **WBS table in proposal body = feature breakdown only, no effort columns**: The Proposal WBS uses the same row rules as the WBS sheet (see `bakit/templates/wbs-template.md §WBS Content Rules`) — same row atomicity, same actor convention, same behavioral description style — but omits the effort columns (Web/mobile day, Backend day). Effort totals belong in §9, not in the WBS table body. EPIC rows use integer WBS IDs with ALL CAPS names and empty feature cells. Feature rows use decimal IDs. Every feature row must have a `[src:...]` ref. Pricing matrices go in Appendix A as `[TBD — PM/Tech Lead to fill]` placeholders.
 
 ---
 

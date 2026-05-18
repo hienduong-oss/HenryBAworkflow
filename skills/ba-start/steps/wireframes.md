@@ -1,5 +1,21 @@
 # BA Start Step - Wireframes
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action** before reading any artifact:
+```
+step: wireframes
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+progress: ""
+last_write: ""
+resume_hint: ""
+```
+After each incremental screen constraint write, update `progress` (e.g., "SCR-02/6 done"), `last_write`, and `resume_hint`.
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 
 - `core/contract.yaml`
@@ -129,3 +145,9 @@ After the handoff pack is complete:
 
 - persist `paths.wireframe_map`
 - persist `paths.wireframe_state` with `State: completed`
+
+## Wireframe-State Behavior
+
+- Use `states.wireframe` values only: `completed`, `skipped`, `not-applicable`, `missing`.
+- This step is read-only on upstream BA artifacts.
+- It may regenerate only: `DESIGN.md`, wireframe input pack, wireframe map, and wireframe state marker.

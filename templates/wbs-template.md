@@ -1,69 +1,152 @@
 <!--
 TEMPLATE: WBS Content (markdown source of truth)
 PURPOSE: Lightweight, edit-friendly WBS used during iteration. Auto-rendered to xlsx after /ba-presale build sync-check passes.
-STATUS: PLACEHOLDER — refine in Phase A.
-LOCATION (per project): presale/{slug}-{date}/10-wbs-content.md
-PAIRED WITH: 10-wbs-content.csv (CSV intermediate, token-cheap)
-LANGUAGE: Vietnamese by default.
+LOCATION (per project): plans/{slug}-{date}/00_presale/10-wbs-content.md
+PAIRED WITH: 10-wbs-content.csv (CSV intermediate for xlsx render)
+LANGUAGE: English (client-facing artifact).
 
-TRACEABILITY RULE (CRITICAL — see build-context §8.5):
-- Mỗi work package PHẢI có cột "Source" trỏ về requirement gốc.
-- Format: [src:client:<file>§<sec>] | [src:domain:§<n>] | [src:qna:Q<n>] | [src:assumption:A<n>]
-- Không có Source -> KHÔNG được phép xuất hiện trong WBS final.
+TWO FORMATS — same content, different columns:
+
+MARKDOWN WBS (this file) — 7 columns, includes planning fields:
+  WBS ID | Milestone | EPIC | Feature / Function | Actor | Description | Dependencies
+
+XLSX OUTPUT (Google Sheets) — 8 columns, drops Milestone/Dependencies, splits Description:
+  # | Category | Function | Sub-Function | Actor | Notes | Web/mobile (day) | Backend (day)
+  See output-style-spec.json xlsx.sheets.WBS for full column spec and formatting rules.
+
+EPIC ROW CONVENTION (both formats):
+  - WBS ID = integer only (1, 2, 3, 4)
+  - EPIC = ALL CAPS name
+  - All other columns = LEAVE EMPTY
+
+FEATURE ROW CONVENTION (both formats):
+  - WBS ID = decimal (1.1, 1.2, 2.1, ...)
+  - 1 row = 1 actor + 1 action + 1 observable outcome
+  - Actor = specific: "User (App)", "Group Admin", "System", "Tech Lead", "BA", "DevOps"
+  - Description / Sub-Function = actor-perspective acceptance condition: "Actor does X and sees Y"
+  - Notes (xlsx) = full behavioral spec + edge cases + [src:...] refs
+
+TRACEABILITY RULE (CRITICAL — see ba-presale-standards.md §5):
+- Every feature row MUST have a source ref in Description or Notes.
+- Format: [src:client:<file>§<sec>] | [src:domain:§<n>] | [src:clarify:Q<n>] | [src:assumption:A<n>]
+- Missing source ref → row blocked from auto-render.
 -->
 
 # WBS — {{client_name}} / {{project_name}}
 
-> **Trạng thái:** {{draft|reviewed|LOCKED}}
-> **Phiên bản:** v{{X.Y}} — {{YYYY-MM-DD}}
-> **Đơn vị effort:** Person-Day (PD)
-> **Tổng effort:** {{auto-sum}} PD
+> **Status:** {{draft|reviewed|LOCKED}}
+> **Version:** v{{X.Y}} — {{YYYY-MM-DD}}
+> **Milestones:** M1 / M2 / M3 / M4
 
 ---
 
-## 1. Tổng quan phạm vi (Scope summary)
-- **Mục tiêu dự án:** {{...}}  [src:domain:§1]
-- **Phạm vi bao gồm (in-scope):** {{bullet list}}
-- **Phạm vi loại trừ (out-of-scope):** {{bullet list — quan trọng cho commercial}}
+## WBS Table
 
-## 2. WBS chi tiết (3 cấp mặc định)
+| WBS ID | Milestone | EPIC | Feature / Function | Actor | Description | Dependencies |
+|--------|-----------|------|--------------------|-------|-------------|--------------|
+| 1 | M1 | DISCOVERY & ARCHITECTURE | | | | |
+| 1.1 | M1 | Discovery | Review client documents and confirm scope | BA, Client PO | BA reviews all input documents and confirms integration mechanism and scope boundaries [src:client:RFP§1] | — |
+| 1.2 | M1 | Discovery | Architecture Decision Record | Tech Lead | Document confirmed decisions: mechanism, identity, integrations [src:domain:§2] | 1.1 |
+| 2 | M2 | {{EPIC 2 NAME}} | | | | |
+| 2.1 | M2 | {{Feature Group}} | {{Feature or function name}} | {{Actor}} | {{Actor does X and sees Y}} [src:clarify:Q1] | 1.2 |
+| 3 | M3 | {{EPIC 3 NAME}} | | | | |
+| 3.1 | M3 | {{Feature Group}} | {{Feature or function name}} | {{Actor}} | {{System pushes Z to W}} [src:assumption:A1] | 2.1 |
+| 4 | M4 | {{EPIC 4 NAME}} | | | | |
+| 4.1 | M4 | {{Feature Group}} | {{Feature or function name}} | {{Actor}} | {{Actor sees confirmation screen}} [src:client:RFP§4] | 3.1 |
 
-| WBS ID | Work Package | Mô tả | Effort (PD) | Phụ thuộc | Phase | Owner | Source | Notes |
-|--------|--------------|-------|-------------|-----------|-------|-------|--------|-------|
-| 1 | **{{Phase 1 — Discovery}}** | | _sum_ | — | P1 | BA | [src:domain:§2] | |
-| 1.1 | {{Workshop nghiệp vụ}} | {{...}} | {{X}} | — | P1 | BA | [src:client:RFP§2.1] | |
-| 1.2 | {{Khảo sát hệ thống hiện hữu}} | {{...}} | {{X}} | 1.1 | P1 | BA+Tech | [src:client:tech-doc§3] | |
-| 2 | **{{Phase 2 — Design}}** | | _sum_ | 1 | P2 | Tech Lead | [src:domain:§3] | |
-| 2.1 | {{...}} | {{...}} | {{X}} | 1.2 | P2 | TL | [src:assumption:A2] | |
-| 3 | **{{Phase 3 — Build}}** | | _sum_ | 2 | P3 | Dev | [src:client:RFP§4] | |
-| 4 | **{{Phase 4 — Test & UAT}}** | | _sum_ | 3 | P4 | QA | [src:domain:§4] | |
-| 5 | **{{Phase 5 — Deploy & Handover}}** | | _sum_ | 4 | P5 | DevOps | [src:assumption:A5] | |
+---
 
-## 3. Tổng hợp theo phase
+## Scope Summary
 
-| Phase | Effort (PD) | % | Ghi chú |
-|-------|-------------|---|---------|
-| P1 — Discovery | {{...}} | {{%}} | |
-| P2 — Design | {{...}} | {{%}} | |
-| P3 — Build | {{...}} | {{%}} | |
-| P4 — Test & UAT | {{...}} | {{%}} | |
-| P5 — Deploy & Handover | {{...}} | {{%}} | |
-| **Total** | **{{sum}}** | 100% | |
+**In-scope:**
+- {{bullet list}}
 
-## 4. Giả định ảnh hưởng đến estimate
-- **A1:** {{...}} — nếu không đúng, effort tăng ~{{X}} PD ở WBS {{1.2, 2.1}}
-- **A2:** {{...}}
+**Out-of-scope:**
+- {{bullet list}}
 
-## 5. Loại trừ (Exclusions)
-- {{Item}} — lý do: {{...}}
-- {{Item}} — lý do: {{...}}
+## Assumptions
 
-## 6. Phụ thuộc bên ngoài
-- {{Bên thứ 3 / khách hàng cần cung cấp X trước Y ngày}}
+| ID | Description | Affects rows |
+|----|-------------|--------------|
+| A1 | {{...}} | {{2.1, 3.1}} |
+
+## External Dependencies
+
+- {{Third party / client must provide X before milestone Y}}
+
+---
+
+## WBS Content Rules
+
+These rules apply to **both** the markdown WBS (this file) and the WBS table inside the Proposal. The only difference is that the Proposal WBS omits the effort columns (Web/mobile day, Backend day).
+
+### Row atomicity
+
+1 row = 1 actor + 1 action + 1 observable outcome.
+
+If Notes/Description needs "and then" / "also" / "as well as" → split into 2 rows.
+
+### When to create a new EPIC
+
+Create a new EPIC when the feature group:
+- Serves a **distinct user journey**
+- Has a **different primary actor** (user-facing vs admin-facing vs system-level)
+- Has a **clear dependency boundary** — all rows in this EPIC must complete before the next EPIC starts
+
+Do not create a new EPIC just because features "seem different."
+
+### When to split into a new feature row
+
+Split when:
+- Actor differs ("Admin creates X" vs "System sends notification Y")
+- Trigger differs ("User submits form" vs "System validates form")
+- Screen/state differs ("User sees list" vs "User sees detail")
+- FE/BE effort significantly different (split to make estimation clearer)
+- Can fail independently in UAT
+
+Do not split when:
+- Sub-steps of the same action (e.g. validate field A + B → one "Form validation" row)
+- FE and BE of the same feature (use effort cols G/H)
+
+### Function vs Sub-Function depth
+
+**Function** = feature-card level — PM-readable without context.
+- Correct: `Add Order tab to TabBar`
+- Too detailed: `Modify TabBar.swift line 42`
+- Too vague: `App changes`
+
+**Sub-Function / Description** = actor-perspective acceptance condition — dev knows when it's done.
+- Correct: `User sees Order tab in TabBar; tapping opens OrderVC`
+- Wrong (repeats Function): `Add Order tab`
+- Wrong (implementation detail): `Set tabBarItem.image = UIImage(named: "order_icon")`
+
+**Notes** = full behavioral spec + edge cases + `[src:...]` refs. No implementation detail.
+
+### Actor convention
+
+Use the most specific actor possible:
+- `User (App Name)` — not just `User` when multiple user types exist
+- `Group Admin` — not `Admin` if only group admins can perform the action
+- `System` — for background jobs, auto-triggers, server-to-server calls
+- `Tech Lead` — for ADR, architecture decisions, setup tasks
+- `BA` — for discovery, clarification, spec review tasks
+
+If 2 actors are genuinely needed → split into 2 rows.
+
+### Effort columns (xlsx only)
+
+- Fill both Web/mobile (G) and Backend (H). Use `0` for the inapplicable side — never leave blank.
+- Leave `0` in both when unestimated — estimator fills later.
 
 ---
 
 <!-- RENDER HINT:
-Khi render qua document-skills:xlsx, sheet "WBS" dùng style spec WBS, sheet "Summary" dùng từ §3,
-sheet "Assumptions" dùng từ §4. Sheet "QnA" lấy từ 30-qna-content.md (file riêng).
+When rendering via document-skills:xlsx:
+- Sheet "WBS" = main table from CSV (7-column format)
+- Sheet "Clarifications" = parsed from 05-clarifications.md
+- Sheet "Summary" = milestone groupings from WBS table
+- Sheet "Assumptions" = from Assumptions section above
+- EPIC rows (integer WBS ID): bold + fill color, no data in Feature/Actor/Description/Dependencies
+- Feature rows (decimal WBS ID): normal weight
+- Freeze panes: row 1 (header)
 -->

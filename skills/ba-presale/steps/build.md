@@ -2,6 +2,23 @@
 
 Phase 3 of the presale lifecycle. Owner: `presale-lead` (orchestrator, **Opus** for sync arbitration). Dispatches `wbs-builder` and/or `proposal-writer` (both **Sonnet**) based on user selection, runs sync-check inline, then auto-renders.
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action**:
+```
+step: build
+status: running
+command: /ba-presale build
+started: <ISO timestamp>
+updated: <ISO timestamp>
+progress: ""
+last_write: ""
+resume_hint: ""
+```
+After each sub-agent completes (wbs-builder, proposal-writer), update `progress` (e.g., "WBS done, Proposal running") and `last_write`.
+After sync-check and render, update `progress: "sync-check done, rendering"`.
+On complete, update `status: completed` and `updated`.
+
 Triggered by user command `/ba-presale build`. Never auto-advances from `clarify`.
 
 This step requires:
@@ -96,13 +113,50 @@ templates:
   - bakit/templates/wbs-template.csv
 inputs:
   - plans/{slug}-{date}/00_presale/00-domain-primer.md
-  - plans/{slug}-{date}/00_presale/05-clarifications.md (Answered rows only)
+  - plans/{slug}-{date}/00_presale/05-clarifications.md (Answered + Assumed rows)
   - 00_inputs/  (read on demand)
 language: English
 source_ref_format: see rules/ba-presale-standards.md §5
 write_scope: target_md + target_csv only
 return_format: ~50-token summary (status, row counts, open flags)
 tracker: 00_presale/_state-cards/03a-wbs.md
+
+WBS FORMAT (8 columns for Google Sheets xlsx output — MANDATORY):
+  # | Category | Function | Sub-Function | Actor | Notes | Web/mobile (day) | Backend (day)
+
+Column roles:
+  - # (col A): WBS ID — integer for EPIC rows, decimal for feature rows
+  - Category (col B): EPIC NAME ALL CAPS for EPIC rows; empty for feature rows
+  - Function (col C): task name at feature-card level — PM-readable without context
+  - Sub-Function (col D): actor-perspective acceptance condition — "Actor does X and sees Y"
+  - Actor (col E): specific actor — "User (Nara App)", "Group Admin", "System", "Tech Lead", "BA", "DevOps"
+  - Notes (col F): full behavioral spec + edge cases + [src:...] refs. No implementation detail.
+  - Web/mobile (day) (col G): FE/mobile effort — use 0 if not applicable, never blank
+  - Backend (day) (col H): BE effort — use 0 if not applicable, never blank
+
+Note: Milestone and Dependencies are markdown-WBS fields only — omit from Google Sheets xlsx output.
+
+EPIC row rules:
+  - Col A = integer only (1, 2, 3, 4)
+  - Col B = ALL CAPS name
+  - Cols C-H = LEAVE EMPTY
+
+Feature row rules:
+  - Col A = decimal (1.1, 1.2, 2.1, ...)
+  - 1 row = 1 actor + 1 action + 1 observable outcome
+  - Every feature row MUST include a [src:...] ref in Notes
+
+GROUP header rows (optional, for multi-group sheets):
+  - Col A = "GROUP X", col B = GROUP NAME ALL CAPS, cols C-H empty
+
+Clarification confidence:
+  - Assumed rows (Status=Assumed) = agent-inferred, lower confidence — flag in Notes if scope-impacting
+  - Answered rows (Status=Answered) = client-confirmed, use as facts
+
+Content rules (row atomicity, EPIC creation, split criteria, Function/Sub-Function depth, Actor convention):
+  See bakit/templates/wbs-template.md §WBS Content Rules — single canonical source for all WBS authoring.
+
+See output-style-spec.json xlsx.sheets.WBS for full color scheme, row types, and formatting order.
 ```
 
 ### Packet B → `proposal-writer` (model: **sonnet**) — skip if "WBS only"
@@ -126,6 +180,25 @@ tracker: 00_presale/_state-cards/03b-proposal.md
 ```
 
 Both dispatched in PARALLEL via single message containing two Agent tool calls (when "Build all" selected).
+
+### Sub-agent write size limit (CRITICAL)
+
+Each delegation packet MUST NOT require a sub-agent to write >150 lines in a single Write call. Long writes exceed connection timeout (~3 min) and produce truncated files.
+
+- **Proposal dispatch:** Split into at minimum 2 packets — Packet B1 (§1–§6, ~150 lines) and Packet B2 (§7–§11, ~150 lines). Dispatch B2 only after B1 returns successfully.
+- **WBS dispatch:** If WBS >100 rows, split into 2 write passes (rows 1–N/2, then append rows N/2+1–end).
+- Sub-agents must use incremental Write + Edit/append pattern, not a single large Write call.
+
+### Socket error recovery (MANDATORY check after each sub-agent returns)
+
+After each sub-agent returns:
+1. Check target file exists on disk.
+2. Check line count: >50 for Proposal, >20 for WBS.
+3. If file missing or truncated → dispatch surgical completion packet:
+   - Pass exact last section written (from sub-agent ~50-token summary)
+   - Instruction: "append to existing file starting from §X" or "continue from row N"
+   - `model: "sonnet"`
+4. Do NOT proceed to sync-check until both files pass the line count check.
 
 ## Step 4 — Sync-check `[JUDGMENT — Opus]` (lead, inline) — only when "Build all"
 
@@ -153,15 +226,22 @@ Run the check matrix against the structured payloads. Only open the full `10-wbs
 
 For each conflict, anchor decision to source priority:
 1. `00_inputs/` client raw
-2. Answered clarification (`05-clarifications.md`)
-3. Validated Domain Primer
-4. Documented assumption (lowest)
+2. Answered clarification — client-confirmed (`05-clarifications.md`, Status=Answered)
+3. Assumed clarification — agent-inferred (`05-clarifications.md`, Status=Assumed) — treat as low-confidence; client raw overrides without escalation
+4. Validated Domain Primer
+5. Documented assumption (lowest)
+
+**Assumed vs Answered in conflict resolution:**
+- Client answer conflicts with `Assumed` → NOT a real conflict. Expected override. Update Assumed → Answered, log change, no escalation needed.
+- Client answer conflicts with `Answered` (client-confirmed) → REAL conflict. Escalate to user.
 
 Log each decision to `00_presale/_changelog/sync-{YYYYMMDD-HHmm}.md`. Dispatch surgical fix to relevant sub-agent (**model: sonnet** — single-section edit packet, mechanical dispatch). Re-run sync-check after fixes return. Loop until zero conflicts OR escalation needed.
 
+**Max 2 dispatch cycles.** If conflicts remain after 2 rounds of surgical fixes, stop and escalate to user — do not dispatch a third time.
+
 ### Escalation
 
-If a conflict cannot be anchored to any source, STOP and present to user. Do NOT proceed to render.
+If a conflict cannot be anchored to any source, OR if 2 dispatch cycles have completed and conflicts remain: STOP and present to user with exact conflict list and which source anchor is missing. Do NOT proceed to render.
 
 ## Step 5 — Auto-render `[MECHANICAL]` (no user prompt)
 
@@ -186,6 +266,15 @@ Invoke `document-skills:xlsx` with:
 - Apply: header colors, hierarchy levels (level_1 bold + fill), totals row, status_color_map for Clarifications, freeze panes B2
 
 Output: `plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx`
+
+### Render isolation (CRITICAL)
+
+Render MUST be dispatched as a sub-agent (`model: "sonnet"`), NOT executed inline by the lead. Before dispatching render, the lead MUST NOT re-read proposal or WBS content — doing so inflates context and can corrupt pending tool call state (empty parameter errors).
+
+Lead passes to render sub-agent only:
+- `input_path` — path to the markdown source
+- `output_path` — path for the rendered file
+- `style_spec_path` — `templates/output-style-spec.json`
 
 ### 5b — Proposal docx
 

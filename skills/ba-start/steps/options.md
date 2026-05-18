@@ -1,5 +1,17 @@
 # BA Start Step - Options
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action**:
+```
+step: options
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+```
+On complete, update `status: completed` and `updated`.
+
 This placeholder step exists to keep the Task 1 `options` command routing valid before the full Task 3 workflow is implemented.
 
 ## Current Scope

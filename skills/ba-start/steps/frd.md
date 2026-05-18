@@ -1,5 +1,21 @@
 # BA Start Step - FRD
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action** before reading any artifact:
+```
+step: frd
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+progress: ""
+last_write: ""
+resume_hint: ""
+```
+After each incremental use-case write, update `progress` (e.g., "UC-03/7 done"), `last_write`, and `resume_hint` (e.g., "Continue from UC-04").
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 
 - `core/contract.yaml`

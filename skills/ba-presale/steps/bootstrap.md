@@ -2,6 +2,18 @@
 
 Phase 0 of the presale lifecycle. Owner: `presale-lead` (Sonnet). Runs automatically when user invokes bare `/ba-presale`, then auto-chains into `steps/domain-study.md`.
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action** (create `00_presale/` dir if needed):
+```
+step: bootstrap
+status: running
+command: /ba-presale
+started: <ISO timestamp>
+updated: <ISO timestamp>
+```
+On complete, update `status: completed` and `updated`.
+
 **Orchestration note:** Bootstrap is 100% mechanical (file ops, classification by filename pattern). The auto-chain to domain-study is deterministic — no branching, no evaluation needed. This entire step runs at Sonnet cost level per `presale.models.bootstrap`.
 
 This step requires:
@@ -131,3 +143,20 @@ No user gate here. This is deterministic — bootstrap always chains to domain-s
 - Modifying file contents.
 - Re-classifying files already in `00_inputs/` (idempotent).
 - Creating `presale/{slug}-{date}/...` at repo root (legacy layout — removed).
+
+## Presale Context-Loss Recovery
+
+When context is lost mid-presale:
+
+**Step 1 — Check checkpoint first:**
+Read `plans/{slug}-{date}/00_presale/_checkpoint.md`.
+- If `status: running`: a step was interrupted. Report to user with resume options (same format as `ba-next` check_checkpoint step). Wait for user choice before proceeding.
+- If `status: completed` or file missing: proceed to Step 2.
+
+**Step 2 — Read state cards:**
+Read `plans/{slug}-{date}/00_presale/_state-cards/` — each card is ≤300 tokens and records phase id, output paths, key decisions, open issues, and next gate.
+
+1. Identify the highest-numbered card to determine the last completed phase.
+2. Resume from the next gate indicated in that card.
+3. Only read full presale artifacts (`00-domain-primer.md`, `05-clarifications.md`, `10-wbs-content.md`, `20-proposal-content.md`) when the state card references a specific open issue that requires artifact context.
+4. Do not re-run completed phases. State cards are authoritative for phase completion status.

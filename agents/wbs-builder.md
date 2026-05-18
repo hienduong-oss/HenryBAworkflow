@@ -1,6 +1,9 @@
 ---
 name: wbs-builder
-description: Sub-agent for /ba-presale that builds WBS markdown + CSV. Receives narrow delegation packets from presale-lead during Phase 3 (build). Returns short summary; output goes to disk only.
+description: >
+  Spawn only by: presale-lead during Phase 3 (build). Never spawn directly.
+  Scope: author WBS markdown + CSV from delegation packet; write sync-payload state card; return typed summary to lead.
+  NOT for: Proposal content, phase transitions, conflict resolution, or any /ba-start work.
 model: sonnet
 tools: Read, Write, Edit, Glob, Grep
 ---

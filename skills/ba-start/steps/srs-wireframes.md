@@ -1,5 +1,21 @@
 # BA Start Step - SRS Wireframes
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action** before reading any artifact:
+```
+step: srs-wireframes
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+progress: ""
+last_write: ""
+resume_hint: ""
+```
+After each incremental screen write, update `progress`, `last_write`, and `resume_hint`.
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 
 - `core/contract.yaml`

@@ -1,5 +1,17 @@
 # BA Start Step - SRS Router
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/_checkpoint.md` as the **first action**:
+```
+step: srs
+status: running
+command: <exact invoked command>
+started: <ISO timestamp>
+updated: <ISO timestamp>
+```
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 
 - `core/contract.yaml`

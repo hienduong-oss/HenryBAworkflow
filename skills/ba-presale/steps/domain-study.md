@@ -2,6 +2,22 @@
 
 Phase 1 of the presale lifecycle. Owner: `presale-lead` (**Opus** for synthesis). Auto-runs after `steps/bootstrap.md`.
 
+## Checkpoint
+
+Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action**:
+```
+step: domain-study
+status: running
+command: /ba-presale (auto-chained from bootstrap)
+started: <ISO timestamp>
+updated: <ISO timestamp>
+progress: ""
+last_write: ""
+resume_hint: ""
+```
+After dispatching ba-researcher and after writing domain primer, update `progress` and `last_write`.
+On complete, update `status: completed` and `updated`.
+
 This step requires:
 - Bootstrap completed (`00_inputs/` populated or `_initial-prompt.md` captured)
 - `templates/domain-primer-template.md`

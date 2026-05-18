@@ -25,22 +25,22 @@ fi
 
 TARGET_HOME="${HOME}/.claude"
 
-copy_tree() {
+sync_tree() {
   local source_dir="$1"
   local target_dir="$2"
   mkdir -p "$target_dir"
-  cp -R "${source_dir}/." "$target_dir/"
+  rsync -a --delete "${source_dir}/" "$target_dir/"
 }
 
 # Sync all asset categories
 for skill_dir in "${ROOT_DIR}"/skills/*; do
   if [[ -d "${skill_dir}" ]]; then
-    copy_tree "${skill_dir}" "${TARGET_HOME}/skills/$(basename "${skill_dir}")"
+    sync_tree "${skill_dir}" "${TARGET_HOME}/skills/$(basename "${skill_dir}")"
   fi
 done
-copy_tree "${ROOT_DIR}/rules" "${TARGET_HOME}/rules/ba-kit"
-copy_tree "${ROOT_DIR}/agents" "${TARGET_HOME}/agents"
-copy_tree "${ROOT_DIR}/templates" "${TARGET_HOME}/templates"
-copy_tree "${ROOT_DIR}/core" "${TARGET_HOME}/ba-kit"
+sync_tree "${ROOT_DIR}/rules" "${TARGET_HOME}/rules/ba-kit"
+sync_tree "${ROOT_DIR}/agents" "${TARGET_HOME}/agents"
+sync_tree "${ROOT_DIR}/templates" "${TARGET_HOME}/templates"
+sync_tree "${ROOT_DIR}/core" "${TARGET_HOME}/ba-kit"
 
 echo "Synced BA-kit → ~/.claude/ from ${ROOT_DIR}"

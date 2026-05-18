@@ -21,6 +21,64 @@ Rules:
 - if multiple module directories exist, stop and ask instead of emitting an incomplete module-scoped command
 </step>
 
+<step name="check_checkpoint">
+Before inspecting artifacts, read both checkpoint files for the resolved project:
+- `/ba-start` checkpoint: `plans/{slug}-{date}/_checkpoint.md`
+- `/ba-presale` checkpoint: `plans/{slug}-{date}/00_presale/_checkpoint.md`
+
+If either checkpoint file exists and `status: running`:
+- The previous session was interrupted mid-step.
+- Determine the flow from the `step` field:
+  - Presale steps (`bootstrap`, `domain-study`, `clarify`, `build`, `handoff`) → **presale flow**
+  - All other steps → **ba-start flow**
+
+**For presale flow interrupted steps:**
+Print the interrupted step summary, then **immediately invoke the presale step** without waiting:
+
+```text
+⚠ Interrupted presale step detected
+
+Step:        {step}
+Command:     {command}
+Started:     {started}
+Progress:    {progress}   ← omit if empty
+Resume hint: {resume_hint}   ← omit if empty
+
+Resuming /ba-presale {step}...
+```
+
+Map `step` value to presale subcommand:
+- `bootstrap` → `/ba-presale` (bare, re-runs bootstrap + domain-study chain)
+- `domain-study` → `/ba-presale` (bare, re-runs from domain-study)
+- `clarify` → `/ba-presale clarify`
+- `build` → `/ba-presale build`
+- `handoff` → `/ba-presale handoff`
+
+Load and execute the corresponding presale step file. Pass `resume_hint` as context if present.
+
+**For ba-start flow interrupted steps:**
+Print the interrupted step summary and present options — do NOT auto-resume, because ba-start steps may have partially written artifacts that need user judgment:
+
+```text
+⚠ Interrupted step detected
+
+Step:        {step}
+Command:     {command}
+Started:     {started}
+Progress:    {progress}   ← omit if empty
+Resume hint: {resume_hint}   ← omit if empty
+
+Options:
+  (a) Resume — re-run the same command (agent will use resume_hint to skip completed sub-steps)
+  (b) Skip — treat as incomplete and proceed to the next step
+  (c) Mark done — artifact was actually completed; update checkpoint and re-run /ba-next
+```
+
+Wait for user choice before proceeding.
+
+If neither checkpoint file exists or both are `status: completed`, continue to `inspect_artifacts`.
+</step>
+
 <step name="inspect_artifacts">
 Inspect the resolved artifact set and determine which of these exist:
 - intake
@@ -79,6 +137,8 @@ Do not mutate artifacts during this command.
 
 <success_criteria>
 - [ ] Project set resolved exactly or ambiguity surfaced
+- [ ] Checkpoint file checked before artifact inspection
+- [ ] Interrupted step surfaced with resume options when detected
 - [ ] Current artifact set inspected from exact patterns
 - [ ] Next BA command recommended from the current state
 - [ ] No artifacts mutated

@@ -49,8 +49,9 @@ HANDOFF RULE (CRITICAL):
 - **Commercial** — budget, timeline anchor, payment model, engagement type
 
 ## Status Legend
-- **Draft** — agent has proposed a suggested answer; awaiting user confirmation
-- **Answered** — user has confirmed or overridden the suggested answer
+- **Draft** — question generated; no answer yet — agent inference only, not validated
+- **Assumed** — agent has inferred an answer from research (SSH, code analysis, domain study, spec reading, logical deduction). NOT client-confirmed. `Suggested Answer` MUST include `[basis: <source>]` prefix: `**ASSUMED [basis: <source>]:** <answer>`
+- **Answered** — client or authorized stakeholder has explicitly confirmed the answer. `Suggested Answer` uses `**ANSWERED [src:...]:**` prefix.
 - **Skipped** — user explicitly chose not to answer (treated as assumption at handoff)
 
 ---
@@ -79,6 +80,14 @@ When no direct source exists in Domain Primer / `00_inputs/`, the agent has infe
 <!-- HANDOFF NOTE:
 When /ba-presale handoff runs, it will:
 1. Treat every Answered row as a clarified requirement → merge into intake.md §1–§4.
-2. Treat every Skipped row as an assumption → add to intake.md §4.
-3. Refuse handoff if any row is still Draft (unless user explicitly skipped via "accept all suggestions").
+2. Treat every Assumed row as an agent-inferred fact → merge into intake.md §4 with lower confidence flag.
+3. Treat every Skipped row as an assumption → add to intake.md §4.
+4. Refuse handoff if any row is still Draft (unless user explicitly skipped via "accept all suggestions").
+
+CONFLICT RESOLUTION PRIORITY:
+  client raw input > Answered (client-confirmed) > Assumed (agent-inferred) > domain primer > Draft
+
+When client answer arrives and conflicts with Assumed → NOT a real conflict. Expected override.
+  Update status: Assumed → Answered, update content, log change.
+When client answer arrives and conflicts with Answered → REAL conflict. Escalate.
 -->
