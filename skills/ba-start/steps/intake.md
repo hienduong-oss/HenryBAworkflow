@@ -130,23 +130,13 @@ When a staged source cache exists:
 
 Save to `paths.intake`.
 
-## Step 3 - Gap analysis (skip for branch A, B; partial for branch C)
+## Step 3 — Gap Analysis (skip for branch A, B; partial for branch C)
 
 For **branch D** (no presale): run full gap analysis below.
 For **branch C** (partial presale): run gap analysis BUT exclude categories already covered by Answered clarification rows in `05-clarifications.md`. Only flag genuinely new gaps.
 For **branch A, B**: skip entirely — gaps already resolved via presale clarify + proposal.
 
-Review the normalized intake against a BA completeness checklist:
-
-- Are stakeholders identified with roles and influence?
-- Is there a clear problem statement and measurable goal?
-- Are scope boundaries defined (in-scope vs out-of-scope)?
-- Are success criteria or KPIs stated?
-- Are compliance or regulatory obligations mentioned?
-- Are UI screens described enough to prepare a wireframe constraint pack?
-- Are processes described enough to map?
-
-Flag each gap explicitly.
+Review the normalized intake against a BA completeness checklist across 8 categories (Stakeholders, Scope, Success Criteria, Compliance, UI/UX, Business Process, Technical/Integration, Commercial):
 
 ## Step 4 - Ask clarifying questions and lock scope (skip for branch A, B; partial for branch C)
 

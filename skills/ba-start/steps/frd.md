@@ -53,23 +53,69 @@ Run Step 6 only.
 
 - `paths.frd`
 
-## Step 6 - Produce FRD
+## Step 6 — Produce FRD
 
-Produce the FRD from the backbone using [../../../templates/frd-template.md](../../../templates/frd-template.md):
+Produce the FRD from the backbone using [../../../templates/frd-template.md](../../../templates/frd-template.md).
+
+### 6.2 — FRD Sections
 
 - Functional overview
-- User personas
+- User personas (role-specific — no generic "User" or "Admin")
 - Feature list with MoSCoW priorities
-- Workflows (Mermaid)
+- Use Case Specifications (Wiegers/IIBA 13-field, one UC per sea-level goal)
+- Workflows (Mermaid sequence or activity diagram)
 - Data requirements
-- Business rules
+- Business rules (numbered BR-{n}, separate from UC flow steps)
 - Integration points
-- Acceptance criteria
+- Acceptance criteria (linked to UC postconditions)
 
-Execution rules:
+### 6.3 — Use Case Rules (MANDATORY)
+
+**UC Naming:** `[action verb] + [object]` format. UC ID: `UC-{module}-{seq}` (e.g., `UC-AUTH-01`). Vague verbs (`manage`, `handle`, `process`) are NOT acceptable.
+
+**Scope guard (Cockburn coffee-break test):** If a UC cannot be completed in one user session, it is kite-level — split into sea-level UCs. If a UC is a single click with no decision, it is fish-level — merge upward.
+
+**Normal Course rules:**
+- Numbered steps, alternating actor action / system response
+- One action per step
+- No embedded `if/else` — branching goes to Alternative Courses
+- Steps run from trigger (precondition met) to postcondition (goal achieved)
+
+**Alternative Courses:** Each alternative references the step it branches from (`{step_number}{letter}` — e.g., `3a`). Must state: trigger condition → steps → rejoins or ends.
+
+**Exceptions:** Each exception states: trigger → system response → final state (success, failure, or pending). Cover at minimum: authentication failure, validation failure, system/integration error.
+
+**Quality gate — 20-point checklist (before marking UC complete):**
+
+| # | Check |
+|---|-------|
+| C1 | UC name uses verb + object format |
+| C2 | Scope passes coffee-break test (sea-level) |
+| C3 | UC-ID is unique within the module |
+| C4 | Exactly 1 primary actor |
+| C5 | System boundary is clear (what is inside vs. outside) |
+| C6 | Actor is a specific role, not generic "User" |
+| C7 | Description answers WHY / WHAT / expected outcome |
+| C8 | Frequency of use is stated |
+| C9 | Preconditions are verifiable (not assumptions) |
+| C10 | Postconditions describe final system state for all outcomes |
+| C11 | Assumptions are separate from preconditions |
+| C12 | Normal Course steps are numbered, one action each |
+| C13 | Actor and system actions alternate (no merged steps) |
+| C14 | No embedded conditionals in Normal Course |
+| C15 | Normal Course runs from trigger to postcondition without gaps |
+| C16 | Each Alternative Course references a specific step + condition |
+| C17 | Each Exception has trigger + system response + final state |
+| C18 | Common failure modes are covered (auth, validation, system error) |
+| C19 | Included sub-UCs exist and are valid |
+| C20 | Special Requirements are non-functional only (no flow logic) |
+
+### 6.4 — Execution Rules
 
 - Start from the exact backbone artifact only, plus the exact plan path when it exists.
-- In `hybrid` mode, keep the FRD concise and focused on features, workflows, business rules, and integration-relevant context.
+- In `hybrid` mode, keep the FRD concise and focused on features, workflows, business rules, and integration-relevant context. Emit full UC specs only for complex or risky flows.
 - In `lite` mode, emit the FRD only when the user explicitly asks for it.
+- Write incrementally: one UC at a time. Update checkpoint `progress` after each UC.
+- Do NOT write a UC that fails the 20-point checklist — fix first, then write.
 
 Save to `paths.frd`.

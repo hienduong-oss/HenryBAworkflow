@@ -56,7 +56,9 @@ Run Step 9 only. This path is read-only on upstream BA artifacts and may regener
 - `paths.wireframe_map`
 - `paths.wireframe_state`
 
-## Step 9.1 - Resolve wireframe input pack
+## Step 9 — Wireframe Handoff
+
+### Step 9.1 — Resolve Wireframe Input Pack
 
 Use `paths.wireframe_input` as the primary wireframe constraint source.
 

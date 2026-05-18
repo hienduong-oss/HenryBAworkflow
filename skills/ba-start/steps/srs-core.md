@@ -21,7 +21,7 @@ This step requires:
 - `core/contract.yaml`
 - `core/contract-behavior.md`
 
-## Step 8 - Produce SRS core, use cases, and Screen Contract Plus
+## Step 8 — Produce SRS Core, Use Cases, and Screen Contract Plus
 
 SRS is the largest artifact. Produce only the slices justified by the selected mode and artifact gates, then prepare the manual wireframe handoff pack before final screen descriptions when UI-backed scope needs design constraints.
 

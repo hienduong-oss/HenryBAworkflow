@@ -54,19 +54,149 @@ Run Step 7 only.
 
 - `paths.stories`
 
-## Step 7 - Produce user stories
+---
 
-Generate Agile user stories from the backbone feature map and FR draft using [../../../templates/user-story-template.md](../../../templates/user-story-template.md):
+## Step 7 — Produce User Stories
 
-- Epic and feature breakdown
-- User stories with acceptance criteria (Given/When/Then)
-- INVEST validation
-- Story-to-screen alignment when UI exists
+Generate Agile user stories from the backbone feature map and FR draft using `templates/user-story-template.md`.
 
-Execution rules:
+### 7.1 — Epic & Feature Breakdown
+
+Derive epics directly from backbone feature map. Each epic maps to one functional area. Features within an epic map to individual user stories.
+
+### 7.2 — Story Format (MANDATORY)
+
+Every story MUST follow this exact format:
+
+```
+As a [specific persona],
+I want to [concrete, measurable action],
+So that [distinct business value — not a restatement of the want].
+```
+
+**Persona quality guard (BLOCKING):**
+- Generic personas (`user`, `admin`, `member`) are NOT acceptable.
+- Replace with role-specific personas: `Registered Customer`, `Group Admin`, `Finance Manager`, `Guest Visitor`, `System Operator`.
+- If the backbone uses a generic persona, infer the specific role from context. If ambiguous, flag and ask.
+
+### 7.3 — INVEST Validation (per story, MANDATORY)
+
+Every story MUST pass all 6 INVEST criteria before being written to the artifact. Self-check inline — do not write a story that fails any criterion.
+
+| Criterion | Rule | Fail signal |
+|-----------|------|-------------|
+| **I — Independent** | Story can be developed and delivered without depending on another story being done first | "requires story X to be done first" |
+| **N — Negotiable** | Scope is not locked to a specific implementation; the HOW is open | Story describes UI layout, API names, or DB schema |
+| **V — Valuable** | Delivers clear value to a specific persona or the business | "So that" is vague, missing, or repeats the "I want" |
+| **E — Estimable** | Dev team can size it without needing more information | Story spans multiple systems with unclear boundaries |
+| **S — Small** | Fits within one sprint (≤ 7–8 scenarios in AC) | See Story Split Rules below |
+| **T — Testable** | QA can write test cases directly from the AC | AC uses vague language ("user-friendly", "fast", "safe") |
+
+If a story fails INVEST, apply the fix before writing:
+- Fails **I** → split or reframe to remove dependency
+- Fails **N** → remove implementation detail, keep behavior
+- Fails **V** → rewrite "So that" with a measurable outcome
+- Fails **E** → break down or add a spike story
+- Fails **S** → apply Story Split Rules (§7.5)
+- Fails **T** → rewrite AC with concrete, measurable conditions
+
+### 7.4 — Acceptance Criteria Format (MANDATORY)
+
+Every story MUST have a minimum of **3 Acceptance Criteria** covering:
+
+1. **Happy path** — the main success flow (user does X correctly, system responds Y)
+2. **Edge case / boundary** — limit condition, empty state, or validation boundary
+3. **Negative path / error** — failure handling (invalid input, permission denied, system error)
+
+Each AC MUST use **Gherkin Given-When-Then** format:
+
+```gherkin
+AC-{story_id}-{n}: {short label}
+  Given [precondition — system state or user context]
+  When  [user action or system trigger]
+  Then  [observable, measurable outcome]
+  And   [additional outcome if needed — keep to 1-2 And clauses max]
+```
+
+**AC quality rules (BLOCKING — do not write AC that violates these):**
+
+| Rule | Correct | Wrong |
+|------|---------|-------|
+| Outcomes must be measurable | "user sees error message 'Email already registered'" | "user sees an error" |
+| No implementation detail | "system sends a confirmation email" | "system calls SendGrid API" |
+| No UI specifics | "form displays validation message" | "red text appears below the input field" |
+| No vague qualifiers | "page loads within 3 seconds" | "page loads quickly" |
+| QA can write test case directly | AC describes input + action + expected output | AC describes intent only |
+
+**AC ID convention:** `AC-{EPIC_ID}-{STORY_SEQ}-{AC_SEQ}` — e.g., `AC-1-3-2` = Epic 1, Story 3, AC 2.
+
+### 7.5 — Story Split Rules
+
+Split a story when ANY of the following is true:
+
+| Trigger | Split strategy |
+|---------|---------------|
+| Story covers >1 distinct persona | One story per persona |
+| AC count would exceed 7–8 scenarios | Split by workflow phase (e.g., "initiate" vs "complete") |
+| Story covers multiple CRUD operations | One story per operation (Create / Read / Update / Delete) |
+| Story spans multiple systems or integration points | Split at system boundary |
+| "So that" clause has two distinct business values | Split into two stories, one per value |
+
+When splitting, ensure each child story independently passes INVEST.
+
+### 7.6 — Story-to-Screen Alignment
+
+When UI exists (FRD or wireframe constraints available):
+- Map each story to the screen(s) it touches using `[SCR-{nn}]` refs.
+- Verify AC field names match screen field table terminology exactly.
+- Flag any story whose AC references a field not present in the screen contract.
+
+### 7.7 — Output Structure
+
+Write to `paths.stories` using `templates/user-story-template.md`. Organize as:
+
+```
+# User Stories — {module_name}
+
+## Epic {n}: {Epic Name}
+
+### US-{n}.{m}: {Story Title}
+
+**As a** {specific persona},
+**I want to** {concrete action},
+**So that** {distinct business value}.
+
+**INVEST check:** I✓ N✓ V✓ E✓ S✓ T✓  (or flag failing criteria)
+
+**Acceptance Criteria:**
+
+AC-{n}-{m}-1: {Happy path label}
+  Given ...
+  When  ...
+  Then  ...
+
+AC-{n}-{m}-2: {Edge case label}
+  Given ...
+  When  ...
+  Then  ...
+
+AC-{n}-{m}-3: {Negative path label}
+  Given ...
+  When  ...
+  Then  ...
+
+**Screen refs:** [SCR-{nn}] (if UI exists)
+**Dependencies:** {story IDs or "none"}
+**Priority:** {MoSCoW: Must / Should / Could / Won't}
+**Estimate:** {story points or T-shirt size — leave blank if not yet sized}
+```
+
+### 7.8 — Execution Rules
 
 - Start from the exact backbone artifact only, plus the exact plan path when genuinely needed.
 - Pull the FRD only when it already exists or the current mode requires it.
 - If the user already confirmed that story generation should proceed, continue from the resolved backbone instead of reopening discovery.
-
-Save to `paths.stories`.
+- Write incrementally: one epic at a time. Update checkpoint `progress` after each epic.
+- Do NOT write a story that fails INVEST — fix first, then write.
+- Do NOT write AC that uses vague language — rewrite before writing to artifact.
+- Flag stories that need splitting before writing them; do not silently write an oversized story.

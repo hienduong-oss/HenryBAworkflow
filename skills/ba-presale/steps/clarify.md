@@ -159,7 +159,7 @@ Các lệnh khác:
   1. Quick-answer/remove for the user's own clarity before build.
   2. Generate a table to send to the client (if project is not urgent).
   In many cases the user wants to build the proposal immediately without waiting for client answers. Unanswered questions are carried forward as assumptions in WBS/Proposal with `[src:assumption:A{n}]` refs.
-- **"accept all suggestions"** = mass-update: copy every row's `Suggested Answer` into `Answered Answer` cell (add column if template uses separate cell; otherwise just flip Status→Answered with suggestion intact). Warn user: "Đã accept {N} suggestions. Bạn có thể review lại và edit từng câu bất cứ lúc nào trước khi build."
+- **"accept all suggestions"** = mass-update for `Status=Draft` rows only: copy `Suggested Answer` into the answer field and flip `Status → Assumed` (NOT `Answered` — agent-inferred answers remain Assumed until a human stakeholder explicitly confirms). `Status=Answered` rows are untouched. Warn user: "Đã accept {N} suggestions (Status=Assumed). Các câu này sẽ được carry forward là assumptions trong WBS/Proposal. Nếu bạn có xác nhận từ client, edit từng câu và đổi Status → Answered."
 
 ## Step 6 — Version bump on answer cycles
 

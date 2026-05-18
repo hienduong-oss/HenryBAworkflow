@@ -224,10 +224,18 @@ Write the header and footer of `plans/{slug}-{date}/01_intake/handoff-manifest.m
 
 **Execution rule:** MUST use Bash/Grep for all string-matching checks. Only escalate to LLM judgment when a semantic mismatch (not exact string) requires interpretation. Do NOT use LLM for checks that Grep can answer deterministically.
 
+**Source ref pattern:** `[src:...]` refs in `intake.md` may use any of these formats — all are valid:
+- `[src:wbs:1.1]`, `[src:wbs:P1]`, `[src:wbs:§2]`
+- `[src:proposal:§7.1]`, `[src:proposal:§1.1]`
+- `[src:clarify:Q1]`, `[src:assumption:A1]`
+- `[src:client:<filename>§<section>]`, `[src:domain:§<n>]`
+
+Grep pattern for ref presence check: `\[src:[a-z]`
+
 ```bash
 # Example Bash checks (adapt paths to resolved slug/date)
-grep -c "P1\|P2\|P3" plans/{slug}-{date}/01_intake/intake.md
-grep -c "\[src:" plans/{slug}-{date}/01_intake/intake.md
+grep -c "\[src:[a-z]" plans/{slug}-{date}/01_intake/intake.md
+grep -i "P1\|phase 1\|Phase 1" plans/{slug}-{date}/01_intake/intake.md
 ```
 
 Verify ALL of:

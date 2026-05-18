@@ -66,7 +66,7 @@ Run Step 5 only.
 - `paths.backbone`
 - `paths.project_memory`
 
-## Step 5 - Build the requirements backbone
+## Step 5 — Build the Requirements Backbone
 
 Create the persisted source-of-truth artifact using [../../../templates/requirements-backbone-template.md](../../../templates/requirements-backbone-template.md).
 

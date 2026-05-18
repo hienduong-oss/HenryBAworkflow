@@ -35,6 +35,11 @@ All inputs under `plans/{slug}-{date}/00_inputs/`:
 - Skim `technical/*` — capture integration & constraint signals only.
 - Read `references/*` only when explicitly relevant.
 
+**When `00_inputs/` contains only `_initial-prompt.md` (no client documents):**
+- Treat `_initial-prompt.md` as the sole requirements source.
+- Research brief MUST compensate for thin inputs: set all MUST-HAVE research objectives, expand domain coverage, and flag explicitly in Domain Primer §5 that "scope is based on initial prompt only — no client documents provided."
+- Do NOT invent scope beyond what the prompt states. Use WebSearch to fill domain knowledge gaps, not scope gaps.
+
 ## Step 2 — Research Brief Creation
 
 ### 2a. [JUDGMENT — Opus] Create project-specific research brief

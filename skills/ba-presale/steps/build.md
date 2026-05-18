@@ -185,7 +185,7 @@ Both dispatched in PARALLEL via single message containing two Agent tool calls (
 
 Each delegation packet MUST NOT require a sub-agent to write >150 lines in a single Write call. Long writes exceed connection timeout (~3 min) and produce truncated files.
 
-- **Proposal dispatch:** Split into at minimum 2 packets — Packet B1 (§1–§6, ~150 lines) and Packet B2 (§7–§11, ~150 lines). Dispatch B2 only after B1 returns successfully.
+- **Proposal dispatch:** Split into at minimum 2 packets — Packet B1 (§1–§6, ~150 lines) and Packet B2 (§7–§11, ~150 lines). **B2 MUST NOT be dispatched until B1 returns successfully AND the target file exists on disk with >30 lines.** Verify B1 output before dispatching B2.
 - **WBS dispatch:** If WBS >100 rows, split into 2 write passes (rows 1–N/2, then append rows N/2+1–end).
 - Sub-agents must use incremental Write + Edit/append pattern, not a single large Write call.
 
