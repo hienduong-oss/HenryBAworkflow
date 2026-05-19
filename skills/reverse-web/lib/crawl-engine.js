@@ -82,6 +82,8 @@ export async function crawl(startUrl, options = {}) {
   } catch {
     throw new Error(`Invalid URL: "${startUrl}". Provide a full URL including protocol (e.g. https://example.com)`);
   }
+
+  const evidenceDir = path.resolve(output);
   const screenshotsDir = path.join(evidenceDir, 'screenshots');
   const domDir = path.join(evidenceDir, 'dom');
   const networkPath = path.join(evidenceDir, 'network.ndjson');
@@ -131,7 +133,10 @@ export async function crawl(startUrl, options = {}) {
   let rateLimitHit = null; // signal from network listener (C1 fix)
 
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const context = await browser.newContext({
       userAgent: 'Mozilla/5.0 (compatible; BA-kit-reverse-web/1.0)',
     });
