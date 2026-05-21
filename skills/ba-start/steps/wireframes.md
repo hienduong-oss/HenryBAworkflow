@@ -153,6 +153,7 @@ After the handoff pack is complete:
 - Use `states.wireframe` values only: `completed`, `skipped`, `not-applicable`, `missing`.
 - This step is read-only on upstream BA artifacts.
 - It may regenerate only: `DESIGN.md`, wireframe input pack, wireframe map, and wireframe state marker.
+- Treat generated index/state/memory artifacts as `agent_facing` or `machine_facing`; keep them compact and do not duplicate source-of-truth requirement text.
 
 ## Memory Capture
 

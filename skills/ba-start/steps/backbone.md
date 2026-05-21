@@ -64,6 +64,7 @@ Run Step 5 only.
 
 - `paths.project_home`
 - `paths.backbone`
+- `paths.backbone_index`
 - `paths.project_memory`
 
 ## Step 5 — Build the Requirements Backbone
@@ -84,6 +85,7 @@ The backbone must contain:
 - assumptions, risks, and open questions
 
 After writing the backbone, initialize or refresh `paths.project_memory` using [../../../templates/project-memory-template.md](../../../templates/project-memory-template.md).
+Also create or refresh `paths.backbone_index` using [../../../templates/backbone-index-template.md](../../../templates/backbone-index-template.md).
 
 Also refresh `paths.project_home` using [../../../templates/project-home-template.md](../../../templates/project-home-template.md) so non-technical BAs can resume without understanding slug/date/module internals.
 
@@ -105,4 +107,6 @@ Backbone rules:
 - promote only the selected option's portal/module/actor/constraint decisions
 - do not import rejected options or the full comparison into `backbone.md`
 - keep the artifact concise and decision-oriented
+- treat generated index/state/memory artifacts as `agent_facing` or `machine_facing`; keep them compact and do not duplicate source-of-truth requirement text
+- keep `paths.backbone_index` as a navigator only: section names, trace IDs, module/feature hints, and short summaries; do not duplicate full requirement text
 - keep `project-memory.md` runtime-neutral so Claude Code, Codex, and Antigravity can all resume from the same accepted facts

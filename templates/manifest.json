@@ -244,5 +244,41 @@
         ]
       }
     }
+  },
+  "source-chunk-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Chỉ mục chunk nguồn (Source Chunk Index)"
+        ]
+      }
+    }
+  },
+  "backbone-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Chỉ mục backbone (Backbone Index)"
+        ]
+      }
+    }
+  },
+  "user-stories-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Chỉ mục user stories (User Stories Index)"
+        ]
+      }
+    }
+  },
+  "srs-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Chỉ mục SRS (SRS Index)"
+        ]
+      }
+    }
   }
 }

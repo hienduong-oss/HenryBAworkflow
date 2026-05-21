@@ -1,53 +1,49 @@
 # Bộ nhớ Module (Module Memory Shard) — Warm Tier
 
-> **Vai trò (Role):** Module shard schema. Chứa bộ nhớ cụ thể cho một module, thuộc warm tier.
-> Đọc shard này khi làm việc với module tương ứng — không đọc mặc định cho tất cả command.
+| Field | Value |
+| --- | --- |
+| artifact_profile | agent_facing |
+| project | [Tên dự án] |
+| slug | [initiative-slug] |
+| module_slug | [module-slug] |
+| owner | [requirements-engineer / ui-ux-designer / ba-documentation-manager] |
+| module_status | [in-progress / completed / on-hold / blocked] |
+| last_updated | [YYYY-MM-DD] |
+| stale_status | [current / stale / unknown] |
 
-**Dự án (Project):** [Tên dự án]
-**Slug:** [initiative-slug]
-**Module Slug:** [module-slug]
-**Owner:** [requirements-engineer | ui-ux-designer | ba-documentation-manager]
-**Trạng thái module (Module Status):** [in-progress | completed | on-hold | blocked]
-**Cập nhật lần cuối (Last Updated):** [YYYY-MM-DD]
+## Module Scope
 
-## Tóm tắt phạm vi module (Module Scope Summary)
+| Field | Value |
+| --- | --- |
+| summary | [1-2 line module scope] |
+| source_artifact | [backbone/frd/stories/srs path] |
 
-[Mô tả ngắn gọn phạm vi và mục tiêu của module này — tối đa 3–5 dòng]
+## Key Module Decisions
 
-## Quyết định chính của module (Key Module Decisions)
-
-| Decision ID | Quyết định | Nguồn xác nhận | Ảnh hưởng artifact |
+| Decision ID | Decision | Source | Impact |
 | --- | --- | --- | --- |
-| MOD-DEC-01 | [Quyết định cụ thể cho module này] | [User / Backbone / Impact run] | [frd, stories, srs] |
+| MOD-DEC-01 | [short module decision] | [user/backbone/impact] | [frd, stories, srs] |
 
-## Phụ thuộc chéo module (Cross-Module Dependencies)
+## Cross-Module Dependencies
 
-| Module phụ thuộc | Loại phụ thuộc | Artifact cụ thể | Trạng thái |
+| Module | Dependency Type | Artifact | Status |
 | --- | --- | --- | --- |
-| [module-slug-khác] | [data-contract \| shared-actor \| shared-rule \| integration] | [FR-XX / SCR-XX / ACT-XX] | [resolved \| pending \| blocked] |
+| [module-slug] | [data-contract/shared-actor/shared-rule/integration] | [FR/SCR/ACT] | [resolved/pending/blocked] |
 
-## Liên kết truy vết (Trace Links)
+## Trace Links
 
-| Artifact | Đường dẫn | Trạng thái |
+| Artifact | Path | Status |
 | --- | --- | --- |
-| FRD | `03_modules/[module-slug]/frd.md` | [exists \| missing] |
-| User Stories | `03_modules/[module-slug]/user-stories.md` | [exists \| missing] |
-| SRS | `03_modules/[module-slug]/srs.md` | [exists \| missing] |
-| Wireframe Input | `03_modules/[module-slug]/wireframe-input.md` | [exists \| missing \| not-applicable] |
+| FRD | `03_modules/[module-slug]/frd.md` | [exists/missing] |
+| User Stories | `03_modules/[module-slug]/user-stories.md` | [exists/missing] |
+| SRS | `03_modules/[module-slug]/srs.md` | [exists/missing] |
+| Wireframe Input | `03_modules/[module-slug]/wireframe-input.md` | [exists/missing/not-applicable] |
 
-## Vấn đề mở (Open Issues)
+## Open Issues
 
-| Issue ID | Mô tả | Blocking | Cần hành động |
+| Issue ID | Description | Blocking | Action |
 | --- | --- | --- | --- |
-| MOD-ISS-01 | [Vấn đề chưa giải quyết] | [yes \| no] | [Route impact \| Hỏi user \| Escalate] |
-
-## Ownership
-
-- **Module slug:** [{module_slug}]
-- **Module BA:** [Tên BA phụ trách module / TBD]
-- **Lead BA:** [Tên Lead BA]
-- **Last reviewed:** [YYYY-MM-DD]
-- **Cross-module dependencies:** [none / list]
+| MOD-ISS-01 | [short issue] | [yes/no] | [impact/user/escalate] |
 
 ## Promotion Trace
 

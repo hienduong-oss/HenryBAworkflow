@@ -57,6 +57,98 @@ from pathlib import Path
 
 contract_path = Path(sys.argv[1])
 contract = json.loads(contract_path.read_text(encoding="utf-8"))
+paths = contract.get("paths", {})
+commands = contract.get("commands", {})
+required_paths = {
+    "source_chunk_index",
+    "backbone_index",
+    "stories_index",
+    "srs_index",
+}
+missing_paths = sorted(required_paths - set(paths))
+if missing_paths:
+    raise SystemExit(f"Missing token optimization path(s): {', '.join(missing_paths)}")
+
+required_outputs = {
+    "intake": {"source_summary", "source_chunks_dir", "source_chunk_index"},
+    "backbone": {"backbone", "backbone_index"},
+    "stories": {"stories", "stories_index"},
+    "srs": {"srs", "srs_group", "wireframe_input", "srs_index"},
+}
+for command, expected in required_outputs.items():
+    outputs = set(commands.get(command, {}).get("outputs", []))
+    missing = sorted(expected - outputs)
+    if missing:
+        raise SystemExit(
+            f"Command '{command}' missing token optimization output(s): {', '.join(missing)}"
+        )
+
+profiles = contract.get("artifact_profiles", {})
+allowed_profiles = {"user_facing", "agent_facing", "machine_facing"}
+required_profile_keys = {
+    "source_manifest",
+    "source_summary",
+    "source_chunk_index",
+    "project_home",
+    "collab_home",
+    "module_home",
+    "review_packet",
+    "intake",
+    "plan",
+    "options_index",
+    "option_item",
+    "options_comparison",
+    "backbone",
+    "backbone_index",
+    "frd",
+    "stories",
+    "stories_index",
+    "srs",
+    "srs_index",
+    "srs_group",
+    "wireframe_input",
+    "wireframe_map",
+    "wireframe_state",
+    "compiled_frd",
+    "compiled_srs",
+    "design_doc",
+    "project_memory",
+    "memory_index",
+    "memory_log",
+    "memory_hot_vocabulary",
+    "memory_hot_decisions",
+    "memory_hot_pushback",
+    "memory_module_warm",
+}
+missing_profiles = sorted(required_profile_keys - set(profiles))
+if missing_profiles:
+    raise SystemExit(f"Missing artifact profile(s): {', '.join(missing_profiles)}")
+invalid_profiles = {
+    key: value
+    for key, value in profiles.items()
+    if value not in allowed_profiles
+}
+if invalid_profiles:
+    details = ", ".join(f"{key}={value}" for key, value in sorted(invalid_profiles.items()))
+    raise SystemExit(f"Invalid artifact profile value(s): {details}")
+unknown_profile_keys = sorted(set(profiles) - set(paths))
+if unknown_profile_keys:
+    raise SystemExit(f"Artifact profiles reference unknown path key(s): {', '.join(unknown_profile_keys)}")
+
+expected_profiles = {
+    "source_manifest": "machine_facing",
+    "compiled_frd": "user_facing",
+    "compiled_srs": "user_facing",
+    "backbone_index": "agent_facing",
+    "stories_index": "agent_facing",
+    "srs_index": "agent_facing",
+    "wireframe_state": "machine_facing",
+}
+for key, expected in expected_profiles.items():
+    actual = profiles.get(key)
+    if actual != expected:
+        raise SystemExit(f"Artifact profile mismatch for {key}: expected {expected}, got {actual}")
+
 activation = contract.get("activation", {})
 signals = set(activation.get("signals", {}))
 thresholds = activation.get("thresholds", {})
@@ -96,11 +188,126 @@ for level in ("modular", "program"):
     validate_rule(thresholds[level], f"activation.thresholds.{level}")
 PY
 
+python3 - "${ROOT_DIR}/templates/manifest.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+required_templates = {
+    "source-chunk-index-template.md",
+    "backbone-index-template.md",
+    "user-stories-index-template.md",
+    "srs-index-template.md",
+}
+missing = sorted(required_templates - set(manifest))
+if missing:
+    raise SystemExit(f"Missing token optimization template(s): {', '.join(missing)}")
+PY
+
+python3 - "${ROOT_DIR}/templates" <<'PY'
+import sys
+from pathlib import Path
+
+templates_dir = Path(sys.argv[1])
+max_bytes = {
+    "source-chunk-index-template.md": 1800,
+    "backbone-index-template.md": 1800,
+    "user-stories-index-template.md": 1800,
+    "srs-index-template.md": 1800,
+    "project-memory-index-template.md": 2600,
+    "project-memory-template.md": 2600,
+    "project-memory-hot-canonical-vocabulary-template.md": 2200,
+    "project-memory-hot-approved-decisions-template.md": 2200,
+    "project-memory-hot-pushback-triggers-template.md": 2200,
+    "project-memory-module-template.md": 2200,
+    "wireframe-map-template.md": 3600,
+    "review-packet-template.md": 2600,
+    "sub-agent-handoff-template.md": 2600,
+}
+required_tokens = {
+    "source-chunk-index-template.md": ["index_type", "source_artifact", "generated_at", "stale_status"],
+    "backbone-index-template.md": ["index_type", "source_artifact", "generated_at", "stale_status"],
+    "user-stories-index-template.md": ["index_type", "source_artifact", "generated_at", "stale_status"],
+    "srs-index-template.md": ["index_type", "source_artifact", "generated_at", "stale_status"],
+}
+for name, limit in max_bytes.items():
+    path = templates_dir / name
+    if not path.exists():
+        raise SystemExit(f"Missing compact internal template: {name}")
+    size = len(path.read_bytes())
+    if size > limit:
+        raise SystemExit(f"Internal template too large: {name} actual={size} max={limit}")
+for name, tokens in required_tokens.items():
+    text = (templates_dir / name).read_text(encoding="utf-8")
+    missing = [token for token in tokens if token not in text]
+    if missing:
+        raise SystemExit(f"Internal template missing freshness token(s): {name}: {', '.join(missing)}")
+PY
+
+python3 - "${ROOT_DIR}" <<'PY'
+import sys
+from pathlib import Path
+
+root = Path(sys.argv[1])
+checks = {
+    "core/contract-behavior.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
+    "skills/ba-start/steps/backbone.md": ["paths.backbone_index"],
+    "skills/ba-start/steps/frd.md": ["paths.backbone_index"],
+    "skills/ba-start/steps/stories.md": ["paths.backbone_index", "paths.stories_index"],
+    "skills/ba-start/steps/srs.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
+    "skills/ba-start/steps/package.md": ["paths.backbone_index", "paths.stories_index", "paths.srs_index"],
+    "skills/ba-start/steps/impact.md": ["affected_node_ids", "owner_artifact", "stale_artifacts", "read_escalation"],
+}
+for rel_path, tokens in checks.items():
+    text = (root / rel_path).read_text(encoding="utf-8")
+    missing = [token for token in tokens if token not in text]
+    if missing:
+        raise SystemExit(f"{rel_path} missing index-first token(s): {', '.join(missing)}")
+PY
+
+SOURCE_FIXTURE="${TMP_DIR}/large-source.md"
+{
+  printf '# Large Source\n\n'
+  for i in $(seq 1 24); do
+    printf '## Section %02d\n\n' "${i}"
+    printf 'Requirement %02d explains actor behavior, validation rules, workflow constraints, and reporting expectations for the BA source extraction test.\n\n' "${i}"
+  done
+} >"${SOURCE_FIXTURE}"
+
+SOURCE_CACHE_ROOT="${TMP_DIR}/source-cache/{source_hash}"
+SOURCE_EXTRACT_MANIFEST="${TMP_DIR}/source-extract-manifest.json"
+python3 "${ROOT_DIR}/scripts/source-extract.py" "${SOURCE_FIXTURE}" \
+  --cache-root "${SOURCE_CACHE_ROOT}" \
+  --chunk-chars 900 >"${SOURCE_EXTRACT_MANIFEST}"
+SOURCE_CACHE_DIR="$(python3 - "${SOURCE_EXTRACT_MANIFEST}" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+manifest = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+print(manifest["cache_dir"])
+PY
+)"
+if [[ ! -f "${SOURCE_CACHE_DIR}/chunk-index.md" ]]; then
+  echo "Missing source chunk index: ${SOURCE_CACHE_DIR}/chunk-index.md" >&2
+  exit 1
+fi
+
 python3 -m py_compile \
   "${ROOT_DIR}/scripts/source-extract.py" \
+  "${ROOT_DIR}/scripts/context-budget.py" \
   "${ROOT_DIR}/scripts/design-snapshot.py" \
   "${ROOT_DIR}/scripts/stitch-state.py" \
   "${ROOT_DIR}/scripts/runtime-parity-normalize.py"
+
+CONTEXT_BUDGET_OUTPUT="$(
+  python3 "${ROOT_DIR}/scripts/context-budget.py" --repo "${ROOT_DIR}" --command status
+)"
+if [[ "${CONTEXT_BUDGET_OUTPUT}" != *"| Profile |"* ]]; then
+  echo "context-budget output missing Profile column" >&2
+  exit 1
+fi
 
 bash -n "${ROOT_DIR}/scripts/ba-kit"
 bash -n "${ROOT_DIR}/scripts/check-token-budget.sh"

@@ -1,39 +1,34 @@
 # Quyết định đã chốt (Approved Decisions) — Hot Shard
 
-> **Vai trò (Role):** Global decisions shard. Đọc trước mọi command để tránh đảo ngược quyết định đã chốt.
-> Đây là shard hot — luôn được nạp cùng với `canonical-vocabulary.md` và `pushback-triggers.md`.
+| Field | Value |
+| --- | --- |
+| artifact_profile | agent_facing |
+| project | [Tên dự án] |
+| slug | [initiative-slug] |
+| last_updated | [YYYY-MM-DD] |
+| refresh_source | [intake / backbone / impact] |
+| stale_status | [current / stale / unknown] |
 
-**Dự án (Project):** [Tên dự án]
-**Slug:** [initiative-slug]
-**Cập nhật lần cuối (Last Updated):** [YYYY-MM-DD]
-**Nguồn làm mới (Refresh Source):** [intake | backbone | impact follow-up]
+## Decision Table
 
-## Bảng quyết định (Decision Table)
+| Decision ID | Topic | Decision | Source | Impact | Date |
+| --- | --- | --- | --- | --- | --- |
+| MEM-DEC-01 | [scope/actor/rule] | [short accepted decision] | [user/backbone/impact] | [backbone, stories, srs] | [YYYY-MM-DD] |
 
-| Decision ID | Chủ đề | Quyết định đã chốt | Nguồn xác nhận | Ảnh hưởng artifact | Ngày chốt | Confidence |
-| --- | --- | --- | --- | --- | --- | --- |
-| MEM-DEC-01 | [Scope / Actor / Navigation / Rule / Architecture] | [Nội dung quyết định rõ ràng] | [User / Backbone / Impact run] | [backbone, stories, srs] | [YYYY-MM-DD] | [high \| medium \| low] |
+## Accepted Assumptions
 
-## Giả định đã chấp nhận (Accepted Assumptions)
-
-| Assumption ID | Giả định đã chấp nhận | Điều kiện hiệu lực | Nguồn xác nhận | Cần rà lại khi nào |
+| Assumption ID | Assumption | Valid When | Source | Recheck Trigger |
 | --- | --- | --- | --- | --- |
-| MEM-ASM-01 | [Giả định] | [Khi nào được phép dùng] | [User / Backbone] | [Trigger rà lại] |
+| MEM-ASM-01 | [short assumption] | [condition] | [source] | [trigger] |
 
-## Giả định bị từ chối (Rejected Assumptions)
+## Rejected Assumptions
 
-| Reject ID | Điều không được suy diễn lại | Lý do bị loại | Nguồn xác nhận |
+| Reject ID | Do Not Infer Again | Reason | Source |
 | --- | --- | --- | --- |
-| MEM-REJ-01 | [Giả định sai / cách gọi sai / scope sai] | [Lý do] | [Impact / user correction] |
+| MEM-REJ-01 | [wrong assumption/name/scope] | [reason] | [impact/user correction] |
 
-## Correction đã chấp nhận (Accepted Corrections)
+## Accepted Corrections
 
-| Correction ID | Phát biểu correction | Node bị ảnh hưởng | Cách xử lý đã chấp nhận | Ngày |
+| Correction ID | Correction | Affected Node | Accepted Handling | Date |
 | --- | --- | --- | --- | --- |
-| MEM-COR-01 | [Correction] | [FR-01 / ACT-02 / SCR-03 / backbone] | [Rerun backbone rồi stories] | [YYYY-MM-DD] |
-
-## Ghi chú sử dụng (Usage Notes)
-
-- Khi thêm quyết định mới, tăng ID theo thứ tự `MEM-DEC-NN`.
-- Quyết định đã chốt KHÔNG được đảo ngược ngầm — phải qua `impact` trước.
-- Khi quyết định bị thay thế hoàn toàn, chuyển mục cũ sang `cold/` và ghi lý do.
+| MEM-COR-01 | [short correction] | [FR/ACT/SCR/path] | [rerun path or accepted action] | [YYYY-MM-DD] |

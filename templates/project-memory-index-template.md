@@ -1,73 +1,49 @@
 # Chỉ mục bộ nhớ dự án (Project Memory Index)
 
-> **Vai trò (Role):** Navigator giới hạn — chỉ định tuyến đến shard/module đúng. KHÔNG chứa nội dung chi tiết.
-> Chi tiết nằm trong các shard hot/warm/cold, không nằm ở đây.
+| Field | Value |
+| --- | --- |
+| artifact_profile | agent_facing |
+| project | [Tên dự án] |
+| slug | [initiative-slug] |
+| date | [YYMMDD-HHmm] |
+| mode | shard |
+| last_updated | [YYYY-MM-DD] |
+| updated_by_runtime | [claude-code / codex / antigravity] |
+| stale_status | [current / stale / unknown] |
 
-**Dự án (Project):** [Tên dự án]
-**Slug:** [initiative-slug]
-**Ngày (Date):** [YYMMDD-HHmm]
-**Chế độ (Mode):** shard
-**Cập nhật lần cuối (Last Updated):** [YYYY-MM-DD]
-**Runtime cập nhật (Updated By Runtime):** [claude-code | codex | antigravity]
+## Activation State
 
-## Trạng thái kích hoạt (Activation State)
+| Field | Value |
+| --- | --- |
+| activation_level | [Base / Modular / Program] |
+| activation_status | [provisional / locked / frozen] |
+| last_refresh | [YYYY-MM-DD / not-checked] |
+| computed_signals | module_count=[n]; owner_count=[n]; cross_module_dependency=[true/false]; delegation_slice_count=[n] |
 
-**Activation Level:** [Base | Modular | Program]
-**Activation Status:** [provisional | locked | frozen]
-**Last Activation Refresh:** [YYYY-MM-DD | not-checked]
-**Computed Signals:** module_count=[n]; owner_count=[n]; cross_module_dependency=[true|false]; delegation_slice_count=[n]
+## Shard Registry
 
-| Shard | Đường dẫn | Trạng thái | Cập nhật gần nhất |
+| Shard | Path | Status | Last Updated |
 | --- | --- | --- | --- |
-| Canonical Vocabulary | `hot/canonical-vocabulary.md` | [active \| stale \| empty] | [YYYY-MM-DD] |
-| Approved Decisions | `hot/approved-decisions.md` | [active \| stale \| empty] | [YYYY-MM-DD] |
-| Push-back Triggers | `hot/pushback-triggers.md` | [active \| stale \| empty] | [YYYY-MM-DD] |
-| Memory Log | `log.md` | [active \| not-initialized] | [YYYY-MM-DD] |
+| Canonical Vocabulary | `hot/canonical-vocabulary.md` | [active/stale/empty] | [YYYY-MM-DD] |
+| Approved Decisions | `hot/approved-decisions.md` | [active/stale/empty] | [YYYY-MM-DD] |
+| Push-back Triggers | `hot/pushback-triggers.md` | [active/stale/empty] | [YYYY-MM-DD] |
+| Memory Log | `log.md` | [active/not-initialized] | [YYYY-MM-DD] |
 
-## Module Shard (Warm)
+## Module Shards
 
-| Module Slug | Đường dẫn | Trạng thái | Ghi chú |
+| Module Slug | Path | Status | Owner |
 | --- | --- | --- | --- |
-| [module-slug] | `warm/modules/[module-slug].md` | [active \| stale \| empty] | [Ghi chú ngắn] |
-
-## Cold Archive
-
-| Chủ đề lưu trữ | Đường dẫn | Lý do lưu trữ |
-| --- | --- | --- |
-| [Chủ đề] | `cold/[filename].md` | [Thông tin đã bị thay thế / không còn hiệu lực] |
-
-## Hướng dẫn đọc (Read Guide)
-
-- Đọc hot shards trước khi bắt đầu bất kỳ command nào.
-- Đọc warm module shard tương ứng khi làm việc với module cụ thể.
-- Đọc `log.md` CHỈ KHI cần lịch sử gần đây hoặc audit context.
-- KHÔNG đọc cold shards trừ khi có lý do escalation rõ ràng.
-- File compact `project-memory.md` (nếu vẫn tồn tại) là fallback tương thích ngược.
+| [module-slug] | `warm/modules/[module-slug].md` | [active/stale/empty] | [owner] |
 
 ## Owner Metadata
 
 | Layer | Primary Owner | Role |
 | --- | --- | --- |
-| Global (hot/) | [Lead BA Name / TBD] | Lead BA |
-| Module: {module_slug} | [Module BA Name / TBD] | Module BA |
-
-## Shard Health
-
-| Shard | Last Refreshed | Status |
-| --- | --- | --- |
-| hot/canonical-vocabulary.md | [YYYY-MM-DD] | [current / stale] |
-| hot/approved-decisions.md | [YYYY-MM-DD] | [current / stale] |
-| hot/pushback-triggers.md | [YYYY-MM-DD] | [current / stale] |
-| warm/modules/{module_slug}.md | [YYYY-MM-DD] | [current / stale] |
-
-## File-Back Promotions
-
-| Record ID | Promotion Target | Approved By | Approved At |
-| --- | --- | --- | --- |
-| FB-YYMMDD-01 | [hot/approved-decisions.md] | [Lead BA / Module BA / End User] | [YYYY-MM-DD] |
+| Global hot/ | [Lead BA] | Lead BA |
+| Module: {module_slug} | [Module BA] | Module BA |
 
 ## Packet Registry
 
 | Packet ID | Path | Status | Owner |
 | --- | --- | --- | --- |
-| PKT-01 | `delegation/packets/PKT-01.md` | [queued | running | completed | needs-repartition | blocked | failed] | [owner] |
+| PKT-01 | `delegation/packets/PKT-01.md` | [queued/running/completed/blocked/failed] | [owner] |

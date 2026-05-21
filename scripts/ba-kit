@@ -20,6 +20,7 @@ Usage:
   ba-kit check-prereq <command> [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit template-section <template> <group>
   ba-kit source-extract <file> [--slug <slug>] [--date <YYMMDD-HHmm>] [--chunk-chars <n>] [--copy-raw] [--promote]
+  ba-kit context-budget [--command <command>] [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit design-snapshot [--slug <slug>] [--design-doc <path>]
   ba-kit stitch-state <init|show|upsert> --slug <slug> [options]
   ba-kit chunk-write --file <target_file>
@@ -35,6 +36,7 @@ Commands:
   check-prereq    Validate the exact prerequisite artifacts for a BA command.
   template-section  Print only the requested template group from templates/manifest.json.
   source-extract  Extract a source file into staged cache and optionally promote it into 00_source.
+  context-budget  Estimate runtime read-context bytes for a BA command.
   design-snapshot Legacy utility: generate a compact snapshot from designs/{slug}/DESIGN.md.
   stitch-state    Legacy utility: manage old Stitch-backed state files.
   chunk-write     Append incoming STDIN safely to <target_file> for large artifact mitigation.
@@ -1410,7 +1412,7 @@ PY
 
 source_extract_command() {
   local source_path="${1:-}"
-  local slug="" date_token="" chunk_chars="4000" copy_raw=0 promote=0
+  local slug="" date_token="" chunk_chars="2500" copy_raw=0 promote=0
   local repo cache_root_template cache_root_arg promoted_root=""
 
   [[ -n "${source_path}" ]] || fail "Usage: ba-kit source-extract <file> [--slug ... --date ... --chunk-chars <n> --copy-raw --promote]"
@@ -1466,6 +1468,47 @@ source_extract_command() {
     cmd+=(--promote-root "${promoted_root}")
   fi
   "${cmd[@]}"
+}
+
+context_budget_command() {
+  local command_name="status" slug="" date_token="" module_slug="" repo
+  local args=()
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --command)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --command"
+        command_name="$2"
+        shift 2
+        ;;
+      --slug)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --slug"
+        slug="$2"
+        shift 2
+        ;;
+      --date)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --date"
+        date_token="$2"
+        shift 2
+        ;;
+      --module)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --module"
+        module_slug="$2"
+        shift 2
+        ;;
+      *)
+        fail "Unsupported argument for 'context-budget': $1"
+        ;;
+    esac
+  done
+
+  repo="$(resolve_registered_repo)"
+  args=(--repo "${repo}" --command "${command_name}")
+  [[ -n "${slug}" ]] && args+=(--slug "${slug}")
+  [[ -n "${date_token}" ]] && args+=(--date "${date_token}")
+  [[ -n "${module_slug}" ]] && args+=(--module "${module_slug}")
+
+  python3 "${repo}/scripts/context-budget.py" "${args[@]}"
 }
 
 design_snapshot_command() {
@@ -1656,6 +1699,9 @@ main() {
       ;;
     source-extract)
       source_extract_command "$@"
+      ;;
+    context-budget)
+      context_budget_command "$@"
       ;;
     design-snapshot)
       design_snapshot_command "$@"
