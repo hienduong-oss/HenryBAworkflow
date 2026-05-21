@@ -73,7 +73,15 @@
     "impact_receipt": "plans/{slug}-{date}/02_backbone/impact-receipt.md",
     "options_receipt": "plans/{slug}-{date}/01_intake/options/options-receipt.md",
     "index_validation_receipt": "plans/{slug}-{date}/02_backbone/index-validation-receipt.md",
-    "package_snapshot": "plans/{slug}-{date}/02_backbone/package-snapshot.md"
+    "package_snapshot": "plans/{slug}-{date}/02_backbone/package-snapshot.md",
+    "reverse_root": "plans/{slug}-{date}/00_reverse",
+    "reverse_baseline_lock": "plans/{slug}-{date}/00_reverse/reverse-baseline-lock.json",
+    "reverse_index": "plans/{slug}-{date}/00_reverse/reverse-index.md",
+    "reverse_focus_excerpts": "plans/{slug}-{date}/00_reverse/reverse-focus-excerpts.md",
+    "reverse_evidence_ledger": "plans/{slug}-{date}/00_reverse/reverse-evidence-ledger.md",
+    "reverse_drift_state": "plans/{slug}-{date}/00_reverse/reverse-drift-state.json",
+    "reverse_read_manifest": "plans/{slug}-{date}/00_reverse/reverse-read-manifest.ndjson",
+    "behavior_reverse": "core/behavior/reverse.md"
   },
   "artifact_profiles": {
     "source_manifest": "machine_facing",
@@ -112,7 +120,13 @@
     "impact_receipt": "machine_facing",
     "options_receipt": "machine_facing",
     "index_validation_receipt": "machine_facing",
-    "package_snapshot": "machine_facing"
+    "package_snapshot": "machine_facing",
+    "reverse_baseline_lock": "machine_facing",
+    "reverse_index": "agent_facing",
+    "reverse_focus_excerpts": "agent_facing",
+    "reverse_evidence_ledger": "agent_facing",
+    "reverse_drift_state": "machine_facing",
+    "reverse_read_manifest": "machine_facing"
   },
   "patterns": {
     "date_token": "^\\d{6}-\\d{4}$",
@@ -211,6 +225,41 @@
       "mutable": false,
       "requires": [],
       "outputs": []
+    },
+    "reverse": {
+      "module_required": false,
+      "mutable": true,
+      "requires": [],
+      "outputs": ["reverse_baseline_lock", "reverse_index", "reverse_read_manifest"],
+      "notes": "Entry command for reverse mode. Performs baseline scan and locks documented_commit. Requires focus_selection before evidence promotion."
+    },
+    "reverse_status": {
+      "module_required": false,
+      "mutable": false,
+      "requires": ["reverse_baseline_lock"],
+      "outputs": [],
+      "notes": "Shows reverse lane progress: baseline lock state, focus areas, drift status, evidence ledger summary."
+    },
+    "reverse_refresh": {
+      "module_required": false,
+      "mutable": true,
+      "requires": ["reverse_baseline_lock"],
+      "outputs": ["reverse_index", "reverse_drift_state", "reverse_read_manifest"],
+      "notes": "Re-scans codebase/docs against a new commit. Updates drift state relative to documented_commit."
+    },
+    "reverse_promote": {
+      "module_required": false,
+      "mutable": true,
+      "requires": ["reverse_baseline_lock", "reverse_evidence_ledger"],
+      "outputs": ["backbone", "backbone_index"],
+      "notes": "Promotes validated evidence from reverse_evidence_ledger into canonical backbone or SRS. Requires explicit user approval per promotion batch."
+    },
+    "reverse_impact": {
+      "module_required": false,
+      "mutable": false,
+      "requires": ["reverse_baseline_lock", "reverse_evidence_ledger"],
+      "outputs": [],
+      "notes": "Classifies each pending change as as_built_drift, future_state_request, or mixed_change. Does not mutate artifacts."
     }
   },
   "behavior_shards": {
@@ -224,10 +273,28 @@
     "wireframes": ["behavior_wireframes"],
     "package": ["behavior_package_status_next"],
     "status": ["behavior_package_status_next"],
-    "next": ["behavior_package_status_next"]
+    "next": ["behavior_package_status_next"],
+    "reverse": ["behavior_reverse"],
+    "reverse_status": ["behavior_reverse"],
+    "reverse_refresh": ["behavior_reverse"],
+    "reverse_promote": ["behavior_reverse"],
+    "reverse_impact": ["behavior_reverse"]
   },
   "source_of_truth_order": ["backbone", "intake"],
   "next_step_order": ["intake", "options", "backbone", "frd", "stories", "srs", "wireframes", "package", "status"],
+  "reverse": {
+    "canonical": false,
+    "evidence_zone": true,
+    "note": "00_reverse artifacts are supporting evidence only. They are NOT in source_of_truth_order. Canonical artifacts (backbone, SRS, FRD) remain the source of truth. Reverse evidence must be explicitly promoted via reverse_promote before it affects canonical artifacts.",
+    "documented_commit_required": true,
+    "v1_constraints": {
+      "source_only": true,
+      "no_runtime_probes": true,
+      "no_app_execution": true,
+      "no_live_endpoint_verification": true
+    },
+    "change_lanes": ["as_built_drift", "future_state_request", "mixed_change"]
+  },
   "routing": {
     "impact": {
       "scope_lock_change": "intake",

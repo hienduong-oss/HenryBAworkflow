@@ -47,6 +47,11 @@ f17:f17-stories-guardrail-index-first.md:g17-stories-guardrail-index-first.md:st
 f18:f18-package-guardrail-escalated-exact-content.md:g18-package-guardrail-escalated-exact-content.md:package guardrail tracks escalated exact-content reads
 f19:f19-status-project-home-conflict.md:g19-status-project-home-conflict.md:status trusts canonical artifacts over PROJECT-HOME conflict
 f20:f20-next-project-home-conflict.md:g20-next-project-home-conflict.md:next recommends canonical step despite PROJECT-HOME conflict
+f21:f21-reverse-baseline-entry-focus-gate.md:g21-reverse-baseline-entry-focus-gate.md:reverse baseline entry blocks at HITL focus-selection gate
+f22:f22-reverse-focus-selection-blocks.md:g22-reverse-focus-selection-blocks.md:reverse focus selection blocks without explicit confirmation
+f23:f23-reverse-drift-stale-block.md:g23-reverse-drift-stale-block.md:reverse status surfaces stale index and recommends refresh
+f24:f24-reverse-mixed-change-blocks-promotion.md:g24-reverse-mixed-change-blocks-promotion.md:reverse promote blocks mixed_change evidence requiring split
+f25:f25-reverse-source-only-no-runtime-probes.md:g25-reverse-source-only-no-runtime-probes.md:reverse source-only regression blocks runtime probes in v1
 "
 
 REGISTRY_FILE="${TMPDIR:-/tmp}/ba-kit-runtime-parity-fixtures.$$"
