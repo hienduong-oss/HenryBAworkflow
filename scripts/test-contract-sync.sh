@@ -9,7 +9,7 @@ trap 'rm -rf "${TMP_DIR}"' EXIT
 legacy_hits="$(
   cd "${ROOT_DIR}" &&
     rg -n "artifact-contract\\.md|plans/reports/final|plans/reports/drafts|plans/\\{date\\}-\\{slug\\}" \
-      AGENTS.md GEMINI.md CLAUDE.md skills core scripts codex templates \
+      CLAUDE.md skills core scripts codex templates platform \
       --glob '!core/contract.yaml' \
       --glob '!rules/ba-workflow.md' \
       --glob '!scripts/test-contract-sync.sh' \

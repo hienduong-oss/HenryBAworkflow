@@ -63,7 +63,7 @@
 ### Codex
 
 ```text
-Use AGENTS.md. Read PROJECT-HOME.md for the BA-facing state, then use the BA-kit contract to run the next safe step for slug [slug].
+Use platform/codex/CODEX.md. Read PROJECT-HOME.md for the BA-facing state, then use the BA-kit contract to run the next safe step for slug [slug].
 ```
 
 ### Antigravity

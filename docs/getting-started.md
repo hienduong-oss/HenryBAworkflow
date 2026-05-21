@@ -17,7 +17,7 @@ cd bakit
 
 BA-kit supports two usage modes:
 - **Claude Code**: install BA-kit assets into `~/.claude`
-- **Codex**: open the repo and use the root `AGENTS.md`
+- **Codex**: open the repo and use `platform/codex/CODEX.md`
 
 ## 3. Install For Claude Code
 
@@ -95,7 +95,6 @@ Step-level reruns:
 /ba-start wireframes --slug warehouse-rfp --module auth-flow
 /ba-start package --slug warehouse-rfp
 /ba-start status --slug warehouse-rfp
-/ba-notion srs --slug warehouse-rfp --page https://www.notion.so/... --mode overwrite
 ```
 
 Router and deterministic helpers:
@@ -158,11 +157,11 @@ Codex does not need `install.sh`.
 
 Instead:
 1. Open this repository in Codex
-2. Make sure the root `AGENTS.md` is visible in the repo
+2. Make sure `platform/codex/CODEX.md` is visible in the repo
 3. For freeform BA requests, tell Codex to use `skills/ba-do/SKILL.md` first
 4. Tell Codex to use `skills/ba-start/SKILL.md` when the lifecycle step is explicit
 5. Point Codex to the correct template under `templates/`
-6. If you have the Codex-converted bundle, run `bash scripts/install-codex-ba-kit.sh` once to copy the skills, agents, templates, and core contract into `~/.codex`, then register Codex agents in `~/.codex/config.toml`
+6. If you have the Codex-converted bundle, run `bash platform/codex/scripts/install-codex-ba-kit.sh` once to copy the skills, agents, templates, and core contract into `~/.codex`, then register Codex agents in `~/.codex/config.toml`
 7. If you use the installer, make sure `node` is available because the registration step runs on Node.js
 8. The installer also records the source repo for the shared update command `ba-kit update`
 9. The Codex installer also copies shared BA workflows and contract references into `~/.codex/ba-kit/`
@@ -170,7 +169,7 @@ Instead:
 ### Codex Example
 
 ```text
-Use AGENTS.md and skills/ba-start/SKILL.md.
+Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
 Include use cases, Screen Contract Plus, a project runtime `DESIGN.md`, final screen descriptions, linked requirements, test cases, and wireframe constraints.
 Make the wireframe output a manual handoff pack so the user can design externally and manually attach the result to the final document.
@@ -179,7 +178,7 @@ Make the wireframe output a manual handoff pack so the user can design externall
 BA-friendly Codex resume prompt:
 
 ```text
-Use AGENTS.md.
+Use platform/codex/CODEX.md.
 Read PROJECT-HOME.md for slug warehouse-rfp if it exists.
 Tell me the next BA step in Vietnamese first, then run the safe BA-kit workflow for that step.
 ```
@@ -195,7 +194,7 @@ Produce an intake form, a requirements backbone, gated FRD/stories/SRS artifacts
 For partial reruns in Codex, be explicit about the target slug and dated set when ambiguity exists. Example:
 
 ```text
-Use AGENTS.md and skills/ba-start/SKILL.md.
+Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
 Run only the wireframe rerun path for slug warehouse-rfp.
 If multiple dated sets exist for that slug, stop and ask me which date to use.
 Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask me to refresh it before preparing the wireframe handoff pack.
@@ -206,7 +205,7 @@ Then report `/ba-start status` semantics with artifact dates, wireframe handoff 
 Change-impact triage in Codex:
 
 ```text
-Use AGENTS.md and skills/ba-start/SKILL.md.
+Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
 I am writing the SRS for slug warehouse-rfp and this new requirement arrived:
 "Export CSV must require permission, record an audit log, and show a success or failure banner."
 Run the equivalent of `/ba-start impact --slug warehouse-rfp`.
@@ -236,14 +235,13 @@ Or from inside the agents:
 
 ```text
 /ba-kit-update
-/ba-notion frd --slug warehouse-rfp --parent https://www.notion.so/... --mode create
 ```
 
 Expected behavior:
 - read the registered source repo from the local install manifests
 - fail fast if the repo has local edits, conflict state, or multiple conflicting source repos
 - run `git pull --ff-only`
-- rerun `install.sh` and/or `scripts/install-codex-ba-kit.sh` for the runtimes already installed from that repo
+- rerun `install.sh` and/or `platform/codex/scripts/install-codex-ba-kit.sh` for the runtimes already installed from that repo
 
 ## 6. Add Manual Wireframe Handoff For SRS Work
 
@@ -330,7 +328,7 @@ Packaged HTML keeps Mermaid diagrams visualized in-browser, always prefers local
 
 ## 8. Know Where To Look
 
-- Runtime instructions for Codex: [AGENTS.md](../AGENTS.md)
+- Runtime instructions for Codex: [CODEX.md](../platform/codex/CODEX.md)
 - Claude-oriented project instructions: [CLAUDE.md](../CLAUDE.md)
 - Codex-specific setup notes: [codex-setup.md](./codex-setup.md)
 - Skill catalog: [skill-catalog.md](./skill-catalog.md)
@@ -348,4 +346,3 @@ Packaged HTML keeps Mermaid diagrams visualized in-browser, always prefers local
 - Treat `/ba-start status` as the checkpoint view: it prints artifact dates plus wireframe handoff state (`completed`, `skipped`, `not-applicable`, `missing`) and any persisted wireframe input/map artifacts
 - Ask for assumptions and open questions before asking for finalization
 - Use PlantUML for swimlanes; use Mermaid for sequence, data-flow, ERD, or simpler process views
-- Use `/ba-notion` when the deliverable needs to be published into Notion rather than only packaged as local HTML

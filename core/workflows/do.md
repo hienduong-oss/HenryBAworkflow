@@ -21,7 +21,6 @@ Match intent using the first rule that fits:
 
 | If the text describes... | Route to | Why |
 | --- | --- | --- |
-| publishing to Notion | `ba-notion` | publish workflow |
 | claiming/assigning a module, sending review, checking module conflict, approving/integrating module work, or GitHub PR/commit/merge handoff | `ba-collab` | BA collaboration workflow |
 | checking status, completion, or missing artifacts | `ba-start status` | inspection path |
 | asking to continue a project, resume work, or "toi nen lam gi tiep" | `ba-next` | BA-facing continuation path |
@@ -57,7 +56,6 @@ Rules:
 - `ba-next` for "what should I do next"
 - `ba-start` for explicit lifecycle steps
 - `ba-collab` for module collaboration and approval-gated GitHub handoff
-- `ba-notion` for publishing
 
 The dispatcher must not directly edit BA artifacts.
 </step>

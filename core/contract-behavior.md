@@ -201,7 +201,7 @@ Trigger compaction before writing new entries when the file is already over 80 l
 A decision entry in `hot/approved-decisions.md` is considered stale when it has not been referenced or refreshed across ≥2 approved `impact` runs since its `Ngày chốt`.
 
 When stale decisions are detected:
-1. Flag the entry in the `Shard Health` table of `memory-index.md` with status `stale`.
+1. Flag the entry in the `Shard Health` table of `paths.memory_index` with status `stale`.
 2. On the next `impact` run, surface the stale entries to the user for re-confirmation or archival.
 3. Do not silently use a stale decision as authoritative — note its staleness when referencing it.
 4. After user re-confirms: update `Ngày chốt` and set `Confidence: high`. After user archives: move to `cold/` with `superseded_by: archived`.

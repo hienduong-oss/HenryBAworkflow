@@ -19,7 +19,8 @@
       "completed",
       "needs-repartition",
       "blocked",
-      "failed"
+      "failed",
+      "stalled"
     ],
     "heartbeat_minutes": 5,
     "stall_after_minutes": 10

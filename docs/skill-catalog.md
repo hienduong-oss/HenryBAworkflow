@@ -11,7 +11,6 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 | `ba-start` | Full BA engagement or resumable step-level reruns from raw input to packaged deliverables | `project-home-template.md`, `intake-form-template.md`, `requirements-backbone-template.md`, `frd-template.md`, `user-story-template.md`, `srs-template.md`, `design-md-template.md`, `wireframe-input-template.md`, `wireframe-map-template.md` | `requirements-engineer`, `ui-ux-designer`, `ba-documentation-manager`, `ba-researcher` | Project Home dashboard, intake form, option pack + comparison when needed, requirements backbone, gated FRD/stories/SRS artifacts, project runtime `DESIGN.md`, wireframe constraint pack, manual wireframe handoff map, FRD/SRS HTML, quality review, artifact status |
 | `ba-collab` | Module ownership, review packets, conflict checks, and approval-gated GitHub handoff | `collab-home-template.md`, `module-home-template.md`, `review-packet-template.md` | Lead BA / Module BA roles | Collab Home, Module Home, review packet, optional approved PR handoff |
 | `ba-kit-update` | Update the installed BA-kit runtime assets from the registered source repo | None | None | One-command fast-forward update and reinstall |
-| `ba-notion` | Publish an exact BA markdown artifact into Notion via MCP | None | None | Notion page created or updated from BA source content |
 
 ## Workflow
 
@@ -46,7 +45,6 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 /ba-start wireframes --slug <slug> --module <module_slug>
 /ba-start package --slug <slug>
 /ba-start status --slug <slug>
-/ba-notion srs --slug <slug> --page <url|id> --mode overwrite
 ```
 
 ## Subcommands
