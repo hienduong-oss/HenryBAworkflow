@@ -59,6 +59,7 @@ This is a true judgment point — the orchestrator must detect semantic mismatch
    - alternate flows are reflected in screen error states
    - user story acceptance criteria are covered by UC postconditions and screen validation rules
    - final screen descriptions do not redefine `Portal ID`, `Nav Schema ID`, or active/highlight behavior captured in Group C or the wireframe pack
+   - run the navigation validator described in `core/behavior/srs.md` when UI-backed screens and `paths.design_doc` exist
 
 ### Phase 11c — Cleanup `[MECHANICAL]`
 

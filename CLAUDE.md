@@ -7,9 +7,11 @@ BA-kit là lifecycle engine cho solo IT BA. Nhận raw requirements → normaliz
 ## Canonical Sources
 
 1. `core/contract.yaml` — paths, prerequisites, defaults, state enums
-2. `core/contract-behavior.md` — routing, recovery, execution locking, delegation policy
+2. `core/contract-behavior.md` — shared runtime-neutral behavior; plus the command shard in `core/behavior/` listed by `core/contract.yaml.behavior_shards`
 3. `skills/ba-start/SKILL.md` — lifecycle stub that dispatches into the active step file
 4. `skills/{skill}/steps/{step}.md` — chỉ đọc step đang active
+
+For lifecycle work, read `contract.yaml`, then shared behavior, then only the selected command behavior shard and step file.
 
 ## Language & Communication
 
@@ -19,6 +21,7 @@ BA-kit là lifecycle engine cho solo IT BA. Nhận raw requirements → normaliz
 - Xưng hô: **Tôi** (Claude) và **Bạn** (user). Không dùng "anh/em".
 
 ## Core Defaults
+
 - Default mode: `hybrid` — backbone + targeted FRD + stories + selective SRS + critical wireframes.
 - Exact slug/date/module matching only. Không chọn bằng mtime.
 - `plans/{slug}-{date}/02_backbone/project-memory.md` là persisted project memory — không dùng Claude chat memory làm system of record.
@@ -30,12 +33,9 @@ BA-kit là lifecycle engine cho solo IT BA. Nhận raw requirements → normaliz
 ## Artifact Model
 
 - Project root: `plans/{slug}-{date}/`
-- Project Home: `PROJECT-HOME.md` — BA-facing dashboard
-- Intake: `01_intake/intake.md`
-- Plan: `01_intake/plan.md`
-- Backbone: `02_backbone/backbone.md`
-- Project memory (compact): `02_backbone/project-memory.md`
-- Project memory shards: `02_backbone/project-memory/`
+- Project Home: `PROJECT-HOME.md`
+- Intake and plan: `01_intake/`
+- Backbone and memory: `02_backbone/`
 - Module artifacts: `03_modules/{module_slug}/`
 - Compiled HTML: `04_compiled/`
 - Delegation: `delegation/`, `delegation/packets/`
