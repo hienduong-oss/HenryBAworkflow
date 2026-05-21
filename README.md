@@ -2,6 +2,16 @@
 
 BA-kit là playbook Business Analysis cho Claude Code, Codex, và Antigravity. Repo này biến agent thành một BA workstation có lifecycle rõ ràng, artifact có cấu trúc, collaboration theo module, và handoff đủ chuẩn cho stakeholder/engineering.
 
+## License
+
+BA-kit is distributed under a commercial proprietary source-available license.
+This commercial proprietary license is provided on a source-available basis.
+
+Access to this repository does not grant redistribution rights. Customers may
+use, privately fork, and internally customize BA-kit only within the single
+legal entity that purchased or was granted access, subject to the terms in
+`LICENSE` and any applicable order form or MSA.
+
 Tài liệu chi tiết: [BA-kit GitBook](https://bakit.gitbook.io/)
 
 ## BA Làm Gì Với BA-kit?
@@ -117,6 +127,10 @@ designs/
 ```
 
 ## Cài Đặt Nhanh
+
+> Repo access is granted per licensed customer account. If you need access for
+> another legal entity, affiliate, contractor, or client organization, that use
+> requires a separate written commercial grant.
 
 ### Claude Code
 
