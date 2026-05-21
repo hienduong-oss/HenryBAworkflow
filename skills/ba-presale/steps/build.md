@@ -4,7 +4,7 @@ Phase 3 of the presale lifecycle. Owner: `presale-lead` (orchestrator, **Opus** 
 
 ## Checkpoint
 
-Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action**:
+Write `paths.presale_checkpoint` as the **first action**:
 ```
 step: build
 status: running
@@ -22,8 +22,8 @@ On complete, update `status: completed` and `updated`.
 Triggered by user command `/ba-presale build`. Never auto-advances from `clarify`.
 
 This step requires:
-- `plans/{slug}-{date}/00_presale/00-domain-primer.md`
-- `plans/{slug}-{date}/00_presale/05-clarifications.md` (no minimum answer threshold — unanswered questions become assumptions)
+- `paths.presale_domain_primer`
+- `paths.presale_clarifications` (no minimum answer threshold — unanswered questions become assumptions)
 - `templates/wbs-template.md`, `templates/wbs-template.csv`
 - `templates/proposal-template.md`, `templates/proposal-guide.md`
 - `templates/output-style-spec.json`
@@ -106,20 +106,20 @@ Dispatch only `wbs-builder`. Skip Proposal dispatch entirely.
 
 ```
 objective: Author WBS markdown + CSV (English) from Domain Primer + answered clarifications.
-target_md:  plans/{slug}-{date}/00_presale/10-wbs-content.md
-target_csv: plans/{slug}-{date}/00_presale/10-wbs-content.csv
+target_md:  paths.presale_wbs
+target_csv: paths.presale_wbs_csv
 templates:
   - bakit/templates/wbs-template.md
   - bakit/templates/wbs-template.csv
 inputs:
-  - plans/{slug}-{date}/00_presale/00-domain-primer.md
-  - plans/{slug}-{date}/00_presale/05-clarifications.md (Answered + Assumed rows)
+  - paths.presale_domain_primer
+  - paths.presale_clarifications (Answered + Assumed rows)
   - 00_inputs/  (read on demand)
 language: English
 source_ref_format: see rules/ba-presale-standards.md §5
 write_scope: target_md + target_csv only
 return_format: ~50-token summary (status, row counts, open flags)
-tracker: 00_presale/_state-cards/03a-wbs.md
+tracker: paths.presale_state_cards/03a-wbs.md
 
 WBS FORMAT (8 columns for Google Sheets xlsx output — MANDATORY):
   # | Category | Function | Sub-Function | Actor | Notes | Web/mobile (day) | Backend (day)
@@ -163,20 +163,20 @@ See output-style-spec.json xlsx.sheets.WBS for full color scheme, row types, and
 
 ```
 objective: Author Proposal markdown (English) from Domain Primer + answered clarifications + WBS.
-target:    plans/{slug}-{date}/00_presale/20-proposal-content.md
+target:    paths.presale_proposal
 templates:
   - bakit/templates/proposal-template.md
   - bakit/templates/proposal-guide.md
 variant:   {A_platform | B_custom}
 inputs:
-  - plans/{slug}-{date}/00_presale/00-domain-primer.md
-  - plans/{slug}-{date}/00_presale/05-clarifications.md (Answered rows only)
-  - plans/{slug}-{date}/00_presale/10-wbs-content.md  (may be in-flight; draft §1–§6, §8, §10–§11 first; stub §7, §9)
+  - paths.presale_domain_primer
+  - paths.presale_clarifications (Answered rows only)
+  - paths.presale_wbs  (may be in-flight; draft §1–§6, §8, §10–§11 first; stub §7, §9)
 language: English
 source_ref_format: see rules/ba-presale-standards.md §5
 write_scope: target only
 return_format: ~50-token summary (status, section coverage, flags)
-tracker: 00_presale/_state-cards/03b-proposal.md
+tracker: paths.presale_state_cards/03b-proposal.md
 ```
 
 Both dispatched in PARALLEL via single message containing two Agent tool calls (when "Build all" selected).
@@ -207,8 +207,8 @@ After each sub-agent returns:
 This is a true judgment point — the lead must detect semantic conflicts and anchor resolution to source priority. Opus is justified here.
 
 **Token-optimized read:** After both sub-agents return, read the sync-payload files first — NOT the full artifacts:
-- `00_presale/_state-cards/03a-wbs-sync-payload.md`
-- `00_presale/_state-cards/03b-proposal-sync-payload.md`
+- `paths.presale_state_cards/03a-wbs-sync-payload.md`
+- `paths.presale_state_cards/03b-proposal-sync-payload.md`
 
 Run the check matrix against the structured payloads. Only open the full `10-wbs-content.md` or `20-proposal-content.md` when a conflict requires reading the exact surrounding context (e.g., ambiguous wording, multi-row dependency).
 
@@ -235,7 +235,7 @@ For each conflict, anchor decision to source priority:
 - Client answer conflicts with `Assumed` → NOT a real conflict. Expected override. Update Assumed → Answered, log change, no escalation needed.
 - Client answer conflicts with `Answered` (client-confirmed) → REAL conflict. Escalate to user.
 
-Log each decision to `00_presale/_changelog/sync-{YYYYMMDD-HHmm}.md`. Dispatch surgical fix to relevant sub-agent (**model: sonnet** — single-section edit packet, mechanical dispatch). Re-run sync-check after fixes return. Loop until zero conflicts OR escalation needed.
+Log each decision to `paths.presale_changelog/sync-{YYYYMMDD-HHmm}.md`. Dispatch surgical fix to relevant sub-agent (**model: sonnet** — single-section edit packet, mechanical dispatch). Re-run sync-check after fixes return. Loop until zero conflicts OR escalation needed.
 
 **Max 2 dispatch cycles.** If conflicts remain after 2 rounds of surgical fixes, stop and escalate to user — do not dispatch a third time.
 
@@ -256,16 +256,16 @@ After sync-check passes (or immediately after dispatch return for single-target 
 ### 5a — WBS xlsx
 
 Invoke `document-skills:xlsx` with:
-- Rows: parse `10-wbs-content.csv`
+- Rows: parse `paths.presale_wbs_csv`
 - Style: `templates/output-style-spec.json` `xlsx.sheets.WBS`
 - Sheets in `10-wbs-final.xlsx`:
   - `WBS` — main table (from CSV)
-  - `Clarifications` — parsed from `05-clarifications.md` table (Status colored)
+  - `Clarifications` — parsed from `paths.presale_clarifications` table (Status colored)
   - `Summary` — phase totals (from WBS markdown §3)
   - `Assumptions` — from WBS markdown §4
 - Apply: header colors, hierarchy levels (level_1 bold + fill), totals row, status_color_map for Clarifications, freeze panes B2
 
-Output: `plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx`
+Output: `paths.presale_wbs_xlsx`
 
 ### Render isolation (CRITICAL)
 
@@ -279,12 +279,12 @@ Lead passes to render sub-agent only:
 ### 5b — Proposal docx
 
 Invoke `document-skills:docx` with:
-- Input: `20-proposal-content.md`
+- Input: `paths.presale_proposal`
 - Style: `templates/output-style-spec.json` `docx.*`
 - Apply: cover page, heading_1/2/3 styles, table styling, header/footer with `{{client_name}}` / `{{project_name}}` substitution
 - Watermark: only if `docx.watermark.show = true`
 
-Output: `plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx`
+Output: `paths.presale_proposal_docx`
 
 ### Render block conditions `[MECHANICAL]`
 
@@ -297,7 +297,7 @@ On block, list offending rows/sections, do NOT render, return user to Step 4.
 
 ## Step 6 — State card `[MECHANICAL]`
 
-Write `plans/{slug}-{date}/00_presale/_state-cards/03-build.md` (≤300 tokens, Vietnamese):
+Write `paths.presale_state_cards/03-build.md` (≤300 tokens, Vietnamese):
 - variant chosen
 - WBS row count, Proposal section count
 - conflicts found / resolved / escalated
@@ -319,12 +319,12 @@ Tóm tắt (tiếng Việt):
   - Sync conflicts:    {found}/{resolved}/{escalated}
 
 Files (English content, client-ready):
-  📊 WBS xlsx:      plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx
-  📄 Proposal docx: plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx
+  📊 WBS xlsx:      paths.presale_wbs_xlsx
+  📄 Proposal docx: paths.presale_proposal_docx
 
   Markdown sources (for surgical edits):
-  - 10-wbs-content.md
-  - 20-proposal-content.md
+  - paths.presale_wbs
+  - paths.presale_proposal
 
 Bạn có thể:
   • Bare prompt (e.g., "WBS row 2.3 effort should be 5d not 3d")

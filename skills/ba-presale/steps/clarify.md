@@ -4,7 +4,7 @@ Phase 2 of the presale lifecycle. Owner: `presale-lead` (**Opus** for gap analys
 
 ## Checkpoint
 
-Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action**:
+Write `paths.presale_checkpoint` as the **first action**:
 ```
 step: clarify
 status: running
@@ -17,7 +17,7 @@ On complete, update `status: completed` and `updated`.
 Triggered by user command `/ba-presale clarify` (never auto-advances from domain-study).
 
 This step requires:
-- `plans/{slug}-{date}/00_presale/00-domain-primer.md` (completed + user-reviewed)
+- `paths.presale_domain_primer` (completed + user-reviewed)
 - `00_inputs/` (all classes)
 - `templates/clarifications-template.md`
 - `rules/ba-presale-standards.md` §1, §5
@@ -44,7 +44,7 @@ Will:
   4. Auto-suggest a best-guess answer for each (agent's inference)
   5. Enter interactive answer loop — inline edit / batch import / skip all
 
-Output:   plans/{slug}-{date}/00_presale/05-clarifications.md
+Output:   paths.presale_clarifications
 Next gate: USER GATE — review questions + answers before /ba-presale build
 
 Proceed? (reply 'ok' to start, or type a different command)
@@ -81,7 +81,7 @@ Rules:
 
 ## Step 3 — Synthesize question list
 
-Write `plans/{slug}-{date}/00_presale/05-clarifications.md` using `templates/clarifications-template.md`.
+Write `paths.presale_clarifications` using `templates/clarifications-template.md`.
 
 Language: **English** (artifact is intended for client review).
 
@@ -120,7 +120,7 @@ Examples:
 
 ## Step 4 — State card
 
-Write `plans/{slug}-{date}/00_presale/_state-cards/02-clarify.md` (≤300 tokens, Vietnamese):
+Write `paths.presale_state_cards/02-clarify.md` (≤300 tokens, Vietnamese):
 - output: `05-clarifications.md`
 - total question count + by-category breakdown
 - count of questions whose suggested answer is agent-inferred (vs. grounded in inputs)
@@ -131,7 +131,7 @@ Write `plans/{slug}-{date}/00_presale/_state-cards/02-clarify.md` (≤300 tokens
 Print to user (Vietnamese summary + English next-step cues):
 
 ```
-✅ Clarifying questions ready: plans/{slug}-{date}/00_presale/05-clarifications.md
+✅ Clarifying questions ready: paths.presale_clarifications
 
 Tóm tắt (tiếng Việt):
   - Tổng số câu hỏi: {N}

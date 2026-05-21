@@ -4,7 +4,7 @@ Phase 4 of the presale lifecycle. Owner: `presale-lead` (inline, never delegate)
 
 ## Checkpoint
 
-Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action**:
+Write `paths.presale_checkpoint` as the **first action**:
 ```
 step: handoff
 status: running
@@ -21,12 +21,12 @@ On complete, update `status: completed` and `updated`.
 **Orchestration note:** Handoff is ~80% mechanical (file ops, template-fill, string matching). Only intake.md composition requires LLM synthesis. Use Bash for file operations, Sonnet-level effort for composition, and reserve Opus only if conflict resolution is needed during continuity check. See `presale.orchestration_mode` in `contract.yaml`.
 
 This step requires:
-- `plans/{slug}-{date}/00_presale/00-domain-primer.md`
-- `plans/{slug}-{date}/00_presale/05-clarifications.md`
-- `plans/{slug}-{date}/00_presale/10-wbs-content.md` (+ `.csv`)
-- `plans/{slug}-{date}/00_presale/20-proposal-content.md`
-- `plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx`
-- `plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx`
+- `paths.presale_domain_primer`
+- `paths.presale_clarifications`
+- `paths.presale_wbs` (+ `.csv`)
+- `paths.presale_proposal`
+- `paths.presale_wbs_xlsx`
+- `paths.presale_proposal_docx`
 - `rules/ba-presale-standards.md` §8
 
 ## Scope
@@ -70,12 +70,12 @@ Wait for `ok` before continuing.
 Boolean file-existence checks. No LLM judgment needed.
 
 Verify all of the following exist:
-- `plans/{slug}-{date}/00_presale/00-domain-primer.md`
-- `plans/{slug}-{date}/00_presale/05-clarifications.md` (with `Status=Answered` rows — no minimum threshold)
-- `plans/{slug}-{date}/00_presale/10-wbs-content.md` + `.csv`
-- `plans/{slug}-{date}/00_presale/20-proposal-content.md`
-- `plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx`
-- `plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx`
+- `paths.presale_domain_primer`
+- `paths.presale_clarifications` (with `Status=Answered` rows — no minimum threshold)
+- `paths.presale_wbs` + `.csv`
+- `paths.presale_proposal`
+- `paths.presale_wbs_xlsx`
+- `paths.presale_proposal_docx`
 
 On missing file → block with explicit list and the command that produces it (e.g., `Run /ba-presale build to produce WBS + Proposal`).
 
@@ -262,7 +262,7 @@ Fix intake.md and re-run /ba-presale handoff.
 
 ## Step 8 — State card `[MECHANICAL]`
 
-Write `plans/{slug}-{date}/00_presale/_state-cards/04-handed-off.md` (≤300 tokens, Vietnamese):
+Write `paths.presale_state_cards/04-handed-off.md` (≤300 tokens, Vietnamese):
 - intake.md + plan.md paths + versions
 - handoff-manifest.md path
 - bundle versions snapshot

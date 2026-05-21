@@ -27,21 +27,21 @@ No confirmation required — proceed directly (read-only).
 
 ## Step 1 — Resolve project
 
-Use `--slug` / `--date` if provided. Otherwise derive from cwd per `steps/bootstrap.md` Step 1 rules (`slug = basename(cwd)` kebab-case, `date = today`). If no matching `plans/{slug}-{date}/00_presale/` exists, try resolving to the most recent `plans/{slug}-*` directory for the same slug.
+Use `--slug` / `--date` if provided. Otherwise derive from cwd per `steps/bootstrap.md` Step 1 rules (`slug = basename(cwd)` kebab-case, `date = today`). If no matching `paths.presale_root` exists, try resolving to the most recent `plans/{slug}-*` directory for the same slug.
 
 On no match → print:
 ```
-⚠️  No presale workspace found at plans/{slug}-*/00_presale/.
+⚠️  No presale workspace found at paths.presale_root.
    Run /ba-presale to bootstrap a new workspace.
 ```
 
 ## Step 2 — Inspect
 
 Read:
-- `plans/{slug}-{date}/00_presale/_state-cards/*` — latest of each phase
-- `plans/{slug}-{date}/00_presale/_changelog/*` — count entries
-- `plans/{slug}-{date}/00_presale/_output/*` — list rendered files + mtimes
-- `plans/{slug}-{date}/00_presale/05-clarifications.md` — count Status=Answered/Draft/Skipped (if exists)
+- `paths.presale_state_cards/*` — latest of each phase
+- `paths.presale_changelog/*` — count entries
+- `paths.presale_output/*` — list rendered files + mtimes
+- `paths.presale_clarifications` — count Status=Answered/Draft/Skipped (if exists)
 - `plans/{slug}-{date}/01_intake/intake.md` — exists? (indicates handoff complete)
 
 ## Step 3 — Print report

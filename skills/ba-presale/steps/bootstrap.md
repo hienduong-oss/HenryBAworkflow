@@ -4,7 +4,7 @@ Phase 0 of the presale lifecycle. Owner: `presale-lead` (Sonnet). Runs automatic
 
 ## Checkpoint
 
-Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action** (create `00_presale/` dir if needed):
+Write `paths.presale_checkpoint` as the **first action** (create `paths.presale_root` dir if needed):
 ```
 step: bootstrap
 status: running
@@ -17,12 +17,12 @@ On complete, update `status: completed` and `updated`.
 **Orchestration note:** Bootstrap is 100% mechanical (file ops, classification by filename pattern). The auto-chain to domain-study is deterministic — no branching, no evaluation needed. This entire step runs at Sonnet cost level per `presale.models.bootstrap`.
 
 This step requires:
-- `core/contract.yaml` (`paths.presale_*`)
+- `core/contract.yaml` (`paths.presale_*`) — canonical presale path tokens
 - `rules/ba-presale-standards.md` §2
 
 ## Scope
 
-Auto-derive workspace slug + date from the current working directory, classify existing files into `00_inputs/` (shared raw-input store at project root), and create the `plans/{slug}-{date}/00_presale/` skeleton. **Never ask the user to organize files. Never ask for slug/date unless cwd is clearly not a project folder.**
+Auto-derive workspace slug + date from the current working directory, classify existing files into `00_inputs/` (shared raw-input store at project root), and create the `paths.presale_root` skeleton. **Never ask the user to organize files. Never ask for slug/date unless cwd is clearly not a project folder.**
 
 ## Pre-run description block (MANDATORY)
 
@@ -41,7 +41,7 @@ Will:
   4. Read all inputs + run thorough WebSearch (always, every project)
   5. Synthesize Domain Primer (Vietnamese, 8 sections)
 
-Output:   plans/{slug}-{date}/00_presale/00-domain-primer.md
+Output:   paths.presale_domain_primer
 Next gate: USER review of research findings
 
 Proceed? (reply 'ok' to start, or type a different command)
@@ -72,10 +72,10 @@ The project folder (`plans/{slug}-{date}/`) is assumed to already exist (user cr
 
 Create (idempotent — skip if exists):
 - `plans/{slug}-{date}/00_inputs/{requirements,discussions,technical,references}/` (shared across presale + ba-start)
-- `plans/{slug}-{date}/00_presale/`
-- `plans/{slug}-{date}/00_presale/_state-cards/`
-- `plans/{slug}-{date}/00_presale/_changelog/`
-- `plans/{slug}-{date}/00_presale/_output/`
+- `paths.presale_root`
+- `paths.presale_state_cards`
+- `paths.presale_changelog`
+- `paths.presale_output`
 
 Do NOT create `plans/{slug}-{date}/` itself or `01_intake/` — those are created by their owning phases (handoff creates `01_intake/`).
 
@@ -83,10 +83,10 @@ All presale artifact paths: use `paths.presale_*` from `core/contract.yaml` — 
 
 ## Step 3 — Re-run detection
 
-If `plans/{slug}-{date}/00_presale/00-domain-primer.md` already exists, STOP and ask:
+If `paths.presale_domain_primer` already exists, STOP and ask:
 
 ```
-⚠️ Existing presale artifacts detected at plans/{slug}-{date}/00_presale/.
+⚠️ Existing presale artifacts detected at paths.presale_root.
 
   - Domain Primer: exists
   - Clarifications: {exists | missing}
@@ -126,7 +126,7 @@ If cwd contains zero classifiable files:
 
 ## Step 6 — State card
 
-Write `plans/{slug}-{date}/00_presale/_state-cards/00-bootstrap.md` (≤300 tokens, Vietnamese):
+Write `paths.presale_state_cards/00-bootstrap.md` (≤300 tokens, Vietnamese):
 - slug, date, cwd
 - file counts per class
 - anomalies / unclassified files
@@ -153,14 +153,14 @@ Bootstrap is mechanical — no decisions are made. Skip memory capture for this 
 When context is lost mid-presale:
 
 **Step 1 — Check checkpoint first:**
-Read `plans/{slug}-{date}/00_presale/_checkpoint.md`.
+Read `paths.presale_checkpoint`.
 - If `status: running`: a step was interrupted. Report to user with resume options (same format as `ba-next` check_checkpoint step). Wait for user choice before proceeding.
 - If `status: completed` or file missing: proceed to Step 2.
 
 **Step 2 — Read state cards:**
-Read `plans/{slug}-{date}/00_presale/_state-cards/` — each card is ≤300 tokens and records phase id, output paths, key decisions, open issues, and next gate.
+Read `paths.presale_state_cards` — each card is ≤300 tokens and records phase id, output paths, key decisions, open issues, and next gate.
 
 1. Identify the highest-numbered card to determine the last completed phase.
 2. Resume from the next gate indicated in that card.
-3. Only read full presale artifacts (`00-domain-primer.md`, `05-clarifications.md`, `10-wbs-content.md`, `20-proposal-content.md`) when the state card references a specific open issue that requires artifact context.
+3. Only read full presale artifacts (`paths.presale_domain_primer`, `paths.presale_clarifications`, `paths.presale_wbs`, `paths.presale_proposal`) when the state card references a specific open issue that requires artifact context.
 4. Do not re-run completed phases. State cards are authoritative for phase completion status.

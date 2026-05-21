@@ -106,3 +106,18 @@ Resume từ `PROJECT-HOME.md`. Commands tắt:
 - bàn giao → `/ba-start package`
 
 Route module collaboration NLP to `ba-collab`. Commit/push/PR/merge yêu cầu explicit approval từ user.
+
+## Methodology Alignment Gate
+
+**Before executing any change to BA-kit** — merge, implement, update, refactor, or add a new skill/script/rule — run the methodology alignment checklist at `docs/methodology-alignment-checklist.md`.
+
+The checklist has 5 checks:
+1. **Methodology Coverage** — does `METHODOLOGY.md` cover the BA standard this change implements? If not, draft a new section first.
+2. **Artifact Traceability** — does the change preserve frontmatter, `[src:...]` refs, and `[ ]` OQ markers?
+3. **Quality Gate Impact** — does the change affect UC/story/screen artifacts? Verify `qc-uc-review` gate still fires.
+4. **Reverse Mode Boundary** — does the change touch reverse commands? Verify Snapshot Truth and As-Built Separation.
+5. **Local Customization Preservation** — does the change risk overwriting local-only sections (Memory Governance, `presale_detection`, `.claude/rules/ba-kit/`)?
+
+**If any check fails or is uncertain → surface to user before proceeding.**
+
+Include `methodology-check: pass` sign-off in commit message for every BA-kit change. See checklist for full sign-off format.

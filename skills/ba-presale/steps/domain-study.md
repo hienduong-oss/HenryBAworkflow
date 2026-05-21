@@ -4,7 +4,7 @@ Phase 1 of the presale lifecycle. Owner: `presale-lead` (**Opus** for synthesis)
 
 ## Checkpoint
 
-Write `plans/{slug}-{date}/00_presale/_checkpoint.md` as the **first action**:
+Write `paths.presale_checkpoint` as the **first action**:
 ```
 step: domain-study
 status: running
@@ -51,18 +51,18 @@ presale-lead creates a tailored research brief by:
 4. Filling `templates/research-brief-template.md` with project-specific context
 5. Setting MUST/SHOULD/NICE-TO-HAVE priorities based on domain scope
 
-Output: filled `research-brief.md` in `plans/{slug}-{date}/00_presale/_research/`
+Output: filled `research-brief.md` in `paths.presale_research`
 
 ### 2b. [MECHANICAL — Bash] Prepare delegation packet
 
 ```bash
-mkdir -p "plans/{slug}-{date}/00_presale/_research"
-cp "templates/research-brief-template.md" "plans/{slug}-{date}/00_presale/_research/research-brief.md"
+mkdir -p "paths.presale_research"
+cp "templates/research-brief-template.md" "paths.presale_research_brief"
 # Create tracker before dispatch
-cat > "plans/{slug}-{date}/00_presale/_state-cards/01a-researcher.md" << 'EOF'
+cat > "paths.presale_state_cards/01a-researcher.md" << 'EOF'
 status: queued
 agent: ba-researcher
-target: plans/{slug}-{date}/00_presale/_research/findings.md
+target: paths.presale_research_findings
 started: {timestamp}
 EOF
 ```
@@ -70,8 +70,8 @@ EOF
 ### 2c. [JUDGMENT — Sonnet] Execute research
 
 **Dispatch ba-researcher** with:
-- Filled research brief from `plans/{slug}-{date}/00_presale/_research/research-brief.md`
-- Tracker path: `plans/{slug}-{date}/00_presale/_state-cards/01a-researcher.md` (worker must update to `running` immediately on start, then `completed` when done)
+- Filled research brief from `paths.presale_research_brief`
+- Tracker path: `paths.presale_state_cards/01a-researcher.md` (worker must update to `running` immediately on start, then `completed` when done)
 - Research objectives: produce findings + source list + open questions + risk flags + terminology glossary
 
 ba-researcher must return:
@@ -87,7 +87,7 @@ If ba-researcher is unavailable, fall back to inline WebSearch with the same cov
 
 ## Step 3 — Author Domain Primer
 
-Read `templates/domain-primer-template.md` for structure. Write to `plans/{slug}-{date}/00_presale/00-domain-primer.md` using:
+Read `templates/domain-primer-template.md` for structure. Write to `paths.presale_domain_primer` using:
 - Step 2 research brief as primary input
 - All inputs under `00_inputs/` as secondary context
 
@@ -107,7 +107,7 @@ Concise. No marketing fluff. Every non-trivial claim carries an inline source re
 
 ## Step 4 — State card
 
-Write `plans/{slug}-{date}/00_presale/_state-cards/01-domain-study.md` (≤300 tokens, Vietnamese):
+Write `paths.presale_state_cards/01-domain-study.md` (≤300 tokens, Vietnamese):
 - output: `00-domain-primer.md`
 - key assumptions count
 - early risks count
@@ -119,7 +119,7 @@ Write `plans/{slug}-{date}/00_presale/_state-cards/01-domain-study.md` (≤300 t
 Print to user (Vietnamese summary + English next-step cues):
 
 ```
-✅ Domain Primer sẵn sàng: plans/{slug}-{date}/00_presale/00-domain-primer.md
+✅ Domain Primer sẵn sàng: paths.presale_domain_primer
 
 Tóm tắt nhanh (tiếng Việt):
   - Khách hàng: {client_name}

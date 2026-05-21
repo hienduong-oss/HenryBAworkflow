@@ -35,6 +35,24 @@ Every fact in WBS rows, Proposal sections, and clarifications carries an inline 
 
 ---
 
+## Pre-Intake Elicitation (`/brainstorm`)
+
+### Purpose
+The `/brainstorm` skill runs **before** `/ba-start intake` when the user has a raw idea rather than a structured requirements document. It conducts a structured 7-section deep interview to surface scope, actors, business goals, constraints, and open questions before any formal artifact work begins.
+
+### BABOK v3 — Elicitation & Collaboration
+The brainstorm interview maps directly to BABOK v3's *Elicitation and Collaboration* knowledge area: structured questioning to draw out stakeholder needs, surface assumptions, and identify gaps before requirements are formally documented. The 7-section structure (Context, Actors, Goals, Scope, Constraints, Risks, Open Questions) mirrors BABOK's elicitation planning and preparation activities.
+Source: IIBA, *BABOK Guide* v3, Chapter 4 — Elicitation and Collaboration.
+
+### Jeff Patton — Story Mapping as Elicitation Input
+The brainstorm output (actors + goals + scope boundaries) feeds directly into the backbone's preliminary story map (Step 5). Brainstorm is the upstream elicitation step that makes story mapping possible without a formal requirements document.
+Source: *User Story Mapping*, Jeff Patton (O'Reilly, 2014).
+
+### Output Contract
+A brainstorm artifact (`docs/{feature}/brainstorms/{idea-slug}.md`) is the accepted upstream input for `/ba-start intake` when no formal requirements document exists. It carries the same traceability obligations as other upstream artifacts: open questions are tracked with `[ ]` markers and inherited by downstream skills.
+
+---
+
 ## Requirements Flow (`/ba-start`)
 
 ### Step 1–4 — Intake & Gap Analysis
@@ -118,6 +136,62 @@ Portal ownership and route-group ownership locked at backbone level (Portal Matr
 
 ---
 
+## Reverse Mode / As-Built Documentation (`/ba-start reverse`)
+
+### Purpose
+Reverse mode reconstructs BA artifacts (FRD, user stories, SRS) from existing source code, deployed systems, or crawled web content — rather than deriving them from forward requirements. It is a first-class lane in BA-kit, not a workaround.
+
+### IEEE 830 / ISO/IEC 29148 — As-Built Documentation Concept
+IEEE 830 and ISO/IEC 29148 recognize that requirements documentation may be produced after implementation (as-built) to establish a verified baseline for maintenance, change management, and compliance audits. Reverse mode operationalizes this: the source code or deployed system is the ground truth; the BA artifacts describe what was built, not what was intended.
+Source: IEEE Std 830-1998 §3.2; ISO/IEC/IEEE 29148:2018 §6.3 (requirements for existing systems).
+
+### As-Built vs Future-State Separation (BA-kit proprietary)
+Reverse artifacts must explicitly distinguish between:
+- **As-built** — what the system currently does, derived from source/snapshot
+- **Future-state** — what the system should do, derived from forward requirements
+
+Mixing the two in a single artifact is a methodology violation. Reverse mode enforces this via the `reverse_lane` field and the Promotion Gate: an as-built artifact cannot be promoted to a forward-requirements artifact without explicit user approval and a documented delta.
+
+### Snapshot Truth Principle (BA-kit proprietary)
+Reverse mode reads from a point-in-time snapshot of the source, not from live system state. This ensures the as-built artifact is stable and auditable. The `reverse_baseline_lock` records the snapshot commit/timestamp; any drift between the snapshot and current source is surfaced by `reverse-drift-check.py` before re-running reverse commands.
+
+### No-Broad-Read Rule (BA-kit proprietary)
+Reverse mode must not read entire codebases speculatively. Discovery is index-first: read the reverse index, then targeted file sections. Broad reads require an explicit `READ_ESCALATION` with documented reason. This prevents token waste and keeps the as-built artifact scoped to verified evidence.
+
+### Reverse-Web Pipeline (BA-kit proprietary)
+When the source is a deployed web application rather than local code, the reverse-web pipeline applies:
+- **Phase 1 — Crawl**: structured web crawl produces a raw content snapshot (pages, interactions, data flows)
+- **Phase 2 — Synthesis**: the crawl output is processed by the reverse synthesis skill to produce structured BA artifacts
+
+The same Snapshot Truth and As-Built vs Future-State rules apply. The crawl timestamp serves as the `reverse_baseline_lock`.
+
+---
+
+## Automated Quality Gate (`qc-uc-review`)
+
+### Purpose
+After any mutable command that produces or modifies Use Case specifications, the `qc-uc-review` gate fires automatically to validate artifact quality before the artifact is accepted. This prevents quality debt from accumulating across the lifecycle.
+
+### 20-Point UC Quality Checklist (Wiegers/IIBA)
+The gate's `full-10ka` profile applies the 20-point UC quality checklist derived from Wiegers/IIBA standards (see Step 6 — FRD above). Every UC is validated against: naming, scope, actor specificity, precondition verifiability, postcondition completeness, Normal Course structure, Alternative Course referencing, Exception completeness, and Special Requirements separation.
+Source: *Software Requirements* 3rd ed., Karl Wiegers & Joy Beatty (Microsoft Press, 2013).
+
+### Cross-Artifact Consistency (BA-kit proprietary)
+The gate's `cross-artifact-consistency` profile checks that UC actor actions, system responses, and alternate flows are consistent with screen field behavior rules, user story acceptance criteria, and SRS screen descriptions. Inconsistency at this level is a methodology violation — the upstream artifact (user story > use case > screen > wireframe) is the source of truth.
+
+### Gate Profiles
+
+| Profile | When applied | Standards checked |
+|---------|-------------|-------------------|
+| `completeness-clarity-only` | After FRD UC draft | Wiegers 13-field completeness, Cockburn goal-level |
+| `full-10ka` | After SRS UC finalization | Full 20-point checklist, INVEST, Gherkin AC |
+| `cross-artifact-consistency` | After SRS assembly | UC ↔ screen ↔ story ↔ wireframe consistency |
+
+### Automatic Firing Rule
+The gate fires after every mutable command that touches UC artifacts. It cannot be skipped silently — a gate failure blocks the artifact from being marked `status: approved`. This enforces the quality standards in METHODOLOGY.md as a runtime constraint, not just a documentation guideline.
+
+---
+
 ## Quality Standards (applied across all artifacts)
 
 | Standard | Applied to | Source |
@@ -135,3 +209,7 @@ Portal ownership and route-group ownership locked at backbone level (Portal Matr
 | Screen Contract Plus | SRS Group C, Wireframes | BA-kit proprietary |
 | Source Traceability `[src:...]` | All presale artifacts | BA-kit proprietary |
 | Portal Matrix | Backbone, SRS, Wireframes | BA-kit proprietary |
+| BABOK v3 — Elicitation (Brainstorm) | Pre-intake idea clarification | IIBA |
+| IEEE 830 / ISO/IEC 29148 — As-Built | Reverse mode artifacts | IEEE / ISO |
+| Snapshot Truth + As-Built Separation | Reverse mode, Reverse-Web | BA-kit proprietary |
+| Automated QC Gate (20-point checklist) | UC artifacts post-mutable commands | Wiegers/IIBA + BA-kit proprietary |

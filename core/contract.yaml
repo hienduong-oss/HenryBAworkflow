@@ -86,7 +86,22 @@
     "qc_output_root": "docs/QC-{PLATFORM}/review-doc/{UC-folder-name}",
     "qc_report": "docs/QC-{PLATFORM}/review-doc/{UC-folder-name}/{filename}_audited_{slug}_v{N}.md",
     "qc_backlog": "docs/QC-{PLATFORM}/review-doc/{UC-folder-name}/{filename}_question-backlog.md",
-    "behavior_qc_review": "core/behavior/qc-review.md"
+    "behavior_qc_review": "core/behavior/qc-review.md",
+    "presale_root":              "plans/{slug}-{date}/00_presale",
+    "presale_checkpoint":        "plans/{slug}-{date}/00_presale/_checkpoint.md",
+    "presale_domain_primer":     "plans/{slug}-{date}/00_presale/00-domain-primer.md",
+    "presale_clarifications":    "plans/{slug}-{date}/00_presale/05-clarifications.md",
+    "presale_wbs":               "plans/{slug}-{date}/00_presale/10-wbs-content.md",
+    "presale_wbs_csv":           "plans/{slug}-{date}/00_presale/10-wbs-content.csv",
+    "presale_proposal":          "plans/{slug}-{date}/00_presale/20-proposal-content.md",
+    "presale_output":            "plans/{slug}-{date}/00_presale/_output",
+    "presale_wbs_xlsx":          "plans/{slug}-{date}/00_presale/_output/10-wbs-final.xlsx",
+    "presale_proposal_docx":     "plans/{slug}-{date}/00_presale/_output/20-proposal-final.docx",
+    "presale_state_cards":       "plans/{slug}-{date}/00_presale/_state-cards",
+    "presale_changelog":         "plans/{slug}-{date}/00_presale/_changelog",
+    "presale_research":          "plans/{slug}-{date}/00_presale/_research",
+    "presale_research_brief":    "plans/{slug}-{date}/00_presale/_research/research-brief.md",
+    "presale_research_findings": "plans/{slug}-{date}/00_presale/_research/findings.md"
   },
   "artifact_profiles": {
     "source_manifest": "machine_facing",
