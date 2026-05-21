@@ -16,6 +16,9 @@ yarn-error.log*
 __pycache__/
 *.pyc
 
+# Local scratch files
+extract_pdf.py
+
 # Generated artifacts
 dist/
 build/
@@ -24,6 +27,9 @@ tmp/
 temp/
 designs/**/.design-snapshot.md
 designs/**/stitch-state.json
+
+# Local Superpowers planning artifacts
+docs/superpowers/
 
 # Environment files
 .env
