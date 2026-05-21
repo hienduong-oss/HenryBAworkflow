@@ -56,6 +56,7 @@ Or ask Codex to run:
 /ba-impact --slug warehouse-rfp Khong co nhom admin user
 /ba-next --slug warehouse-rfp
 /ba-collab Toi nhan module auth-flow
+/ba-notion srs --slug warehouse-rfp --page https://www.notion.so/... --mode overwrite
 ```
 
 ## Recommended Codex Workflow
@@ -122,7 +123,7 @@ If wireframe support is needed, ask me for design decisions and persist `designs
 ### Step-Level Rerun
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start wireframes --slug warehouse-rfp --module auth-flow`.
 Use the existing Screen Contract Plus artifacts only.
 Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask to refresh it before preparing the manual wireframe handoff pack.
@@ -133,7 +134,7 @@ Do not regenerate intake, FRD, or user stories.
 ### Options Before Backbone
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start options --slug warehouse-rfp`.
 If the option pack already exists under `plans/{slug}-{date}/01_intake/options/`, review it first.
 If one option is accepted, run `/ba-start options --slug warehouse-rfp --select option-02`.
@@ -164,7 +165,7 @@ Route this BA request to the right BA-kit command:
 ### BA-Friendly Resume
 
 ```text
-Use platform/codex/CODEX.md.
+Use AGENTS.md.
 Read PROJECT-HOME.md for slug warehouse-rfp if it exists.
 Tell me the next step in BA-friendly Vietnamese first.
 Then show the internal BA-kit command equivalent and run it only if safe.
@@ -173,7 +174,7 @@ Then show the internal BA-kit command equivalent and run it only if safe.
 ### BA Collaboration
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-collab/SKILL.md.
+Use AGENTS.md and skills/ba-collab/SKILL.md.
 I claim module auth-flow.
 Create or update the collaboration artifacts, but do not commit, push, create PR, or merge without my explicit approval.
 ```
@@ -203,6 +204,17 @@ Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start status --slug warehouse-rfp`.
 Print artifact names, exists or missing status, last-modified dates, the persisted backbone, the explicit wireframe state, and any persisted wireframe input/map artifacts when present.
 Also print any delegation trackers under `plans/{slug}-{date}/delegation/`, including `running`, `blocked`, `needs-repartition`, or likely stalled slices.
+```
+
+### Publish To Notion
+
+```text
+Use AGENTS.md and skills/ba-notion/SKILL.md.
+Publish the exact `srs` artifact for slug warehouse-rfp to Notion.
+If I provided a page URL, update that page.
+If I provided only a parent page, create a new child page.
+Choose `overwrite`, `append`, or `fill-gaps` based on my request.
+Do not silently choose a slug or dated set by mtime.
 ```
 
 ### Codex Conversion
@@ -259,7 +271,7 @@ If the user manually inserts wireframe images or links into the markdown source,
 ## Good Outcomes
 
 You are set up correctly when Codex can:
-- follow `platform/codex/CODEX.md` without extra repo explanation
+- follow `AGENTS.md` without extra repo explanation
 - use `PROJECT-HOME.md` as a BA-facing resume dashboard without treating it as source of truth
 - use `COLLAB-HOME.md`, `MODULE-HOME.md`, and review packets for BA collaboration without exposing Git first
 - read the BA playbook from `skills/ba-start/SKILL.md`

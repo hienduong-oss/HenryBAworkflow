@@ -1,8 +1,13 @@
 # Runtime Antigravity Capability Spike
 
-**Status:** SPIKE PENDING EXECUTION
+**Status:** CLI CAPABILITY SCOUT COMPLETE / LIVE RUNTIME EXECUTION EXEMPT FOR V1
 **Date:** 2026-04-24
 **Phase:** 04 — Parity Harness Skeleton
+
+**Gate Impact:** Phase 3 packet/governance implementation may be considered
+complete; live Antigravity runtime execution is exempt for v1 by maintainer release
+decision. The adapter path remains manual certification until a deterministic headless
+mode exists.
 
 ---
 
@@ -20,26 +25,29 @@ building a contract that one runtime cannot satisfy.
 
 ## Capability Assessment
 
-Assessment is currently PENDING execution. The table below documents expected comparison
-dimensions. Values are filled in after spike execution.
+Assessment is partially complete from local CLI capability discovery. Live Antigravity
+chat execution is exempt for v1.
 
 | Capability | Claude Code | Codex | Antigravity |
 | --- | --- | --- | --- |
-| Read local files directly | Yes (Read tool) | Yes (file I/O) | PENDING |
-| Write local files directly | Yes (Write/Edit tools) | Yes (file I/O) | PENDING |
-| Receive context via injected packet | Yes | Yes | PENDING |
-| Parse structured markdown tables | Yes | Yes | PENDING |
-| Enforce approval gates (HITL) | Yes | Partial | PENDING |
-| Surface visible warnings to user | Yes | Yes | PENDING |
-| Resolve slug/date without mtime | Yes (explicit only) | Yes | PENDING |
-| Access system prompt / hook injection | Yes | Codex instructions | PENDING |
+| CLI present locally | Yes (`claude`) | Yes (`codex`) | Yes (`antigravity`) |
+| Headless non-interactive prompt | Yes (`claude -p`) | Yes (`codex exec`) | Not exposed in `antigravity chat --help`; manual certification adapter required |
+| Structured stdout/JSON mode | Yes (`--output-format json`) | Yes (`--json`, `--output-last-message`) | Not exposed in `antigravity chat --help` |
+| Read local files directly | Yes (Read tool) | Yes (file I/O) | EXEMPT v1 |
+| Write local files directly | Yes (Write/Edit tools) | Yes (file I/O) | EXEMPT v1 |
+| Receive context via injected packet | Yes | Yes | EXEMPT v1 |
+| Parse structured markdown tables | Yes | Yes | EXEMPT v1 |
+| Enforce approval gates (HITL) | Yes | Partial | EXEMPT v1 |
+| Surface visible warnings to user | Yes | Yes | EXEMPT v1 |
+| Resolve slug/date without mtime | Yes (explicit only) | Yes | EXEMPT v1 |
+| Access system prompt / hook injection | Yes | Codex instructions | EXEMPT v1 |
 
 ---
 
 ## Key Constraints (Suspected — Confirmation Pending)
 
-The following constraints are suspected based on publicly available Antigravity documentation
-and general agent architecture patterns. None are confirmed until spike execution.
+The following constraints are suspected from local CLI help and general agent architecture
+patterns. They are accepted as v1 release constraints because live spike execution is exempt.
 
 1. **File I/O access** — Antigravity may not have direct local file read/write. Packet
    delivery may need to be via context injection rather than file paths.
@@ -48,14 +56,19 @@ and general agent architecture patterns. None are confirmed until spike executio
    or may have different names/signatures. Packet schema fields that reference tool names
    directly (e.g., `read_scope`) may require abstraction.
 
-3. **Hook/system-prompt injection** — BA-kit relies on hook-injected context (slug, date,
+3. **Headless adapter gap** — `antigravity chat --help` does not expose a deterministic
+   stdout/JSON print mode. Automated parity may require manual certification, GUI driving,
+   or a future Antigravity adapter rather than direct shell comparison. BA-kit now uses manual
+   certification JSON under `tests/runtime-parity/certifications/antigravity/` for this runtime.
+
+4. **Hook/system-prompt injection** — BA-kit relies on hook-injected context (slug, date,
    plan path). Antigravity's equivalent mechanism is unconfirmed.
 
-4. **HITL approval gates** — The approval gate pattern requires the runtime to pause and
+5. **HITL approval gates** — The approval gate pattern requires the runtime to pause and
    present a decision to the user. Whether Antigravity supports mid-execution pause is
    unconfirmed.
 
-5. **Compact fallback warning surfacing** — Visible user-facing warnings (not log-only)
+6. **Compact fallback warning surfacing** — Visible user-facing warnings (not log-only)
    require a display mechanism. Antigravity's output channel format is unconfirmed.
 
 ---
@@ -99,7 +112,7 @@ receives the artifact content inline rather than a path to resolve independently
 **Option C — Disable runtime-specific enforcement**
 Keep manual packet usage for Antigravity but disable automated parity enforcement
 (golden checks) for Antigravity-specific fields until adapter is built.
-- Parity harness marks Antigravity rows as `EXEMPT` rather than `PENDING` or `FAIL`.
+- Parity harness marks Antigravity rows as `EXEMPT` rather than `FAIL`.
 - Revisit after Phase 3 schema is stable.
 
 **Option D — Defer richer ergonomics**
@@ -114,13 +127,14 @@ minimal portable schema only.
 When executing this spike, follow these steps:
 
 1. Provision an Antigravity instance with BA-kit installed per `antigravity-setup.md`.
-2. Submit each F01–F05 fixture's Input Command to Antigravity manually.
+2. Submit each registered fixture's Input Command to Antigravity manually (currently F01-F12).
 3. Record raw output for each fixture.
 4. Normalize output against the Behavior Envelope fields in each golden file.
 5. Mark each golden's `Antigravity` row as `PASS` or `FAIL` with a one-line reason.
 6. If any `FAIL`: identify which constraint caused it and select a mitigation option above.
 7. Update this document's Capability Assessment table and Constraints list with findings.
-8. Update status from `SPIKE PENDING EXECUTION` to `SPIKE COMPLETE` with a summary.
+8. Update status from `CLI CAPABILITY SCOUT COMPLETE / LIVE RUNTIME EXECUTION EXEMPT FOR V1` to
+   `SPIKE COMPLETE` with a summary.
 
 ---
 

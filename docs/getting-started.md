@@ -161,7 +161,7 @@ Instead:
 3. For freeform BA requests, tell Codex to use `skills/ba-do/SKILL.md` first
 4. Tell Codex to use `skills/ba-start/SKILL.md` when the lifecycle step is explicit
 5. Point Codex to the correct template under `templates/`
-6. If you have the Codex-converted bundle, run `bash platform/codex/scripts/install-codex-ba-kit.sh` once to copy the skills, agents, templates, and core contract into `~/.codex`, then register Codex agents in `~/.codex/config.toml`
+6. If you have the Codex-converted bundle, run `bash scripts/install-codex-ba-kit.sh` once to copy the skills, agents, templates, and core contract into `~/.codex`, then register Codex agents in `~/.codex/config.toml`
 7. If you use the installer, make sure `node` is available because the registration step runs on Node.js
 8. The installer also records the source repo for the shared update command `ba-kit update`
 9. The Codex installer also copies shared BA workflows and contract references into `~/.codex/ba-kit/`
@@ -178,7 +178,7 @@ Make the wireframe output a manual handoff pack so the user can design externall
 BA-friendly Codex resume prompt:
 
 ```text
-Use platform/codex/CODEX.md.
+Use AGENTS.md.
 Read PROJECT-HOME.md for slug warehouse-rfp if it exists.
 Tell me the next BA step in Vietnamese first, then run the safe BA-kit workflow for that step.
 ```
@@ -346,3 +346,4 @@ Packaged HTML keeps Mermaid diagrams visualized in-browser, always prefers local
 - Treat `/ba-start status` as the checkpoint view: it prints artifact dates plus wireframe handoff state (`completed`, `skipped`, `not-applicable`, `missing`) and any persisted wireframe input/map artifacts
 - Ask for assumptions and open questions before asking for finalization
 - Use PlantUML for swimlanes; use Mermaid for sequence, data-flow, ERD, or simpler process views
+- Use `/ba-notion` when the deliverable needs to be published into Notion rather than only packaged as local HTML

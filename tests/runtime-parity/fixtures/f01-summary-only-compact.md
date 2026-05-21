@@ -36,6 +36,8 @@ ba-start status --slug test-project
 | fallback_code | NONE |
 | approval_gate | NOT_REQUIRED |
 | source_of_truth_artifact | plans/test-project-20260424/02_backbone/project-memory.md |
+| read_scope | plans/test-project-20260424/02_backbone/project-memory.md |
+| write_target | NONE |
 
 ## Notes
 

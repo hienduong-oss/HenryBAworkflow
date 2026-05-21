@@ -17,9 +17,9 @@
 
 | Runtime | Status |
 | --- | --- |
-| Claude Code | PENDING |
-| Codex | PENDING |
-| Antigravity | PENDING |
+| Claude Code | EXEMPT v1 maintainer decision |
+| Codex | EXEMPT v1 maintainer decision |
+| Antigravity | EXEMPT v1 maintainer decision |
 
 ## Notes
 

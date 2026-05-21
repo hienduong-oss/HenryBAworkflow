@@ -4,10 +4,11 @@
 
 BA-kit là lifecycle engine cho solo IT BA. Nhận raw requirements → normalize → lock scope → build requirements backbone → emit downstream artifacts theo gate.
 
-Canonical sources (đọc theo thứ tự khi cần):
+## Canonical Sources
+
 1. `core/contract.yaml` — paths, prerequisites, defaults, state enums
 2. `core/contract-behavior.md` — routing, recovery, execution locking, delegation policy
-3. `skills/ba-start/SKILL.md` — lifecycle stub, dispatch vào step files
+3. `skills/ba-start/SKILL.md` — lifecycle stub that dispatches into the active step file
 4. `skills/{skill}/steps/{step}.md` — chỉ đọc step đang active
 
 ## Language & Communication
@@ -24,23 +25,22 @@ Canonical sources (đọc theo thứ tự khi cần):
 - Route requirement changes qua `impact` trước khi mutate downstream artifacts (trừ wording-only edits).
 - Rerun step đã được user approve → giữ locked, không reopen.
 - Large artifacts → incremental section-by-section writes để tránh output token truncation.
-- HITL behavior: push back on material ambiguity, fail-closed routing, không plausible guessing.
+- Apply runtime-neutral HITL behavior: granular artifact intervention, active push-back on material ambiguity, fail-closed routing instead of plausible guessing.
 
 ## Artifact Model
 
-```
-plans/{slug}-{date}/
-  00_presale/          ← presale artifacts (nếu có)
-  01_intake/intake.md  ← normalized requirements
-  01_intake/plan.md
-  02_backbone/backbone.md     ← source of truth
-  02_backbone/project-memory.md
-  03_modules/{module_slug}/   ← frd.md, srs.md, user-stories.md
-  04_compiled/
-  delegation/
-PROJECT-HOME.md        ← BA-facing dashboard
-designs/{slug}/DESIGN.md
-```
+- Project root: `plans/{slug}-{date}/`
+- Project Home: `PROJECT-HOME.md` — BA-facing dashboard
+- Intake: `01_intake/intake.md`
+- Plan: `01_intake/plan.md`
+- Backbone: `02_backbone/backbone.md`
+- Project memory (compact): `02_backbone/project-memory.md`
+- Project memory shards: `02_backbone/project-memory/`
+- Module artifacts: `03_modules/{module_slug}/`
+- Compiled HTML: `04_compiled/`
+- Delegation: `delegation/`, `delegation/packets/`
+- Collaboration: `COLLAB-HOME.md`, `MODULE-HOME.md`, `delegation/review-packets/`
+- Presale artifacts (nếu có): `00_presale/`
 
 ## Skills & Commands
 
@@ -76,33 +76,4 @@ Resume từ `PROJECT-HOME.md`. Commands tắt:
 - handoff UI → `/ba-start wireframes`
 - bàn giao → `/ba-start package`
 
-Commit/push/PR/merge yêu cầu explicit approval từ user.
-
-## Updating BA-kit
-
-Khi cần sửa bất kỳ file nào trong BA-kit (rules, steps, agents, templates, contract):
-1. Edit file trong `~/bakit/` (source of truth, git-controlled)
-2. Sau khi edit xong, chạy `bash ~/bakit/scripts/ba-kit-sync` để sync vào `~/.claude/`
-3. Không edit trực tiếp `~/.claude/skills/` hay `~/.claude/rules/` — những file đó là installed copy, sẽ bị overwrite khi update
-
-## Feedback Routing — BA-kit vs Project Memory
-
-Khi user correct hoặc confirm một cách làm, phân loại trước khi lưu:
-
-**Apply vào `~/bakit/` (không save memory) khi feedback liên quan đến:**
-- BA workflow behavior: routing rules, artifact gates, step logic
-- Proposal/WBS/SRS/FRD structure hoặc content rules
-- Agent behavior, delegation rules, description
-- Template content, pitfalls, style guide
-- Contract behavior, token discipline, execution locking
-
-**Save vào project memory khi feedback liên quan đến:**
-- Facts cụ thể của project: scope, stakeholders, decisions, tech stack
-- Client preferences hoặc constraints của engagement cụ thể
-- Reference paths, external URLs, Jira/Confluence IDs
-
-**Không save vào memory và không update bakit khi:**
-- Nội dung đã có trong `CLAUDE.md` (global hoặc bakit)
-- Đây là one-off instruction chỉ áp dụng cho task hiện tại
-
-Khi apply vào bakit: edit đúng file nguồn trong `~/bakit/`, sau đó chạy `bash ~/bakit/scripts/ba-kit-sync`. Không cần hỏi lại nếu file đích rõ ràng.
+Route module collaboration NLP to `ba-collab`. Commit/push/PR/merge yêu cầu explicit approval từ user.

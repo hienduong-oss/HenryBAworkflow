@@ -1,26 +1,27 @@
 # BA Start Step - Options
 
-## Checkpoint
+## Prerequisites
 
-Write `plans/{slug}-{date}/_checkpoint.md` as the **first action**:
-```
-step: options
-status: running
-command: <exact invoked command>
-started: <ISO timestamp>
-updated: <ISO timestamp>
-```
-On complete, update `status: completed` and `updated`.
+- Resolve slug and date using the shared contract
+- Require `paths.intake`
+- Read `paths.plan` when it exists
 
-This placeholder step exists to keep the Task 1 `options` command routing valid before the full Task 3 workflow is implemented.
+## Supported Intents
 
-## Current Scope
+- generate option pack from intake
+- select an existing option
+- skip optioning explicitly
 
-- Confirm the user is invoking the pre-backbone `options` stage intentionally.
-- Re-read `core/contract.yaml` and `core/contract-behavior.md` before any mutation.
-- Stop and explain that the command foundation is installed, but the end-to-end option-generation flow is deferred until the dedicated implementation task.
+## Generation Rules
 
-## Output Policy
+- Generate 1-3 option artifacts only
+- Generate or open the option cycle by updating `paths.plan` to `options status: in-progress`
+- Mark each option with `L1`, `L2`, or `L3`
+- Generate `comparison.md` only when more than one viable option exists
+- Keep options as solution briefs, not mini-backbones
 
-- Do not create or overwrite option artifacts in this placeholder stage.
-- Direct implementation work for the full optioning flow to the later `options` step task.
+## Selection / Skip Rules
+
+- `--select option-02` records `selected option` in `paths.plan` and updates `options status: completed`
+- `--skip` updates `paths.plan` to `options status: skipped`
+- After selection or skip, refresh `paths.project_home`

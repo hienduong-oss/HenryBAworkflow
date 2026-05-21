@@ -1,17 +1,19 @@
-# Golden: F02 — Freeform Routing via ba-do
+# Golden: F10 - Freeform Router Explicit-Step Fallback
 
 ## Behavior Envelope
 
 | Field | Expected Value |
 | --- | --- |
-| resolved_command | ba-impact |
+| resolved_command | STOP |
 | resolved_slug | test-project |
+| resolved_module | export |
 | source_of_truth_artifact | plans/test-project-20260424/02_backbone/backbone.md |
 | read_scope | plans/test-project-20260424/02_backbone/backbone.md |
 | write_target | NONE |
 | approval_gate | REQUIRED |
 | activation_level | Base |
-| fallback_code | NONE |
+| fallback_code | EXPLICIT_STEP_REQUIRED |
+| visible_warning | Freeform route ambiguous; choose explicit ba-start step |
 
 ## Runtime Parity Check
 
@@ -23,8 +25,5 @@
 
 ## Notes
 
-- Input is raw freeform Vietnamese text — no explicit command prefix.
-- Correct routing: freeform requirement mutation → `ba-impact`, not `ba-do` directly.
-- Any runtime that routes directly to `ba-do` and writes without impact assessment fails parity.
-- `write_target: NONE` is required at this stage; impact summary is read-only output.
-- Approval gate must be presented to user before any downstream artifact mutation.
+- Ambiguous freeform text must fail closed.
+- Runtime should ask the user to choose an explicit BA lifecycle step before any mutation.

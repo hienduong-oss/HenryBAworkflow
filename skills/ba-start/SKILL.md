@@ -1,7 +1,7 @@
 ---
 name: ba-start
 description: Lifecycle engine for BA-kit. Accepts raw requirements, normalizes them, locks scope, builds a requirements backbone, emits only the necessary downstream artifacts, and packages deliverables.
-argument-hint: "[intake|impact|options|backbone|frd|stories|srs|wireframes|package|status] [file|--slug|--date|--module|--mode]"
+argument-hint: "[intake|impact|options|backbone|frd|stories|srs|wireframes|package|status|next] [file|--slug|--date|--module|--mode|--select|--skip]"
 ---
 
 # BA Start
@@ -23,6 +23,8 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 /ba-start intake <file>
 /ba-start impact --slug <slug> [change-file]
 /ba-start options --slug <slug>
+/ba-start options --slug <slug> --select option-02
+/ba-start options --slug <slug> --skip
 /ba-start backbone --slug <slug>
 /ba-start frd --slug <slug> --module <module_slug>
 /ba-start stories --slug <slug> --module <module_slug>

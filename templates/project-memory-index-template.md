@@ -12,6 +12,11 @@
 
 ## Trạng thái kích hoạt (Activation State)
 
+**Activation Level:** [Base | Modular | Program]
+**Activation Status:** [provisional | locked | frozen]
+**Last Activation Refresh:** [YYYY-MM-DD | not-checked]
+**Computed Signals:** module_count=[n]; owner_count=[n]; cross_module_dependency=[true|false]; delegation_slice_count=[n]
+
 | Shard | Đường dẫn | Trạng thái | Cập nhật gần nhất |
 | --- | --- | --- | --- |
 | Canonical Vocabulary | `hot/canonical-vocabulary.md` | [active \| stale \| empty] | [YYYY-MM-DD] |
@@ -21,9 +26,9 @@
 
 ## Module Shard (Warm)
 
-| Module Slug | Đường dẫn | Trạng thái | Keywords | Ghi chú |
-| --- | --- | --- | --- | --- |
-| [module-slug] | `warm/modules/[module-slug].md` | [active \| stale \| empty] | [keyword1, keyword2, keyword3] | [Ghi chú ngắn] |
+| Module Slug | Đường dẫn | Trạng thái | Ghi chú |
+| --- | --- | --- | --- |
+| [module-slug] | `warm/modules/[module-slug].md` | [active \| stale \| empty] | [Ghi chú ngắn] |
 
 ## Cold Archive
 
@@ -54,3 +59,15 @@
 | hot/approved-decisions.md | [YYYY-MM-DD] | [current / stale] |
 | hot/pushback-triggers.md | [YYYY-MM-DD] | [current / stale] |
 | warm/modules/{module_slug}.md | [YYYY-MM-DD] | [current / stale] |
+
+## File-Back Promotions
+
+| Record ID | Promotion Target | Approved By | Approved At |
+| --- | --- | --- | --- |
+| FB-YYMMDD-01 | [hot/approved-decisions.md] | [Lead BA / Module BA / End User] | [YYYY-MM-DD] |
+
+## Packet Registry
+
+| Packet ID | Path | Status | Owner |
+| --- | --- | --- | --- |
+| PKT-01 | `delegation/packets/PKT-01.md` | [queued | running | completed | needs-repartition | blocked | failed] | [owner] |

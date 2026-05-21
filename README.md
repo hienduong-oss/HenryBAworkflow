@@ -2,16 +2,6 @@
 
 BA-kit là playbook Business Analysis cho Claude Code, Codex, và Antigravity. Repo này biến agent thành một BA workstation có lifecycle rõ ràng, artifact có cấu trúc, collaboration theo module, và handoff đủ chuẩn cho stakeholder/engineering.
 
-## License
-
-BA-kit is distributed under a commercial proprietary source-available license.
-This commercial proprietary license is provided on a source-available basis.
-
-Access to this repository does not grant redistribution rights. Customers may
-use, privately fork, and internally customize BA-kit only within the single
-legal entity that purchased or was granted access, subject to the terms in
-`LICENSE` and any applicable order form or MSA.
-
 Tài liệu chi tiết: [BA-kit GitBook](https://bakit.gitbook.io/)
 
 ## BA Làm Gì Với BA-kit?
@@ -128,10 +118,6 @@ designs/
 
 ## Cài Đặt Nhanh
 
-> Repo access is granted per licensed customer account. If you need access for
-> another legal entity, affiliate, contractor, or client organization, that use
-> requires a separate written commercial grant.
-
 ### Claude Code
 
 ```bash
@@ -193,6 +179,7 @@ CLI helper:
 
 ```bash
 ba-kit doctor
+ba-kit install-plantuml
 ba-kit update
 ba-kit status --slug warehouse-rfp
 ba-kit collab status --slug warehouse-rfp
@@ -235,10 +222,11 @@ User hoặc designer tự tạo mockup/wireframe rồi attach vào đúng sectio
 
 ```bash
 ba-kit doctor
+ba-kit install-plantuml
 ba-kit update
 ```
 
-`ba-kit doctor` kiểm tra runtime readiness. `ba-kit update` fast-forward source repo và reinstall các runtime đã cài.
+`ba-kit doctor` kiểm tra runtime readiness. `ba-kit install-plantuml` auto cài PlantUML local bằng package manager phù hợp để HTML packaging ưu tiên render diagram tại máy. `ba-kit update` fast-forward source repo và reinstall các runtime đã cài.
 
 ## Đọc Tiếp
 

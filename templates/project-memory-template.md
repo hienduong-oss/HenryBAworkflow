@@ -8,6 +8,8 @@
 **Slug:** [initiative-slug]
 **Ngày (Date):** [YYMMDD-HHmm]
 **Chế độ (Mode):** compact
+**Activation Level:** [Base | Modular | Program | COMPACT]
+**Activation Last Checked:** [YYYY-MM-DD | not-checked]
 **Nguồn làm mới gần nhất (Last Refresh Source):** [intake | backbone | impact follow-up]
 **Host runtime gần nhất (Last Runtime):** [claude-code | codex | antigravity | mixed]
 

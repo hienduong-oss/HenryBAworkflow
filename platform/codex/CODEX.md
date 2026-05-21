@@ -46,6 +46,7 @@ For non-trivial BA work, read `skills/ba-start/SKILL.md` first, then the contrac
 - Requirement-change triage: `skills/ba-impact/SKILL.md`
 - Next-step detection: `skills/ba-next/SKILL.md`
 - BA collaboration/GitHub handoff: `skills/ba-collab/SKILL.md`
+- Notion publishing: `skills/ba-notion/SKILL.md`:AGENTS.md
 
 When the user provides a short correction statement in an existing project context, treat it as `impact` input instead of mutating artifacts directly.
 

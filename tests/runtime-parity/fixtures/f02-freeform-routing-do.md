@@ -40,6 +40,8 @@ Thêm yêu cầu audit log cho Export CSV
 | fallback_code | NONE |
 | approval_gate | REQUIRED |
 | source_of_truth_artifact | plans/test-project-20260424/02_backbone/backbone.md |
+| read_scope | plans/test-project-20260424/02_backbone/backbone.md |
+| write_target | NONE |
 
 ## Notes
 

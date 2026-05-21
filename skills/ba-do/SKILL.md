@@ -32,5 +32,5 @@ $ARGUMENTS
 
 <process>
 Execute the BA routing workflow from `core/workflows/do.md` end-to-end.
-Dispatch to `ba-impact`, `ba-next`, `ba-start`, or `ba-collab`.
+Dispatch to `ba-impact`, `ba-next`, `ba-start`, `ba-collab`, or `ba-notion`.
 </process>
