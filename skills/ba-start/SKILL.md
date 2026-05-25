@@ -1,6 +1,6 @@
 ---
 name: ba-start
-description: Lifecycle engine for BA-kit. Accepts raw requirements, normalizes them, locks scope, builds a requirements backbone, emits only the necessary downstream artifacts, and packages deliverables.
+description: Lifecycle engine for BA-kit. Accepts raw requirements, normalizes them, locks scope, builds a requirements backbone, emits canon-first SRS artifacts, and packages deliverables.
 argument-hint: "[intake|impact|options|backbone|frd|stories|srs|wireframes|package|status|next] [file|--slug|--date|--module|--mode|--select|--skip]"
 ---
 
@@ -37,6 +37,8 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 /ba-start reverse --slug <slug> [--focus <area>] [--commit <hash>]
 ```
 
+Figma MCP sync is intentionally outside `ba-start`. Use the future `ba-figma-sync` lane only after `ba-start srs` has produced current canon sources, `srs-index.md`, `srs.md`, and `srs-compile-receipt.json`.
+
 ## Step Dispatch
 
 | Command | Read next | Notes |
@@ -48,8 +50,8 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 | `backbone` | `steps/backbone.md` | Step 5 |
 | `frd` | `steps/frd.md` | Step 6 |
 | `stories` | `steps/stories.md` | Step 7 |
-| `srs` | `steps/srs.md` | SRS router; loads narrower step files |
-| `wireframes` | `steps/wireframes.md` | Step 9 standalone |
+| `srs` | `steps/srs.md` | Canon-first SRS router; owns `screens/`, `usecases/`, `srs-index.md`, compiled `srs.md`, and compile receipt |
+| `wireframes` | `steps/wireframes.md` | Legacy transitional manual handoff only |
 | `package` | `steps/package.md` | Step 12 |
 | `status` | `steps/status.md` | inspection only |
 | `next` | `../../core/workflows/next.md` | next-step recommendation; no mutation |

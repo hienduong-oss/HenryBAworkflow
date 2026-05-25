@@ -44,9 +44,11 @@ Raw input
 -> PROJECT-HOME.md
 -> Option pack + comparison khi intake cần nhiều hướng solution
 -> Requirements Backbone
--> Module artifacts: FRD / Stories / SRS / Screen Contract Plus
--> DESIGN.md + wireframe-input.md + wireframe-map.md
--> User tự tạo mockup / wireframe
+-> Module canon artifacts: FRD / Stories / usecases/*.md / screens/*.md / srs-index.md
+-> DESIGN.md + shared-shell-contract.md
+-> Compiled SRS deliverable (`srs.md`) with screen descriptions + ASCII wireframes
+-> Optional legacy wireframe handoff artifacts during migration
+-> Optional Figma sync as downstream consumer
 -> Final SRS + HTML package
 ```
 
@@ -78,7 +80,8 @@ Lead BA chia module
 | `03_modules/{module}/frd.md` | Functional Requirements Document theo module |
 | `03_modules/{module}/user-stories.md` | User stories và acceptance criteria |
 | `03_modules/{module}/srs.md` | SRS/use case/screen spec theo module |
-| `wireframe-input.md` / `wireframe-map.md` | Gói constraint và map để user tự tạo mockup |
+| `screens/*.md` / `usecases/*.md` / `srs-index.md` | Canon authoring sources và routing layer cho SRS module |
+| `wireframe-input.md` / `wireframe-map.md` | Legacy transitional handoff artifacts cho flow manual cũ |
 | `delegation/review-packets/{module}.md` | Gói gửi Lead BA review |
 | `04_compiled/*.html` | Bản HTML stakeholder review/edit trong browser |
 | `designs/{slug}/DESIGN.md` | Design direction runtime cho UI handoff |
@@ -111,10 +114,12 @@ plans/
         MODULE-HOME.md
         frd.md
         user-stories.md
+        screens/
+        usecases/
+        data/
+        flows/
         srs.md
-        srs-group-a.md
-        srs-group-b.md
-        srs-group-c.md
+        srs-index.md
         wireframe-input.md
         wireframe-map.md
         wireframe-state.md
@@ -230,14 +235,36 @@ Agent xử lý nội bộ:
 
 ## Wireframe Handoff
 
-`/ba-start wireframes` giữ tên để tương thích ngược, nhưng không generate hình UI. Bước này chỉ chuẩn bị manual handoff pack:
+`/ba-start srs` đang chuyển dần sang mô hình canon-first:
+
+- `03_modules/{module}/screens/*.md`
+- `03_modules/{module}/usecases/*.md`
+- `03_modules/{module}/data/erd.md` khi cần
+- `03_modules/{module}/srs-index.md`
+- `03_modules/{module}/srs.md` như compiled deliverable đầy đủ
+
+Direct edit nên đi vào canon sources trước, rồi mới compile lại `srs.md`.
+
+Guardrail nhanh:
+
+```bash
+ba-kit doctor-srs plans/{slug}-{date}/03_modules/{module}
+ba-kit check-write-scope --command figma-sync plans/{slug}-{date}/03_modules/{module}/screens/scr-01.md
+```
+
+`doctor-srs` kiểm tra `srs-index.md`, screen canon schema, và compile receipt. `check-write-scope` dùng cho hook/runtime để chặn lệnh downstream như Figma sync sửa nhầm canon.
+
+`/ba-start wireframes` giữ tên để tương thích ngược trong giai đoạn migration, nhưng không generate hình UI. Bước này chỉ chuẩn bị legacy manual handoff pack:
 
 - `designs/{slug}/DESIGN.md`
+- `02_backbone/shared-shell-contract.md` (hướng mới cho ownership machine-readable)
 - `03_modules/{module}/wireframe-input.md`
 - `03_modules/{module}/wireframe-map.md`
 - `03_modules/{module}/wireframe-state.md`
 
 User hoặc designer tự tạo mockup/wireframe rồi attach vào đúng section trong SRS. Mockup không phải source of truth.
+
+Figma MCP sync là lane riêng sau SRS canon. Nó chỉ đọc `srs-index.md`, `screens/*.md`, `DESIGN.md`, `shared-shell-contract.md`, rồi ghi `figma-sync-report.md` hoặc `figma-mismatch-report.md`. Nếu Figma khác canon, sửa canon trước rồi sync lại; không sửa Figma rồi coi đó là requirement mới.
 
 ## Nâng Cấp
 

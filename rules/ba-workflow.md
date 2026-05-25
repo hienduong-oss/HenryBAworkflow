@@ -16,18 +16,19 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 5. Build the persisted requirements backbone
 6. Emit downstream artifacts from the backbone only when their gates are met
 7. Produce behavioral specifications only for complex or risky flows
-8. Produce the pre-wireframe screen spec (`Screen Contract Plus`) before any wireframe handoff when UI-backed scope exists
-9. Produce technical specification slices only when integrations, NFR risk, or handoff needs justify them
-10. Capture user-approved design decisions and persist a project `DESIGN.md` before preparing any wireframe handoff pack
-11. Produce manual wireframe constraints and handoff checklists only for critical or explicitly requested screens
-12. Run quality review and package only the artifacts actually emitted for the engagement
+8. Produce the pre-wireframe screen spec (`Screen Contract Plus`) before any downstream visual generation when UI-backed scope exists
+9. Produce canonical module `usecases/*.md`, `screens/*.md`, optional `data/erd.md`, and `srs-index.md`
+10. Produce technical specification slices only when integrations, NFR risk, or handoff needs justify them
+11. Capture user-approved design decisions and persist a project `DESIGN.md`, plus a system-level shared shell contract before downstream visual sync
+12. Produce manual wireframe constraints and handoff checklists only for critical or explicitly requested screens during migration
+13. Run quality review and package only the artifacts actually emitted for the engagement
 
 ## Agent Delegation
 
 | Agent | Scope |
 | --- | --- |
 | `requirements-engineer` | Intake refinement, requirements backbone, FRD, user stories, selective SRS content |
-| `ui-ux-designer` | Manual wireframe constraint pack and handoff checklist from SRS usage |
+| `ui-ux-designer` | Shared shell decisions, legacy manual wireframe handoff, and downstream visual sync constraints |
 | `ba-documentation-manager` | Validation pack, quality review, packaging, cross-references |
 | `ba-researcher` | Domain research, standards, market context |
 
@@ -68,8 +69,9 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 - Preserve traceability links between source, analysis, and final outputs.
 - Broken links and stale references must be corrected before handoff.
 - For UI-backed SRS work, lock the system-level `Portal Matrix` in `02_backbone/backbone.md` before module screen authoring.
-- For UI-backed SRS work, persist a project-specific runtime `designs/{slug}/DESIGN.md` before Step 9 wireframe handoff preparation.
-- The `wireframe-input.md` and `wireframe-map.md` artifacts belong inside the specific module folder: `plans/{slug}-{date}/03_modules/{module_slug}/`.
+- For UI-backed SRS work, persist a project-specific runtime `designs/{slug}/DESIGN.md` plus a system-level `shared-shell-contract.md` before downstream visual generation.
+- Canon module screen artifacts belong in `plans/{slug}-{date}/03_modules/{module_slug}/screens/`; canon use cases belong in `.../usecases/`; routing goes through `.../srs-index.md`.
+- The `wireframe-input.md` and `wireframe-map.md` artifacts remain transitional legacy outputs inside the specific module folder during migration only.
 - Persist the backbone as `plans/{slug}-{date}/02_backbone/backbone.md`. This is the default authoring source for downstream artifact emission.
 - *Breaking Change:* Legacy report filenames (e.g., `plans/reports/final/*` or `002-intake-form.md`) are completely unsupported in the modular architecture. They must be migrated manually.
 
@@ -81,10 +83,15 @@ BA-kit is optimized for a solo IT BA. The workflow should reduce duplicated writ
 - **Module Folders:** `plans/{slug}-{date}/03_modules/{module_slug}/`
 - **FRD (Module):** `.../03_modules/{module_slug}/frd.md`
 - **SRS (Module):** `.../03_modules/{module_slug}/srs.md`
+- **Screen Canon Root (Module):** `.../03_modules/{module_slug}/screens/`
+- **Use Case Canon Root (Module):** `.../03_modules/{module_slug}/usecases/`
+- **Data Canon Root (Module):** `.../03_modules/{module_slug}/data/`
+- **SRS Index (Module):** `.../03_modules/{module_slug}/srs-index.md`
 - **User stories (Module):** `.../03_modules/{module_slug}/user-stories.md`
 - **Compiled Outputs:** `plans/{slug}-{date}/04_compiled/compiled-frd.html` and `compiled-srs.html`
-- Wireframes: a manual wireframe constraint pack plus a handoff checklist for user-supplied mockups
+- Wireframes: transitional manual wireframe constraint pack plus a handoff checklist for user-supplied mockups
 - Project runtime design system document: `designs/{slug}/DESIGN.md`
+- System-level shared shell contract: `plans/{slug}-{date}/02_backbone/shared-shell-contract.md`
 - Supporting wireframe frames: use the parent screen ID prefix plus a stable suffix such as `SCR-01-EMPTY`, `SCR-01-ERROR`, or `SCR-01-TOAST-SUCCESS`
 - Modal/drawer/dialog overlays that affect flow should get their own primary `SCR-xx` IDs, not supporting-state suffix IDs
 

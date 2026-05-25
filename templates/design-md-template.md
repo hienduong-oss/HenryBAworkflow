@@ -14,7 +14,8 @@
 - Product / flow covered: [Phạm vi]
 - App type: [web-app | mobile-app]
 - Primary audience: [Người dùng chính]
-- This file is the system design document for manual wireframe creation and external design handoff in `designs/{slug}/`.
+- This file is the visual direction document for manual wireframe creation, ASCII rendering, and external design handoff in `designs/{slug}/`.
+- Machine-readable portal, navigation, shell, and layout ownership belongs in `plans/{slug}-{date}/02_backbone/shared-shell-contract.md`.
 
 ## 1. Visual Theme & Atmosphere
 
@@ -38,6 +39,7 @@
 
 Phần này là schema bắt buộc để kiểm tra menu consistency giữa các screen trong cùng portal.
 `Menu Item List` là danh sách active-menu path được phép dùng trong Screen Contract Plus. Với menu con, ghi theo dạng `Parent (Child A, Child B)` hoặc active path rõ ràng `Parent > Child`; SRS không được tự tạo path khác ngoài danh sách này.
+Trong flow canon-first, phần này là visual/BA-facing snapshot. Contract máy đọc được phải được đồng bộ sang `shared-shell-contract.md`.
 
 | Portal ID | Nav Schema ID | Navigation Pattern | Menu Item List | Default Landing | Active / Selected Rule | Breadcrumb / Back Rule | Hidden / Contextual Nav Exceptions |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -111,6 +113,7 @@ Phần này là schema bắt buộc để kiểm tra menu consistency giữa cá
 ## 10. Design Handoff Guide
 
 - Use this file as the system design document before creating any manual wireframe or mockup for this project.
+- Use the shared shell contract as the source for machine-readable portal, navigation, shell, layout, and active-menu validation.
 - Follow the approved visual tone, color roles, typography rules, and component styling consistently across all frames.
 - Strictly adhere to the Portals & Navigation architecture. Make sure global menus and sitemaps are present and consistent in all screens of their respective portals.
 - Keep behavior aligned with use cases and Screen Contract Plus. Do not invent flows that are not documented.

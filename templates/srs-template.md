@@ -1,5 +1,7 @@
 # Đặc tả yêu cầu phần mềm (Software Requirements Specification)
 
+> **Compiled deliverable:** Tài liệu này là bản SRS đọc/handoff cho stakeholder. Khi dự án dùng canon-first SRS, nguồn chỉnh sửa chính nằm ở `usecases/*.md`, `screens/*.md`, `data/erd.md`, `flows/*.md`, và `srs-index.md`; sau đó compile lại vào `srs.md`. Không chỉnh trực tiếp `srs.md` như source of truth trừ khi có manual override và backport vào canon.
+
 **Dự án (Project):** [Tên dự án]
 **Phiên bản (Version):** [v1.0]
 **Chủ sở hữu (Owner):** [BA/technical owner]
@@ -112,7 +114,7 @@ Ghi nhận mọi UI frame hoặc trạng thái cần tồn tại trong phạm vi
 > Supporting frames không bắt buộc phải có mục chi tiết đầy đủ trong SRS HTML cuối cùng. Chúng vẫn phải được liệt kê ở đây để đảm bảo truy vết bằng Screen ID và để user biết mình cần tự thiết kế hoặc annotate thêm khi cần.
 
 ## Mô tả màn hình (Screen Descriptions)
-Viết mục chi tiết màn hình đầy đủ từ use cases, Screen Contract Plus, và bộ constraint wireframe. Mọi primary screen, bao gồm modal hoặc overlay ảnh hưởng luồng người dùng, đều phải có mục chi tiết đầy đủ. User có thể tự bổ sung wireframe/mockup thủ công vào tài liệu sau; việc đó không chặn bước mô tả màn hình. Phần này chỉ enrich nội dung đã khóa ở pre-wireframe screen spec, không được tự tạo mới portal ownership hay menu behavior.
+Viết mục chi tiết màn hình đầy đủ từ use case canon, screen canon, Screen Contract Plus, và bộ constraint wireframe transitional nếu có. Mọi primary screen, bao gồm modal hoặc overlay ảnh hưởng luồng người dùng, đều phải có mục chi tiết đầy đủ. User có thể tự bổ sung wireframe/mockup thủ công vào tài liệu sau; việc đó không chặn bước mô tả màn hình. Phần này chỉ enrich nội dung đã khóa ở pre-wireframe screen spec và screen canon, không được tự tạo mới portal ownership hay menu behavior.
 
 ### Chi tiết màn hình (Screen Detail)
 **Mã màn hình (Screen ID):** [SCR-01]
@@ -128,6 +130,7 @@ Viết mục chi tiết màn hình đầy đủ từ use cases, Screen Contract 
 **Tham chiếu mockup ngoài (External Mockup Reference):** [Link / file path / ghi chú]
 **Phạm vi artifact (Artifact Scope):** [Single screen / multi-screen flow / module pack]
 **Frame hỗ trợ (Supporting Frames):** [SCR-01-EMPTY - Trạng thái rỗng, SCR-01-ERROR - Lỗi inline, SCR-01-TOAST-SUCCESS - Toast thành công]
+**Nguồn canon (Canon Source):** [`screens/scr-xx.md`]
 **Tóm tắt bố cục (Layout Summary):** [Các vùng, panel, hoặc section chính]
 **Quy tắc điều hướng (Navigation Rules):** [Menu, breadcrumbs, modal, hành vi back/next]
 **UC liên kết (Linked Use Cases):** [UC-01, UC-02]
@@ -188,7 +191,7 @@ Dùng phần này để chuẩn hóa error message, warning, success message, ba
 | MSG-INF-01 | Info | [Inline / Toast / Banner / Modal] | [Khi nào hiển thị] | [Nội dung hiển thị cho người dùng] | [Ghi chú] |
 
 ## Hướng dẫn gắn wireframe thủ công (Manual Wireframe Attachment Guide)
-User có thể dán ảnh, thêm link, hoặc để bản phác thảo text ở đây khi việc đó giúp reviewer đọc markdown riêng.
+User có thể dán ảnh, thêm link, hoặc để bản phác thảo text ở đây khi việc đó giúp reviewer đọc markdown riêng. Với flow canon-first, ASCII wireframe nên nằm trong screen canon và được compile vào đây.
 
 ```text
 +--------------------------------------------------+

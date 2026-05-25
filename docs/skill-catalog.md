@@ -8,11 +8,12 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 
 | Skill | When to Use | Related Templates | Related Agents | Typical Output |
 | --- | --- | --- | --- | --- |
-| `ba-start` | Full BA engagement, reverse as-built analysis, or resumable step-level reruns from raw input to packaged deliverables | `project-home-template.md`, `intake-form-template.md`, `requirements-backbone-template.md`, `frd-template.md`, `user-story-template.md`, `srs-template.md`, `design-md-template.md`, `wireframe-input-template.md`, `wireframe-map-template.md` | `requirements-engineer`, `ui-ux-designer`, `ba-documentation-manager`, `ba-researcher` | Project Home dashboard, intake form, option pack + comparison when needed, requirements backbone, gated FRD/stories/SRS artifacts, reverse evidence lane, project runtime `DESIGN.md`, wireframe constraint pack, manual wireframe handoff map, FRD/SRS HTML, quality review, artifact status |
+| `ba-start` | Full BA engagement, reverse as-built analysis, or resumable step-level reruns from raw input to packaged deliverables | `project-home-template.md`, `intake-form-template.md`, `requirements-backbone-template.md`, `frd-template.md`, `user-story-template.md`, `srs-template.md`, `design-md-template.md`, `wireframe-input-template.md`, `wireframe-map-template.md` | `requirements-engineer`, `ui-ux-designer`, `ba-documentation-manager`, `ba-researcher` | Project Home dashboard, intake form, option pack + comparison when needed, requirements backbone, gated FRD/stories/SRS artifacts, canon screen/use case/data sources, routing indexes, compiled SRS deliverable, reverse evidence lane, project runtime `DESIGN.md`, legacy manual wireframe handoff artifacts during migration, FRD/SRS HTML, quality review, artifact status |
 | `brainstorm` | Pre-intake idea clarification — capture and expand a raw idea through a 7-section deep interview before entering the BA lifecycle | `brainstorm-template.md` | None | Structured brainstorm doc with flows, ASCII diagrams, scenario matrix, state transitions, interrupted-tx handling, exact wording, open questions |
 | `ba-collab` | Module ownership, review packets, conflict checks, and approval-gated GitHub handoff | `collab-home-template.md`, `module-home-template.md`, `review-packet-template.md` | Lead BA / Module BA roles | Collab Home, Module Home, review packet, optional approved PR handoff |
 | `ba-kit-update` | Update the installed BA-kit runtime assets from the registered source repo | None | None | One-command fast-forward update and reinstall |
 | `ba-notion` | Publish an exact BA markdown artifact into Notion via MCP | None | None | Notion page created or updated from BA source content |
+| `ba-figma-sync` (planned) | Downstream Figma canvas sync from approved screen canon, shared shell contract, and `DESIGN.md` | `figma-sync-report-template.md`, `figma-mismatch-report-template.md` | ui-ux-designer | Figma frames, sync report, mismatch report. Must not mutate BA canon. |
 
 ## Workflow
 
@@ -40,10 +41,12 @@ After brainstorm, feed the output into `/ba-start intake` as source material.
 7. Requirements backbone production
 8. Gated FRD and user story generation
 9. Selective use case and Screen Contract Plus production when needed
-10. Design decision capture and project runtime `DESIGN.md` creation when wireframe support is justified
-11. Manual wireframe constraint-pack and handoff-map production from the persisted wireframe input pack, locked IA snapshot, and approved `DESIGN.md`
-12. Final screen description production as an enrich pass from the persisted wireframe constraints and optional manual handoff map
-13. Unified browser-editable HTML packaging and quality review across the emitted artifacts
+10. Design decision capture and project runtime `DESIGN.md` creation when UI support is justified
+11. Canon-first SRS authoring into module `screens/*.md`, `usecases/*.md`, optional `data/erd.md`, and `srs-index.md`
+12. Compiled `srs.md` production as the full reader-facing deliverable with screen descriptions and ASCII wireframes
+13. Optional downstream Figma sync from canon screen files and shared shell contract
+14. Legacy manual wireframe handoff artifacts only when the migration lane still requires them
+15. Unified browser-editable HTML packaging and quality review across the emitted artifacts
 
 `/ba-start reverse` is the as-built lane. It scans committed source files, locks a baseline commit, and builds an evidence-backed reverse index before any canonical BA artifact is updated. Future-state asks do not belong in this lane; route them through `impact` or the normal forward lifecycle. Reverse mode treats wireframes as skipped / not-applicable because it documents the current implemented system rather than proposing UI changes.
 
@@ -85,8 +88,8 @@ After brainstorm, feed the output into `/ba-start intake` as source material.
 | `backbone` | Build the persisted source-of-truth artifact after scope lock and refresh Project Home | Matching intake artifact |
 | `frd` | Produce the FRD and FRD HTML only when the gate is open | Matching backbone artifact |
 | `stories` | Produce user stories only | Matching backbone artifact |
-| `srs` | Produce grouped SRS artifacts, the persisted wireframe input pack, and merged SRS | Matching backbone and user stories |
-| `wireframes` | Re-run Step 9 from the persisted wireframe input pack or exact fallback sources | Wireframe input pack plus an approved or refreshable project `DESIGN.md`, or exact Group B + Group C / merged SRS fallback |
+| `srs` | Produce grouped SRS artifacts, canon screen/use case/data sources, routing indexes, legacy transitional wireframe input when still needed, and compiled `srs.md` | Matching backbone and user stories |
+| `wireframes` | Legacy transitional Step 9 for manual handoff artifacts only | Wireframe input pack plus an approved or refreshable project `DESIGN.md`, or exact Group B + Group C / merged SRS fallback |
 | `package` | Run quality review, validate existing packaged HTML artifacts, and regenerate only the needed packaged outputs | Emitted artifact set and non-missing wireframe state |
 | `status` | Print artifact checklist with dates | Resolved slug and dated set |
 | `reverse` | Scan committed source files, lock the baseline commit, and build the reverse evidence index | None (creates `00_reverse/` lane) |
@@ -106,8 +109,8 @@ Subcommand targeting rules:
 
 | Agent | Role in Workflow |
 | --- | --- |
-| `requirements-engineer` | Backbone, FRD, user stories, use cases, Screen Contract Plus, final screen descriptions |
-| `ui-ux-designer` | Manual wireframe constraint-pack and handoff-map preparation from use cases, pre-wireframe screen spec, locked IA snapshot, and approved `DESIGN.md` |
+| `requirements-engineer` | Backbone, FRD, user stories, use cases, Screen Contract Plus, canon screen descriptions, compiled SRS sections |
+| `ui-ux-designer` | Runtime `DESIGN.md`, shared-shell decisions, legacy manual handoff prep, and future downstream Figma/visual consumers |
 | `ba-documentation-manager` | Validation pack, quality review, consistency, packaging |
 | `ba-researcher` | Domain research when external context is needed |
 
@@ -122,7 +125,13 @@ Packaged HTML artifacts are meant to be edited in the browser. Update copy, swap
 
 If the user manually inserts wireframe images or links into the markdown source, the packaged HTML preserves those references only when the asset path stays inside the allowed base directory. Mermaid diagrams are rendered explicitly after the DOM is ready, and PlantUML diagrams always prefer local rendering. Use `ba-kit install-plantuml` or the renderer's `--auto-install-plantuml` option before falling back to a configured server.
 
-`/ba-start status` reports `PROJECT-HOME.md` first as the BA-facing dashboard, then regular artifacts as exists or missing with last-modified dates, including the persisted backbone. Wireframe handoff is reported as `completed`, `skipped`, `not-applicable`, or `missing` from the explicit wireframe-state marker, and completed runs should expose the project runtime `DESIGN.md` together with the persisted wireframe input pack and wireframe map. Delegated slices should also appear from their trackers, with likely stalled slices flagged when heartbeats go stale.
+`/ba-start status` reports `PROJECT-HOME.md` first as the BA-facing dashboard, then regular artifacts as exists or missing with last-modified dates, including the persisted backbone. For SRS modules it must also show `srs-index.md`, canon source counts under `screens/`, `usecases/`, `data/`, `flows/`, compiled `srs.md`, and `srs-compile-receipt.json` freshness. Shared shell files (`DESIGN.md`, `shared-shell-contract.md`, `shared-shell-index.md`) are reported separately because menu/layout ownership is system-level. During migration, wireframe handoff is still reported as `completed`, `skipped`, `not-applicable`, or `missing` from the explicit wireframe-state marker, but `next` should route legacy-only SRS modules back through `/ba-start srs` for canon migration instead of treating wireframe artifacts as source of truth. Delegated slices should also appear from their trackers, with likely stalled slices flagged when heartbeats go stale.
+
+Runtime guardrail helpers:
+
+- `ba-kit doctor-srs <module_root>` validates SRS index paths, screen canon schema, source-of-truth invariants, and compile receipt presence.
+- `ba-kit check-write-scope --command <command> <path>...` blocks downstream commands such as `figma-sync` and `package` from mutating canon files.
+- `ba-kit check-srs-index`, `ba-kit check-screen-canon`, and `ba-kit check-source-of-truth` expose the narrow validators for hooks and CI.
 
 ## Expected Quality Bar
 
@@ -131,7 +140,7 @@ If the user manually inserts wireframe images or links into the markdown source,
 - Every requirement has acceptance criteria
 - Use cases cover primary and alternate flows
 - Screen descriptions use field tables with Display/Behaviour/Validation rules
-- Approved `DESIGN.md` decisions are reflected in the wireframe constraint pack and any user-supplied wireframes
+- Approved `DESIGN.md` decisions are reflected in the shared shell contract, canon screen sources, and any user-supplied wireframes or downstream Figma outputs
 - Every SRS requirement, use case, and screen traces to user stories
 - Diagrams use PlantUML for swimlanes and Mermaid for the rest
 - Risks, assumptions, and open questions are visible

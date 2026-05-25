@@ -205,8 +205,8 @@ require_tokens(
         "/ba-start srs --slug <slug> --module <module_slug>",
         "/ba-start wireframes --slug <slug> --module <module_slug>",
         "| `options` |",
-        "| `srs` | Produce grouped SRS artifacts, the persisted wireframe input pack, and merged SRS |",
-        "| `wireframes` | Re-run Step 9 from the persisted wireframe input pack or exact fallback sources |",
+        "| `srs` | Produce grouped SRS artifacts, canon screen/use case/data sources, routing indexes, legacy transitional wireframe input when still needed, and compiled `srs.md` |",
+        "| `wireframes` | Legacy transitional Step 9 for manual handoff artifacts only |",
     ],
     "Skill catalog must document options deliverables and explicit command surface",
 )

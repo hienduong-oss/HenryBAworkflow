@@ -8,7 +8,7 @@ This step requires:
 
 ## Scope
 
-Run Step 9 only. This path is read-only on upstream BA artifacts and may regenerate only the runtime `DESIGN.md`, wireframe constraint pack, wireframe handoff checklist, and wireframe state marker.
+Run Step 9 only for the transitional legacy manual-handoff lane. This path is read-only on upstream BA artifacts and may regenerate only the runtime `DESIGN.md`, wireframe constraint pack, wireframe handoff checklist, and wireframe state marker.
 
 ## Prerequisites
 
@@ -27,11 +27,15 @@ Run Step 9 only. This path is read-only on upstream BA artifacts and may regener
 - `paths.wireframe_map`
 - `paths.wireframe_state`
 
+These outputs are legacy transitional artifacts. Canonical screen behavior, state coverage, ASCII wireframes, and future Figma sync mapping belong in the module screen/use case/data sources and the routing indexes produced by `ba-start srs`.
+
 ## Step 9.1 - Resolve Wireframe Input Pack
 
 Use `paths.wireframe_input` as the primary constraint source.
 
 If the pack is missing but fallback sources exist, assemble it from exact use case excerpts, Screen Contract Plus, Screen Inventory, and the exact portal snapshot from `paths.backbone`.
+
+During the migration window, treat this input pack as a derived helper artifact only. It must not become the primary source-of-truth once canon screen files exist.
 
 Parse the input pack to build the handoff plan:
 
@@ -46,7 +50,7 @@ Parse the input pack to build the handoff plan:
 
 Apply the design document handling rules in `core/behavior/wireframes.md`.
 
-Minimum decision set: reference direction, visual tone, color, typography, component feel, layout priority, portal navigation schema, active-menu rule, breadcrumb/back behavior, hidden navigation exceptions, hard constraints, and anti-patterns.
+Minimum decision set: reference direction, visual tone, color, typography, component feel, layout priority, portal navigation schema, active-menu rule, breadcrumb/back behavior, hidden navigation exceptions, hard constraints, and anti-patterns. Shared shell ownership details should move into `paths.shared_shell_contract` instead of remaining implicit in per-module wireframe notes.
 
 Stop if the user declines to approve a design direction.
 
@@ -72,3 +76,4 @@ For each approved screen group:
 6. Persist `paths.wireframe_map` as a manual handoff checklist covering screens, supporting states, portal/schema, active-menu evidence, allowed hidden-nav cases, attachment location, labels, actions, validation cues, and navigation regions.
 
 State in both artifacts that BA-kit does not generate the wireframe itself in this flow; the user designs it manually and inserts the final mockup reference into the final document.
+State in both artifacts that compiled `paths.srs` remains a deliverable assembled from canon sources; if the manual handoff reveals requirement drift, update canon sources first, then recompile.

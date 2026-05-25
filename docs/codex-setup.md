@@ -126,7 +126,7 @@ Or ask Codex to run:
 1. Start with the business outcome or artifact you need, not command names.
 2. For freeform BA requests, use `ba-do` as the router first.
 3. Tell Codex to read `PROJECT-HOME.md` when present, then use the BA playbook for the resolved step.
-4. If UI is involved, point it at the relevant project `DESIGN.md` and the module `wireframe-input.md` / `wireframe-map.md` artifacts.
+4. If UI is involved, point it at the relevant project `DESIGN.md`, system shared shell contract, and module SRS canon files under `screens/`, `usecases/`, and `srs-index.md`.
 5. For collaboration, use `ba-collab` for module claims, review packets, conflict checks, and approval-gated GitHub handoff.
 6. Use `/ba-start` for full workflow runs and the matching explicit subcommand for reruns.
 7. Use `/ba-start options --slug <slug>` when intake should brainstorm solution options before the backbone is written.
@@ -316,11 +316,13 @@ For delegated BA work, resolve the workflow once in the orchestrator, then pass 
 
 ## Wireframe Handoff For Codex
 
-Use the default BA-kit flow for manual wireframe handoff in SRS-backed work:
-- persist or reuse `designs/{slug}/DESIGN.md` before preparing wireframe handoff artifacts
-- build or refresh `wireframe-input.md` and `wireframe-map.md`
-- keep screen IDs aligned across the SRS and the handoff artifacts
-- let the user create the actual wireframe externally and manually attach the result into the SRS
+Use the canon-first BA-kit flow for UI-backed SRS work:
+- persist or reuse `designs/{slug}/DESIGN.md` for visual direction
+- keep shared menu/layout ownership in `shared-shell-contract.md`
+- author screen behavior and ASCII wireframes in `screens/*.md`
+- compile the reader-facing `srs.md` and `srs-compile-receipt.json` from canon sources
+- use legacy `wireframe-input.md` and `wireframe-map.md` only for old manual handoff projects during migration
+- treat Figma MCP sync as a separate downstream lane that writes sync/mismatch reports, not BA canon
 
 ## HTML Deliverable
 

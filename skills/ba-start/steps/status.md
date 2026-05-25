@@ -24,6 +24,7 @@ Resolution order:
 
 Inspect the project set and print artifact status, dates, Project Home, and delegated slices.
 Emit a compact canonical summary — no content reads beyond the snapshot or stat checks.
+For UI-backed SRS modules, include canon source, compile, and Figma readiness signals from file presence only.
 
 ## Prerequisites
 
@@ -46,7 +47,18 @@ Snapshot: current | degraded | absent
 
 [Module: auth-flow]
 - [x] 03_modules/auth-flow/user-stories.md — 2026-03-26
+- [x] 03_modules/auth-flow/srs-index.md — 2026-03-26
+- [x] 03_modules/auth-flow/screens/*.md — 4 file(s)
+- [x] 03_modules/auth-flow/usecases/*.md — 3 file(s)
+- [ ] 03_modules/auth-flow/data/*.md — missing
+- [ ] 03_modules/auth-flow/flows/*.md — missing
 - [ ] 03_modules/auth-flow/srs.md — missing
+- [!] srs-compile-receipt.json — missing; rerun ba-start srs
+
+[Shared Shell]
+- [x] designs/{slug}/DESIGN.md — 2026-03-26
+- [x] 02_backbone/shared-shell-contract.md — 2026-03-26
+- [x] 02_backbone/shared-shell-index.md — 2026-03-26
 
 [Compiled]
 - [x] 04_compiled/compiled-frd.html — 2026-03-26
@@ -69,6 +81,10 @@ Status rules:
 - Derive artifact presence from snapshot `artifacts` list when current; otherwise filesystem stat only.
 - Print `exists` or `missing` with last-modified date. For wireframe handoff, print state + marker date.
 - When wireframe handoff `completed`, list runtime design file, wireframe input pack, and wireframe map.
+- Report SRS canon directories by markdown file count only; do not read screen/use case content.
+- Report `srs-compile-receipt.json` as `current`, `missing`, `stale`, or `not applicable` using file presence and modified times against canon source directories.
+- Report shared shell files separately from module SRS files because shell/menu ownership is system-level.
+- Report Figma readiness indirectly: current canon sources + current compile receipt + shared shell + `DESIGN.md` present. Actual Figma sync status belongs to the downstream sync report, not `ba-start status`.
 - Print compact memory/shard/activation metadata from `paths.project_memory` and `paths.memory_index` only.
 - For delegated slices, print tracker state; mark `likely stalled` when heartbeat exceeds `stall_after_minutes`.
 - Do not read artifact content to produce this output.

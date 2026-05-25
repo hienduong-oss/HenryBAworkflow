@@ -49,6 +49,12 @@ Using the snapshot manifest or stat-only checks, determine which of these exist:
 - frd
 - user stories
 - srs
+- srs-index
+- screens directory
+- usecases directory
+- data directory
+- flows directory
+- srs-compile-receipt
 - wireframe-input
 - wireframe-map
 - wireframe-state
@@ -77,9 +83,13 @@ Apply the first matching rule:
 6. backbone exists and FRD is explicitly required but missing -> `ba-start frd --slug <slug> --module <module_slug>`
 7. backbone exists but user stories are missing -> `ba-start stories --slug <slug> --module <module_slug>`
 8. SRS is required and missing -> `ba-start srs --slug <slug> --module <module_slug>`
-9. wireframe-input exists and wireframe-state is missing while wireframe handoff is required -> `ba-start wireframes --slug <slug> --module <module_slug>`
-10. final markdown exists but required packaged HTML is missing -> `ba-start package --slug <slug>`
-11. everything required already exists -> `ba-start status --slug <slug>`
+9. SRS exists but `srs-index.md` is missing -> `ba-start srs --slug <slug> --module <module_slug>`
+10. SRS exists but canon sources (`screens/`, `usecases/`, optional `data/`, optional `flows/`) are absent for a UI-backed module -> `ba-start srs --slug <slug> --module <module_slug>`
+11. canon sources exist but `srs-compile-receipt.json` is missing or older than canon source files -> `ba-start srs --slug <slug> --module <module_slug>`
+12. legacy `wireframe-input.md` exists and wireframe-state is missing while no canon-first screen/use case sources exist -> recommend migration through `ba-start srs --slug <slug> --module <module_slug>`, not `wireframes`
+    Legacy compatibility note: `ba-start wireframes --slug <slug> --module <module_slug>` remains available only when the operator explicitly chooses the old manual handoff lane.
+13. final markdown exists but required packaged HTML is missing -> `ba-start package --slug <slug>`
+14. everything required already exists -> `ba-start status --slug <slug>`
 
 Reverse lane rules (apply before forward rules whenever reverse_baseline_lock exists):
 
@@ -101,7 +111,7 @@ Reverse lane guard:
 - If reverse lane status is stale, drifted, or blocked, surface the reverse guardrail code from the active status path instead of guessing a forward step.
 - Reverse lane rules (R0–R4) take priority over forward rules (1–11) whenever reverse_baseline_lock exists and reverse completion is not explicitly confirmed.
 
-When FRD/SRS/wireframe-handoff gates are unclear, explain the uncertainty and recommend
+When FRD/SRS/canon/compile/wireframe-handoff gates are unclear, explain the uncertainty and recommend
 `ba-start status --slug <slug>` instead of guessing.
 </step>
 
