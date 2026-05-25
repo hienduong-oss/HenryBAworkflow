@@ -1,0 +1,78 @@
+version: 1
+
+severity:
+  block:
+    - source_of_truth_violation
+    - shared_shell_ownership_violation
+    - missing_required_canon_section
+    - stale_compiled_srs
+    - invalid_index_path
+  warn:
+    - diagram_applicability_gap
+    - l2_visual_coverage_gap
+    - non_blocking_wording_drift
+  info:
+    - optimization_hint
+
+commands:
+  srs:
+    read:
+      - backbone_index
+      - stories_index
+      - design_doc
+      - shared_shell_contract
+      - shared_shell_index
+      - srs_index
+    write:
+      - screen_root
+      - usecase_root
+      - module_erd
+      - flow_root
+      - srs_index
+      - srs
+      - srs_compile_receipt
+    forbidden_write:
+      - unrelated_module_root
+      - design_doc
+      - shared_shell_contract_without_system_approval
+    post_checks:
+      - check_srs_index_consistency
+      - doctor_srs
+
+  figma-sync:
+    read:
+      - srs_index
+      - screen_root
+      - design_doc
+      - shared_shell_contract
+      - shared_shell_index
+    write:
+      - figma_external_state
+      - figma_sync_report
+      - figma_mismatch_report
+    forbidden_write:
+      - srs
+      - screen_root
+      - usecase_root
+      - shared_shell_contract
+    post_checks:
+      - figma_readback_verification
+
+  package:
+    read:
+      - package_snapshot
+      - backbone_index
+      - stories_index
+      - srs_index
+      - srs_compile_receipt
+      - srs
+    write:
+      - compiled_frd
+      - compiled_srs
+      - package_snapshot
+    forbidden_write:
+      - screen_root
+      - usecase_root
+      - shared_shell_contract
+    pre_checks:
+      - doctor_srs

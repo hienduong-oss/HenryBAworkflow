@@ -40,12 +40,17 @@ Run Steps 8-11 only. This path stays split so SRS execution can load only the gr
 - `paths.srs_group` for groups `a` through `f`
 - `paths.srs`
 - `paths.srs_index`
+- `paths.screen_root` and module `paths.screen_item` files as canonical screen sources
+- `paths.usecase_root` and module `paths.usecase_item` files as canonical use case sources
+- `paths.module_erd` and optional `paths.flow_item` files when data/flow detail is justified
+- `paths.srs_compile_receipt`
 - `paths.wireframe_input`
 - `paths.design_doc` when Step 8.2/Step 9 confirms or refreshes the UI design direction
 - wireframe artifacts and state produced during Step 9
 
 Treat generated index/state/memory artifacts as `agent_facing` or `machine_facing`; keep them compact.
 When `paths.srs_index` is written or refreshed, keep `stale_status: unknown`, leave `validated_at` and `validated_by` blank, then run `python3 scripts/validate-index-quality.py --repo . --index-key srs_index --slug <slug> --date <date> --module <module> --writeback` before downstream work treats the index as `current`.
+Treat `paths.srs` as the compiled, reader-facing deliverable. Direct edits to `paths.srs` are blocked by default; canonical edits belong in the module screen/use case/data sources and must compile back into `paths.srs`.
 
 ## Execution Order
 

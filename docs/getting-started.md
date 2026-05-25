@@ -76,6 +76,7 @@ BA-friendly workflow:
 /ba-do Đánh giá thay đổi: Export CSV phải có audit log
 /ba-do Phân tích ngược hệ thống hiện tại để tạo as-built SRS
 /ba-do Chuẩn bị handoff UI cho module auth-flow
+/ba-do Đồng bộ Figma cho module auth-flow của dự án warehouse-rfp
 /ba-do Tôi nhận module auth-flow
 /ba-do Gửi module auth-flow cho Lead BA review
 /ba-do Xuất gói bàn giao cho stakeholder
@@ -98,6 +99,7 @@ Step-level reruns:
 /ba-start status --slug warehouse-rfp
 /ba-start reverse --slug warehouse-rfp
 /ba-start reverse impact --slug warehouse-rfp
+/ba-figma-sync --slug warehouse-rfp --module auth-flow
 /ba-notion srs --slug warehouse-rfp --page https://www.notion.so/... --mode overwrite
 ```
 
@@ -203,9 +205,10 @@ For partial reruns in Codex, be explicit about the target slug and dated set whe
 Use AGENTS.md and skills/ba-start/SKILL.md.
 Run only the wireframe rerun path for slug warehouse-rfp.
 If multiple dated sets exist for that slug, stop and ask me which date to use.
-Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask me to refresh it before preparing the wireframe handoff pack.
-Use the persisted `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md` when it exists, or rebuild it from exact fallback sources before preparing the handoff pack.
-Then report `/ba-start status` semantics with artifact dates, wireframe handoff state, and any wireframe input/map artifacts.
+Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask me to refresh it before UI-backed SRS work.
+Use `screens/*.md`, `usecases/*.md`, `srs-index.md`, and `srs-compile-receipt.json` as the SRS canon-first source set.
+Use legacy `wireframe-input.md` only if this is an old manual handoff project without canon sources.
+Then report `/ba-start status` semantics with artifact dates, canon source counts, compile receipt state, shared shell state, and any legacy wireframe handoff marker.
 ```
 
 Change-impact triage in Codex:
@@ -260,23 +263,27 @@ Before Step 9 prepares or reruns the wireframe handoff pack, capture or confirm 
 designs/[initiative-slug]/DESIGN.md
 ```
 
-This `DESIGN.md` is a project-specific runtime artifact, not a BA-kit product artifact. It becomes the system design document for the manual wireframe handoff pack and summarizes the approved visual tone, colors, typography, component feel, layout principles, responsive behavior, and anti-patterns for that initiative.
+This `DESIGN.md` is a project-specific runtime artifact, not a BA-kit product artifact. It summarizes the approved visual tone, colors, typography, component feel, layout principles, responsive behavior, and anti-patterns for that initiative. Machine-readable menu/layout ownership belongs in the system-level shared shell contract, not in module screen prose.
 
-The Step 9 outputs are:
+The canon-first UI-backed SRS outputs are:
 
 ```text
 designs/[initiative-slug]/DESIGN.md
-plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md
-plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md
-plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md
+plans/{slug}-{date}/02_backbone/shared-shell-contract.md
+plans/{slug}-{date}/02_backbone/shared-shell-index.md
+plans/{slug}-{date}/03_modules/{module_slug}/screens/*.md
+plans/{slug}-{date}/03_modules/{module_slug}/usecases/*.md
+plans/{slug}-{date}/03_modules/{module_slug}/srs-index.md
+plans/{slug}-{date}/03_modules/{module_slug}/srs.md
+plans/{slug}-{date}/03_modules/{module_slug}/srs-compile-receipt.json
 ```
 
 Rules:
-- keep screen IDs aligned between the SRS and the manual wireframe handoff pack
-- use the approved `DESIGN.md` as the wireframe system document
+- keep screen IDs aligned between screen canon, use cases, compiled SRS, and any downstream visual output
+- use the approved `DESIGN.md` as visual direction and the shared shell contract as menu/layout authority
 - use Shadcn UI as the default component baseline only when `DESIGN.md` does not specify a different direction
-- keep the SRS focused on behavior, validation, states, navigation, and traceability
-- the user designs the actual wireframe manually or with an external AI/tool, then manually inserts the final reference into the SRS
+- keep screen canon focused on behavior, validation, states, navigation, traceability, and ASCII wireframe coverage
+- Figma MCP sync is downstream from canon and writes sync/mismatch reports instead of redefining requirements
 - treat the packaged HTML suite as the editable stakeholder copy: update text, swap images, and add or remove blocks directly in the browser without editing the source HTML
 
 ## 7. Deliverables And Runtime Artifacts
@@ -296,9 +303,14 @@ A full `/ba-start` engagement produces final BA deliverables plus runtime artifa
 | SRS | `srs-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/srs.md` |
 | User stories | `user-story-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md` |
 | Project runtime DESIGN.md (bán thành phẩm) | `design-md-template.md` | `designs/{slug}/DESIGN.md` |
-| Wireframe constraint pack | `wireframe-input-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md` |
-| Wireframe handoff map | `wireframe-map-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md` |
-| Wireframe state | BA-kit routing metadata | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md` |
+| Shared shell contract | `shared-shell-contract-template.md` | `plans/{slug}-{date}/02_backbone/shared-shell-contract.md` |
+| Screen canon | `screen-canon-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/screens/*.md` |
+| Use case canon | `usecase-canon-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/usecases/*.md` |
+| SRS index | `srs-index-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/srs-index.md` |
+| SRS compile receipt | `srs-compile-receipt-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/srs-compile-receipt.json` |
+| Legacy wireframe constraint pack | `wireframe-input-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md` |
+| Legacy wireframe handoff map | `wireframe-map-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md` |
+| Legacy wireframe state | BA-kit routing metadata | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md` |
 | SRS HTML | `scripts/md-to-html.py` | `plans/{slug}-{date}/04_compiled/compiled-srs.html` as the primary browser-editable stakeholder copy |
 
 If you need a clean read-only stakeholder handoff, generate HTML with:

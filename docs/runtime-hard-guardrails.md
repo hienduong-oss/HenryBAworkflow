@@ -21,6 +21,8 @@ The first hard-guardrail rollout should cover these behaviors:
 1. `frd` and `stories` must read `paths.backbone_index` first and must not discovery-read the full `paths.backbone` when the index is current.
 2. `package` must use `paths.backbone_index`, `paths.stories_index`, and `paths.srs_index` first for discovery and must not broad-read full intake/backbone/stories/SRS artifacts when those indexes are current.
 3. `status` and `next` may read `paths.project_home`, but must never let it override canonical artifact state.
+4. `srs` must write canon sources first (`screens/`, `usecases/`, optional `data/`, optional `flows/`), then compile `srs.md` with `srs-compile-receipt.json`.
+5. `figma-sync` must read canon + shared shell and write only sync/mismatch reports; it must not mutate BA canon or shared shell files.
 
 ## Why A Hook Layer Exists
 
@@ -229,6 +231,23 @@ Exact-content phase:
 
 - may read the full artifact currently being compiled or validated
 - must emit `READ_ESCALATION` when a full read is required because an index is missing, stale, or contradictory
+
+### `srs`
+
+- must read `paths.backbone_index`, `paths.stories_index`, `paths.design_doc`, `paths.shared_shell_contract`, and `paths.shared_shell_index` when present
+- must author requirement behavior into canon sources before updating the compiled deliverable
+- may write `paths.screen_root`, `paths.usecase_root`, `paths.module_erd`, `paths.flow_root`, `paths.srs_index`, `paths.srs`, and `paths.srs_compile_receipt`
+- must not treat `paths.srs` as the direct-edit source when canon sources exist
+- must refresh `paths.srs_compile_receipt` after compiling `paths.srs`
+- post-run should execute `ba-kit doctor-srs <module_root>` or equivalent validators
+
+### `figma-sync`
+
+- must read `paths.srs_index` before individual screen canon files
+- may read `paths.screen_root`, `paths.design_doc`, `paths.shared_shell_contract`, `paths.shared_shell_index`, and `paths.srs_compile_receipt`
+- may write only `paths.figma_sync_report` and `paths.figma_mismatch_report` inside the repo
+- must not write `paths.srs`, `paths.srs_index`, `paths.screen_root`, `paths.usecase_root`, `paths.design_doc`, or `paths.shared_shell_contract`
+- must block when the compile receipt is missing or stale, because Figma must represent the same canon that the SRS deliverable represents
 
 ### `status`
 
