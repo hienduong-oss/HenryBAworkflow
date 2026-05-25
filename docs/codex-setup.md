@@ -159,6 +159,7 @@ Global command helpers after Codex install:
 - `ba-do` — preferred freeform router for BA requests
 - `ba-impact` — run change-impact triage without mutating artifacts
 - `ba-next` — inspect the current artifact set and recommend the next BA command
+- `ba-figma-sync` — sync approved screen canon to Figma through Figma MCP
 
 Use `options` when intake needs multiple solution directions before backbone. The commands are:
 

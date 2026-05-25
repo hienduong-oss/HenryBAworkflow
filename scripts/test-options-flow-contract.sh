@@ -204,7 +204,9 @@ require_tokens(
         "/ba-start stories --slug <slug> --module <module_slug>",
         "/ba-start srs --slug <slug> --module <module_slug>",
         "/ba-start wireframes --slug <slug> --module <module_slug>",
+        "/ba-figma-sync --slug <slug> --module <module_slug>",
         "| `options` |",
+        "| `ba-figma-sync` | Sync approved SRS screen canon to Figma through Figma MCP and write sync/mismatch reports |",
         "| `srs` | Produce grouped SRS artifacts, canon screen/use case/data sources, routing indexes, legacy transitional wireframe input when still needed, and compiled `srs.md` |",
         "| `wireframes` | Legacy transitional Step 9 for manual handoff artifacts only |",
     ],
@@ -390,6 +392,11 @@ require_regex(
     do_workflow,
     r"\|\s*asking to brainstorm solution options, create multiple solution directions, compare solution approaches, choose an option, or skip optioning\s*\|\s*`ba-start options`\s*\|",
     "ba-do must route optioning intent via `ba-start options`",
+)
+require_regex(
+    do_workflow,
+    r"\|\s*syncing approved screen canon to Figma, creating Figma frames, updating Figma wireframes, or \"đồng bộ Figma\"\s*\|\s*`ba-figma-sync`\s*\|",
+    "ba-do must route Figma sync intent via `ba-figma-sync`",
 )
 require_in_order(
     do_workflow,

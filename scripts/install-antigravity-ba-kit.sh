@@ -97,6 +97,7 @@ Prefer natural Vietnamese intent first, then map to the internal workflow:
 | "Tôi nên làm gì tiếp?" | ba-next |
 | "Đánh giá thay đổi này" | impact |
 | "Chuẩn bị handoff UI" | wireframes/manual handoff pack |
+| "Đồng bộ Figma cho module X" | ba-figma-sync downstream visual sync |
 | "Xuất gói bàn giao" | package |
 | "Kiểm tra trạng thái" | status |
 | "Tôi nhận module X" | ba-collab claim |
@@ -117,6 +118,7 @@ COLLAB-HOME.md and MODULE-HOME.md are BA-facing collaboration dashboards. GitHub
 | `/ba-start stories --slug X --module Y` | "Read skills/ba-start/SKILL.md and run stories for slug X module Y" |
 | `/ba-start srs --slug X --module Y` | "Read skills/ba-start/SKILL.md and run srs for slug X module Y" |
 | `/ba-start wireframes --slug X --module Y` | "Read skills/ba-start/SKILL.md and run wireframes for slug X module Y" |
+| `/ba-figma-sync --slug X --module Y` | "Read skills/ba-figma-sync/SKILL.md and sync Figma for slug X module Y" |
 | `/ba-start package --slug X` | "Read skills/ba-start/SKILL.md and run package for slug X" |
 | `/ba-start status --slug X` | "Read skills/ba-start/SKILL.md and run status for slug X" |
 | `/ba-start impact --slug X` | "Read skills/ba-start/SKILL.md and run impact for slug X" |

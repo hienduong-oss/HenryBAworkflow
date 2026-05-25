@@ -76,6 +76,7 @@ BA-friendly workflow:
 /ba-do Đánh giá thay đổi: Export CSV phải có audit log
 /ba-do Phân tích ngược hệ thống hiện tại để tạo as-built SRS
 /ba-do Chuẩn bị handoff UI cho module auth-flow
+/ba-do Đồng bộ Figma cho module auth-flow của dự án warehouse-rfp
 /ba-do Tôi nhận module auth-flow
 /ba-do Gửi module auth-flow cho Lead BA review
 /ba-do Xuất gói bàn giao cho stakeholder
@@ -98,6 +99,7 @@ Step-level reruns:
 /ba-start status --slug warehouse-rfp
 /ba-start reverse --slug warehouse-rfp
 /ba-start reverse impact --slug warehouse-rfp
+/ba-figma-sync --slug warehouse-rfp --module auth-flow
 /ba-notion srs --slug warehouse-rfp --page https://www.notion.so/... --mode overwrite
 ```
 

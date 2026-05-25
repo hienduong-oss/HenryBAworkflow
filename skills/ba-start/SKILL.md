@@ -37,7 +37,7 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 /ba-start reverse --slug <slug> [--focus <area>] [--commit <hash>]
 ```
 
-Figma MCP sync is intentionally outside `ba-start`. Use the future `ba-figma-sync` lane only after `ba-start srs` has produced current canon sources, `srs-index.md`, `srs.md`, and `srs-compile-receipt.json`.
+Figma MCP sync is intentionally outside `ba-start`. Use `ba-figma-sync` only after `ba-start srs` has produced current canon sources, `srs-index.md`, `srs.md`, and `srs-compile-receipt.json`.
 
 ## Step Dispatch
 

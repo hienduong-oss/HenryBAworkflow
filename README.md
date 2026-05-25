@@ -14,6 +14,8 @@ legal entity that purchased or was granted access, subject to the terms in
 
 Tài liệu chi tiết: [BA-kit GitBook](https://bakit.gitbook.io/)
 
+Nếu mới dùng lần đầu, đọc guide thực hành trước: [BA-kit Step-by-Step Guide](docs/ba-kit-step-by-step-guide.md).
+
 ## BA Làm Gì Với BA-kit?
 
 BA có thể dùng ngôn ngữ tự nhiên thay vì nhớ command:
@@ -193,6 +195,7 @@ Command-level fallback:
 /ba-start status --slug warehouse-rfp
 /ba-start reverse --slug warehouse-rfp
 /ba-start reverse impact --slug warehouse-rfp
+/ba-figma-sync --slug warehouse-rfp --module auth-flow
 /ba-collab Tôi nhận module auth-flow
 /ba-collab Gửi module auth-flow cho Lead BA review
 ```
@@ -264,7 +267,14 @@ ba-kit check-write-scope --command figma-sync plans/{slug}-{date}/03_modules/{mo
 
 User hoặc designer tự tạo mockup/wireframe rồi attach vào đúng section trong SRS. Mockup không phải source of truth.
 
-Figma MCP sync là lane riêng sau SRS canon. Nó chỉ đọc `srs-index.md`, `screens/*.md`, `DESIGN.md`, `shared-shell-contract.md`, rồi ghi `figma-sync-report.md` hoặc `figma-mismatch-report.md`. Nếu Figma khác canon, sửa canon trước rồi sync lại; không sửa Figma rồi coi đó là requirement mới.
+Figma MCP sync là lane riêng sau SRS canon:
+
+```text
+/ba-figma-sync --slug {slug} --module {module}
+/ba-do Đồng bộ Figma cho module {module} của dự án {slug}
+```
+
+Nó chỉ đọc `srs-index.md`, `screens/*.md`, `DESIGN.md`, `shared-shell-contract.md`, rồi ghi `figma-sync-report.md` hoặc `figma-mismatch-report.md`. Nếu Figma khác canon, sửa canon trước rồi sync lại; không sửa Figma rồi coi đó là requirement mới.
 
 ## Nâng Cấp
 

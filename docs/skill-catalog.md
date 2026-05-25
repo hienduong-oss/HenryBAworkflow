@@ -13,7 +13,7 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 | `ba-collab` | Module ownership, review packets, conflict checks, and approval-gated GitHub handoff | `collab-home-template.md`, `module-home-template.md`, `review-packet-template.md` | Lead BA / Module BA roles | Collab Home, Module Home, review packet, optional approved PR handoff |
 | `ba-kit-update` | Update the installed BA-kit runtime assets from the registered source repo | None | None | One-command fast-forward update and reinstall |
 | `ba-notion` | Publish an exact BA markdown artifact into Notion via MCP | None | None | Notion page created or updated from BA source content |
-| `ba-figma-sync` (planned) | Downstream Figma canvas sync from approved screen canon, shared shell contract, and `DESIGN.md` | `figma-sync-report-template.md`, `figma-mismatch-report-template.md` | ui-ux-designer | Figma frames, sync report, mismatch report. Must not mutate BA canon. |
+| `ba-figma-sync` | Downstream Figma canvas sync from approved screen canon, shared shell contract, and `DESIGN.md` | `figma-sync-report-template.md`, `figma-mismatch-report-template.md` | ui-ux-designer | Figma frames, sync report, mismatch report. Must not mutate BA canon. |
 
 ## Workflow
 
@@ -72,6 +72,7 @@ After brainstorm, feed the output into `/ba-start intake` as source material.
 /ba-start package --slug <slug>
 /ba-start status --slug <slug>
 /ba-notion srs --slug <slug> --page <url|id> --mode overwrite
+/ba-figma-sync --slug <slug> --module <module_slug>
 /ba-start reverse --slug <slug> [--focus <area>] [--commit <hash>]
 /ba-start reverse status --slug <slug>
 /ba-start reverse refresh --slug <slug> [--commit <hash>]
@@ -90,6 +91,7 @@ After brainstorm, feed the output into `/ba-start intake` as source material.
 | `stories` | Produce user stories only | Matching backbone artifact |
 | `srs` | Produce grouped SRS artifacts, canon screen/use case/data sources, routing indexes, legacy transitional wireframe input when still needed, and compiled `srs.md` | Matching backbone and user stories |
 | `wireframes` | Legacy transitional Step 9 for manual handoff artifacts only | Wireframe input pack plus an approved or refreshable project `DESIGN.md`, or exact Group B + Group C / merged SRS fallback |
+| `ba-figma-sync` | Sync approved SRS screen canon to Figma through Figma MCP and write sync/mismatch reports | Current `srs-index.md`, `srs-compile-receipt.json`, screen canon, `DESIGN.md`, and shared shell contract |
 | `package` | Run quality review, validate existing packaged HTML artifacts, and regenerate only the needed packaged outputs | Emitted artifact set and non-missing wireframe state |
 | `status` | Print artifact checklist with dates | Resolved slug and dated set |
 | `reverse` | Scan committed source files, lock the baseline commit, and build the reverse evidence index | None (creates `00_reverse/` lane) |

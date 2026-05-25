@@ -20,6 +20,7 @@ Use this command when you know what you want to do in a BA workflow but do not k
 /ba-do toi nhan module auth-flow
 /ba-do gui module payment cho Lead BA review
 /ba-do publish SRS len Notion
+/ba-do đồng bộ Figma cho module auth-flow
 /ba-do tao tai lieu tu code co san
 /ba-do reverse engineer requirements from codebase
 /ba-do xem trang thai reverse lane
@@ -35,5 +36,5 @@ $ARGUMENTS
 
 <process>
 Execute the BA routing workflow from `core/workflows/do.md` end-to-end.
-Dispatch to `ba-impact`, `ba-next`, `ba-start`, `ba-collab`, or `ba-notion`.
+Dispatch to `ba-impact`, `ba-next`, `ba-start`, `ba-collab`, `ba-notion`, or `ba-figma-sync`.
 </process>
