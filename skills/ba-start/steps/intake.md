@@ -141,6 +141,14 @@ For **branch A, B**: skip entirely — gaps already resolved via presale clarify
 
 Review the normalized intake against a BA completeness checklist across 8 categories (Stakeholders, Scope, Success Criteria, Compliance, UI/UX, Business Process, Technical/Integration, Commercial):
 
+- Are stakeholders identified with roles and influence?
+- Is there a clear problem statement and measurable goal?
+- Are scope boundaries defined (in-scope vs out-of-scope)?
+- Are success criteria or KPIs stated?
+- Are compliance or regulatory obligations mentioned?
+- Are UI screens described enough to prepare mandatory ASCII wireframes?
+- Are processes described enough to map?
+
 ## Step 4 - Ask clarifying questions and lock scope (skip for branch A, B; partial for branch C)
 
 For **branch A, B**: skip — scope already locked by presale WBS + Proposal.
@@ -200,7 +208,7 @@ Deliverable selection:
 - Detailed functional spec needed: FRD
 - Agile team needs stories: user stories
 - System spec with screens, use cases, or test cases: SRS
-- UI screens mentioned: prepare `DESIGN.md` plus module-level wireframe handoff artifacts
+- UI screens mentioned: prepare `DESIGN.md` plus module-level screen canon ASCII
 
 Mode defaults:
 

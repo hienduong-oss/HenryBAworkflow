@@ -1,23 +1,60 @@
-# Chỉ mục SRS (SRS Index)
+# SRS Index
 
 ## Metadata
 
 | Field | Value |
 | --- | --- |
 | index_type | srs |
-| source_artifact | `plans/{slug}-{date}/03_modules/{module_slug}/srs.md` |
+| source_artifact | `./srs.md` |
 | source_hash | [sha256] |
-| generated_at | [YYYY-MM-DDTHH:mm:ssZ] |
+| generated_at | [ISO-8601] |
 | generated_by_command | `ba-start srs` |
 | stale_status | unknown |
-| validated_at | [YYYY-MM-DDTHH:mm:ssZ after validator pass; blank when pending or failed] |
-| validated_by | [`validate-index-quality` or runtime validator id; blank when pending or failed] |
-| coverage_summary | [Use case, screen, rule, message và test trace anchors] |
+| validated_at | [ISO-8601 or blank] |
+| validated_by | [validator id or blank] |
+| canon_roots | `./screens`, `./usecases`, `./data`, `./flows` |
+| compiled_artifact | `./srs.md` |
 
-Producer note: index mới sinh phải giữ `stale_status: unknown`; chỉ validator mới được điền `validated_at`, `validated_by`, và nâng lên `current`.
+## Module Summary
 
-## SRS Index
+| Field | Value |
+| --- | --- |
+| module_slug | [module-slug] |
+| status | [draft/in-review/approved] |
 
-| Group | UC / SCR / Rule / Message IDs | Screen / Flow | Path / Heading | Dependency |
+## Screen Registry
+
+| screen_id | screen_name | path | screen_type | portal_id | nav_schema_id | active_menu | states | ascii | figma_sync | status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| SCR-01 | [Screen] | `./screens/scr-01.md` | primary | PORTAL-ADMIN | NAV-01 | dashboard | default,error | ready | eligible | draft |
+
+## Use Case Registry
+
+| uc_id | uc_name | path | diagram_type | primary_actor | screens | fr_links | status |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| UC-01 | [Use Case] | `./usecases/uc-01.md` | activity | [Actor] | SCR-01 | FR-001 | draft |
+
+## Diagram Registry
+
+| diagram_id | diagram_type | scope | path | source_ref | status |
+| --- | --- | --- | --- | --- | --- |
+| DG-01 | activity | usecase | `./usecases/uc-01.md` | UC-01 | draft |
+
+## Data Artifact Registry
+
+| artifact_id | artifact_type | path | scope | status |
 | --- | --- | --- | --- | --- |
-| group-a | UC-01, SCR-01 | [Flow] | [Heading or group file] | US-001 / FR-01 |
+| DATA-ERD-01 | erd | `./data/erd.md` | module | draft |
+
+## Trace Summary
+
+| object_type | object_id | links_to |
+| --- | --- | --- |
+| screen | SCR-01 | UC-01; FR-001 |
+
+## Validation Status
+
+| check | result | notes |
+| --- | --- | --- |
+| schema | pending | [notes] |
+| compile_freshness | pending | [notes] |

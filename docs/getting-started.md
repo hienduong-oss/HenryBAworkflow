@@ -17,7 +17,7 @@ cd bakit
 
 BA-kit supports two usage modes:
 - **Claude Code**: install BA-kit assets into `~/.claude`
-- **Codex**: open the repo and use `platform/codex/CODEX.md`
+- **Codex**: open the repo and use the root `AGENTS.md`
 
 ## 3. Install For Claude Code
 
@@ -76,6 +76,7 @@ BA-friendly workflow:
 /ba-do Đánh giá thay đổi: Export CSV phải có audit log
 /ba-do Phân tích ngược hệ thống hiện tại để tạo as-built SRS
 /ba-do Chuẩn bị handoff UI cho module auth-flow
+/ba-do Đồng bộ Figma cho module auth-flow của dự án warehouse-rfp
 /ba-do Tôi nhận module auth-flow
 /ba-do Gửi module auth-flow cho Lead BA review
 /ba-do Xuất gói bàn giao cho stakeholder
@@ -98,6 +99,7 @@ Step-level reruns:
 /ba-start status --slug warehouse-rfp
 /ba-start reverse --slug warehouse-rfp
 /ba-start reverse impact --slug warehouse-rfp
+/ba-figma-sync --slug warehouse-rfp --module auth-flow
 /ba-notion srs --slug warehouse-rfp --page https://www.notion.so/... --mode overwrite
 ```
 
@@ -122,9 +124,9 @@ Default `/ba-start` handles the full BA lifecycle once routing is already clear:
 5. Requirements backbone production
 6. Gated FRD and user story generation
 7. Selective SRS production
-8. Design decision capture and project runtime `DESIGN.md` creation when wireframe support is justified
-9. Wireframe constraint-pack and manual handoff-map production from the use cases, Screen Contract Plus, locked IA snapshot, and approved `DESIGN.md`
-10. Final screen description production as an enrich pass
+8. Design decision capture and project runtime `DESIGN.md` creation when UI support is justified
+9. Mandatory ASCII wireframe production inside `screens/*.md` from the use cases, Screen Contract Plus, locked IA snapshot, and approved `DESIGN.md`
+10. Final screen description production as an enrich pass from screen canon
 11. HTML packaging for the emitted artifact set
 
 ### Claude Example
@@ -141,7 +143,7 @@ When prompted, provide the file path or paste your requirements text. The skill 
 4. Generate `PROJECT-HOME.md` so the BA can resume from a plain-language dashboard
 5. Generate a scoped work plan
 6. Open an option pack + comparison first when intake recommends multiple solution directions; otherwise proceed directly to the requirements backbone
-7. Emit FRD, user stories, use cases, Screen Contract Plus, project runtime `DESIGN.md`, wireframe handoff artifacts, final screen descriptions, and FRD/SRS HTML output only when their gates are open
+7. Emit FRD, user stories, use cases, Screen Contract Plus, project runtime `DESIGN.md`, screen canon with mandatory ASCII, final screen descriptions, and FRD/SRS HTML output only when their gates are open
 
 For rerun commands:
 - pass `--slug <slug>` when more than one project exists
@@ -163,7 +165,7 @@ Codex does not need `install.sh`.
 
 Instead:
 1. Open this repository in Codex
-2. Make sure `platform/codex/CODEX.md` is visible in the repo
+2. Make sure the root `AGENTS.md` is visible in the repo
 3. For freeform BA requests, tell Codex to use `skills/ba-do/SKILL.md` first
 4. Tell Codex to use `skills/ba-start/SKILL.md` when the lifecycle step is explicit
 5. Point Codex to the correct template under `templates/`
@@ -175,10 +177,9 @@ Instead:
 ### Codex Example
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
-Include use cases, Screen Contract Plus, a project runtime `DESIGN.md`, final screen descriptions, linked requirements, test cases, and wireframe constraints.
-Make the wireframe output a manual handoff pack so the user can design externally and manually attach the result to the final document.
+Include use cases, Screen Contract Plus, a project runtime `DESIGN.md`, screen canon with mandatory ASCII wireframes, final screen descriptions, linked requirements, and test cases.
 ```
 
 BA-friendly Codex resume prompt:
@@ -194,24 +195,24 @@ If the Codex conversion is installed, you can point Codex directly at the bundle
 ```text
 Use ~/.codex/skills/ba-start/SKILL.md and the registered BA agents under ~/.codex/agents.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
-Produce an intake form, a requirements backbone, gated FRD/stories/SRS artifacts, a project runtime `DESIGN.md`, manual wireframe handoff artifacts when justified, final screen descriptions, and browser-editable FRD/SRS HTML when those artifacts are emitted.
+Produce an intake form, a requirements backbone, gated FRD/stories/SRS artifacts, a project runtime `DESIGN.md`, screen canon with mandatory ASCII wireframes, final screen descriptions, and browser-editable FRD/SRS HTML when those artifacts are emitted.
 ```
 
 For partial reruns in Codex, be explicit about the target slug and dated set when ambiguity exists. Example:
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
-Run only the wireframe rerun path for slug warehouse-rfp.
+Use AGENTS.md and skills/ba-start/SKILL.md.
+Run only the SRS screen-canon ASCII refresh path for slug warehouse-rfp.
 If multiple dated sets exist for that slug, stop and ask me which date to use.
-Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask me to refresh it before preparing the wireframe handoff pack.
-Use the persisted `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md` when it exists, or rebuild it from exact fallback sources before preparing the handoff pack.
-Then report `/ba-start status` semantics with artifact dates, wireframe handoff state, and any wireframe input/map artifacts.
+Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask me to refresh it before UI-backed SRS work.
+Use `screens/*.md`, `usecases/*.md`, `srs-index.md`, and `srs-compile-receipt.json` as the SRS canon-first source set.
+Then report `/ba-start status` semantics with artifact dates, canon source counts, ASCII coverage, compile receipt state, and shared shell state.
 ```
 
 Change-impact triage in Codex:
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 I am writing the SRS for slug warehouse-rfp and this new requirement arrived:
 "Export CSV must require permission, record an audit log, and show a success or failure banner."
 Run the equivalent of `/ba-start impact --slug warehouse-rfp`.
@@ -241,41 +242,46 @@ Or from inside the agents:
 
 ```text
 /ba-kit-update
+/ba-notion frd --slug warehouse-rfp --parent https://www.notion.so/... --mode create
 ```
 
 Expected behavior:
 - read the registered source repo from the local install manifests
 - fail fast if the repo has local edits, conflict state, or multiple conflicting source repos
 - run `git pull --ff-only`
-- rerun `install.sh` and/or `platform/codex/scripts/install-codex-ba-kit.sh` for the runtimes already installed from that repo
+- rerun `install.sh` and/or `scripts/install-codex-ba-kit.sh` for the runtimes already installed from that repo
 
-## 6. Add Manual Wireframe Handoff For SRS Work
+## 6. Add Mandatory ASCII Wireframes For SRS Work
 
-BA-kit no longer generates wireframes directly with MCP in the default flow.
+BA-kit requires ASCII wireframes directly in screen canon for UI-backed SRS work.
 
-Before Step 9 prepares or reruns the wireframe handoff pack, capture or confirm the project-specific design decisions and persist them to:
+Before Step 9 prepares or reruns ASCII coverage, capture or confirm the project-specific design decisions and persist them to:
 
 ```text
 designs/[initiative-slug]/DESIGN.md
 ```
 
-This `DESIGN.md` is a project-specific runtime artifact, not a BA-kit product artifact. It becomes the system design document for the manual wireframe handoff pack and summarizes the approved visual tone, colors, typography, component feel, layout principles, responsive behavior, and anti-patterns for that initiative.
+This `DESIGN.md` is a project-specific runtime artifact, not a BA-kit product artifact. It summarizes the approved visual tone, colors, typography, component feel, layout principles, responsive behavior, and anti-patterns for that initiative. Machine-readable menu/layout ownership belongs in the system-level shared shell contract, not in module screen prose.
 
-The Step 9 outputs are:
+The canon-first UI-backed SRS outputs are:
 
 ```text
 designs/[initiative-slug]/DESIGN.md
-plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md
-plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md
-plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md
+plans/{slug}-{date}/02_backbone/shared-shell-contract.md
+plans/{slug}-{date}/02_backbone/shared-shell-index.md
+plans/{slug}-{date}/03_modules/{module_slug}/screens/*.md
+plans/{slug}-{date}/03_modules/{module_slug}/usecases/*.md
+plans/{slug}-{date}/03_modules/{module_slug}/srs-index.md
+plans/{slug}-{date}/03_modules/{module_slug}/srs.md
+plans/{slug}-{date}/03_modules/{module_slug}/srs-compile-receipt.json
 ```
 
 Rules:
-- keep screen IDs aligned between the SRS and the manual wireframe handoff pack
-- use the approved `DESIGN.md` as the wireframe system document
+- keep screen IDs aligned between screen canon, use cases, compiled SRS, and any downstream visual output
+- use the approved `DESIGN.md` as visual direction and the shared shell contract as menu/layout authority
 - use Shadcn UI as the default component baseline only when `DESIGN.md` does not specify a different direction
-- keep the SRS focused on behavior, validation, states, navigation, and traceability
-- the user designs the actual wireframe manually or with an external AI/tool, then manually inserts the final reference into the SRS
+- keep screen canon focused on behavior, validation, states, navigation, traceability, and ASCII wireframe coverage
+- Figma MCP sync is downstream from canon and writes sync/mismatch reports instead of redefining requirements
 - treat the packaged HTML suite as the editable stakeholder copy: update text, swap images, and add or remove blocks directly in the browser without editing the source HTML
 
 ## 7. Deliverables And Runtime Artifacts
@@ -295,9 +301,11 @@ A full `/ba-start` engagement produces final BA deliverables plus runtime artifa
 | SRS | `srs-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/srs.md` |
 | User stories | `user-story-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md` |
 | Project runtime DESIGN.md (bán thành phẩm) | `design-md-template.md` | `designs/{slug}/DESIGN.md` |
-| Wireframe constraint pack | `wireframe-input-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md` |
-| Wireframe handoff map | `wireframe-map-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md` |
-| Wireframe state | BA-kit routing metadata | `plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md` |
+| Shared shell contract | `shared-shell-contract-template.md` | `plans/{slug}-{date}/02_backbone/shared-shell-contract.md` |
+| Screen canon | `screen-canon-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/screens/*.md` |
+| Use case canon | `usecase-canon-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/usecases/*.md` |
+| SRS index | `srs-index-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/srs-index.md` |
+| SRS compile receipt | `srs-compile-receipt-template.md` | `plans/{slug}-{date}/03_modules/{module_slug}/srs-compile-receipt.json` |
 | SRS HTML | `scripts/md-to-html.py` | `plans/{slug}-{date}/04_compiled/compiled-srs.html` as the primary browser-editable stakeholder copy |
 
 If you need a clean read-only stakeholder handoff, generate HTML with:
@@ -334,7 +342,7 @@ Packaged HTML keeps Mermaid diagrams visualized in-browser, always prefers local
 
 ## 8. Know Where To Look
 
-- Runtime instructions for Codex: [CODEX.md](../platform/codex/CODEX.md)
+- Runtime instructions for Codex: [AGENTS.md](../AGENTS.md)
 - Claude-oriented project instructions: [CLAUDE.md](../CLAUDE.md)
 - Codex-specific setup notes: [codex-setup.md](./codex-setup.md)
 - Skill catalog: [skill-catalog.md](./skill-catalog.md)
@@ -346,10 +354,10 @@ Packaged HTML keeps Mermaid diagrams visualized in-browser, always prefers local
 - Start with `/ba-start` and let the skill guide you through the lifecycle
 - Use subcommands when a later step must be rerun without redoing intake and FRD work
 - Always provide raw input (file or text) when starting an engagement
-- For UI scope, provide the project `DESIGN.md` direction explicitly, or let the skill ask for decisions and prepare the manual wireframe handoff pack
+- For UI scope, provide the project `DESIGN.md` direction explicitly, or let the skill ask for decisions and prepare mandatory ASCII in screen canon
 - If you already have external mockups or links, plan to attach them manually into the final SRS after Step 9
 - Use `--slug` for rerun commands whenever more than one project may exist
-- Treat `/ba-start status` as the checkpoint view: it prints artifact dates plus wireframe handoff state (`completed`, `skipped`, `not-applicable`, `missing`) and any persisted wireframe input/map artifacts
+- Treat `/ba-start status` as the checkpoint view: it prints artifact dates, canon source counts, ASCII coverage, compile receipt state, and shared shell state
 - Ask for assumptions and open questions before asking for finalization
 - Use PlantUML for swimlanes; use Mermaid for sequence, data-flow, ERD, or simpler process views
 - Use `/ba-notion` when the deliverable needs to be published into Notion rather than only packaged as local HTML

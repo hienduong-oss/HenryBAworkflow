@@ -40,13 +40,12 @@
           "## Tham chiếu Wireframe / Mockup thủ công (Manual Wireframe / Mockup Reference)",
           "## Ý đồ thiết kế màn hình (Screen Design Intent)",
           "## Vùng màn hình (Screen Regions)",
-          "## Hướng dẫn gắn wireframe thủ công (Manual Wireframe Attachment Guide)"
+          "## ASCII Wireframes"
         ]
       },
       "F": {
         "headings": [
-          "## Quy tắc dùng chung (Common Rules)",
-          "## Danh sách thông điệp (Message List)",
+          "## Tham chiếu quy tắc/thông điệp dùng chung (Shared Rule/Message References)",
           "## Kịch bản kiểm thử (Test Cases)",
           "## Bảng thuật ngữ (Glossary)"
         ]
@@ -67,6 +66,33 @@
       "all": {
         "headings": [
           "# Xương sống yêu cầu (Requirements Backbone)"
+        ]
+      }
+    }
+  },
+  "common-rules-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Danh mục quy tắc dùng chung (Common Rules)"
+        ]
+      }
+    }
+  },
+  "message-list-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Danh sách thông điệp dùng chung (Message List)"
+        ]
+      }
+    }
+  },
+  "shared-rule-message-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Chỉ mục rule/message dùng chung (Shared Rule Message Index)"
         ]
       }
     }
@@ -143,11 +169,83 @@
       }
     }
   },
-  "wireframe-input-template.md": {
+  "screen-field-contract-template.yaml": {
     "groups": {
       "all": {
         "headings": [
-          "# Gói constraint wireframe (Wireframe Constraint Pack)"
+          "artifact_set:"
+        ]
+      }
+    }
+  },
+  "tool-lane-state-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Trạng thái tool lane (Tool Lane State)"
+        ]
+      }
+    }
+  },
+  "figma-make-shared-rules-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Quy tắc dùng chung cho Figma Make (Figma Make Shared Rules)"
+        ]
+      }
+    }
+  },
+  "figma-make-shared-prompt-skeleton-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Khung prompt dùng chung cho Figma Make (Figma Make Shared Prompt Skeleton)"
+        ]
+      }
+    }
+  },
+  "figma-make-shared-component-contracts-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Hợp đồng component dùng chung cho Figma Make (Figma Make Shared Component Contracts)"
+        ]
+      }
+    }
+  },
+  "make-guidelines-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Hướng dẫn chạy Figma Make theo module (Module Make Guidelines)"
+        ]
+      }
+    }
+  },
+  "make-prompt-pack-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Gói prompt Figma Make theo module (Module Make Prompt Pack)"
+        ]
+      }
+    }
+  },
+  "prototype-conformance-checklist-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Checklist kiểm tra conformance prototype (Prototype Conformance Checklist)"
+        ]
+      }
+    }
+  },
+  "prototype-conformance-report-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Báo cáo conformance prototype (Prototype Conformance Report)"
         ]
       }
     }
@@ -282,7 +380,70 @@
     "groups": {
       "all": {
         "headings": [
-          "# Chỉ mục SRS (SRS Index)"
+          "# SRS Index"
+        ]
+      }
+    }
+  },
+  "screen-canon-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Screen Canon Template"
+        ]
+      }
+    }
+  },
+  "usecase-canon-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Use Case Canon Template"
+        ]
+      }
+    }
+  },
+  "shared-shell-contract-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Shared Shell Contract"
+        ]
+      }
+    }
+  },
+  "shared-shell-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Shared Shell Index"
+        ]
+      }
+    }
+  },
+  "srs-compile-receipt-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# SRS Compile Receipt"
+        ]
+      }
+    }
+  },
+  "figma-sync-report-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Figma Sync Report"
+        ]
+      }
+    }
+  },
+  "figma-mismatch-report-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# Figma Mismatch Report"
         ]
       }
     }

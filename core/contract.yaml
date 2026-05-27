@@ -8,6 +8,7 @@
     "platform": "mobile"
   },
   "states": {
+    "tool_lane": ["manual", "figma-make", "not-applicable"],
     "wireframe": ["completed", "skipped", "not-applicable", "missing"],
     "delegation": ["queued", "running", "completed", "needs-repartition", "blocked", "failed", "stalled"],
     "heartbeat_minutes": 5,
@@ -43,13 +44,37 @@
     "stories_index": "plans/{slug}-{date}/03_modules/{module_slug}/user-stories-index.md",
     "srs": "plans/{slug}-{date}/03_modules/{module_slug}/srs.md",
     "srs_index": "plans/{slug}-{date}/03_modules/{module_slug}/srs-index.md",
-    "srs_group": "plans/{slug}-{date}/03_modules/{module_slug}/srs-group-{group}.md",
-    "wireframe_input": "plans/{slug}-{date}/03_modules/{module_slug}/wireframe-input.md",
-    "wireframe_map": "plans/{slug}-{date}/03_modules/{module_slug}/wireframe-map.md",
-    "wireframe_state": "plans/{slug}-{date}/03_modules/{module_slug}/wireframe-state.md",
+    "screen_root": "plans/{slug}-{date}/03_modules/{module_slug}/screens",
+    "screen_item": "plans/{slug}-{date}/03_modules/{module_slug}/screens/{screen_slug}.md",
+    "usecase_root": "plans/{slug}-{date}/03_modules/{module_slug}/usecases",
+    "usecase_item": "plans/{slug}-{date}/03_modules/{module_slug}/usecases/{usecase_slug}.md",
+    "module_data_root": "plans/{slug}-{date}/03_modules/{module_slug}/data",
+    "module_erd": "plans/{slug}-{date}/03_modules/{module_slug}/data/erd.md",
+    "flow_root": "plans/{slug}-{date}/03_modules/{module_slug}/flows",
+    "flow_item": "plans/{slug}-{date}/03_modules/{module_slug}/flows/{flow_slug}.md",
+    "srs_group": "plans/{slug}-{date}/03_modules/{module_slug}/srs-groups/srs-group-{group}.md",
+    "srs_compile_receipt": "plans/{slug}-{date}/03_modules/{module_slug}/srs-compile-receipt.json",
+    "figma_sync_report": "plans/{slug}-{date}/03_modules/{module_slug}/figma-sync/figma-sync-report.md",
+    "figma_mismatch_report": "plans/{slug}-{date}/03_modules/{module_slug}/figma-sync/figma-mismatch-report.md",
+    "screen_field_contract": "plans/{slug}-{date}/03_modules/{module_slug}/screen-field-contract.yaml",
+    "tool_lane_state": "plans/{slug}-{date}/03_modules/{module_slug}/tool-lanes/tool-lane-state.md",
+    "make_guidelines": "plans/{slug}-{date}/03_modules/{module_slug}/tool-lanes/figma-make/make-guidelines.md",
+    "make_prompt_pack": "plans/{slug}-{date}/03_modules/{module_slug}/tool-lanes/figma-make/make-prompt-pack.md",
+    "prototype_conformance_checklist": "plans/{slug}-{date}/03_modules/{module_slug}/tool-lanes/figma-make/prototype-conformance-checklist.md",
+    "prototype_conformance_report": "plans/{slug}-{date}/03_modules/{module_slug}/tool-lanes/figma-make/prototype-conformance-report.md",
     "compiled_frd": "plans/{slug}-{date}/04_compiled/compiled-frd.html",
     "compiled_srs": "plans/{slug}-{date}/04_compiled/compiled-srs.html",
+    "tool_lanes_root": "plans/{slug}-{date}/05_tool-lanes",
+    "figma_make_root": "plans/{slug}-{date}/05_tool-lanes/figma-make",
+    "figma_make_shared_rules": "plans/{slug}-{date}/05_tool-lanes/figma-make/shared-rules.md",
+    "figma_make_shared_prompt_skeleton": "plans/{slug}-{date}/05_tool-lanes/figma-make/shared-prompt-skeleton.md",
+    "figma_make_shared_component_contracts": "plans/{slug}-{date}/05_tool-lanes/figma-make/shared-component-contracts.md",
     "design_doc": "designs/{slug}/DESIGN.md",
+    "shared_shell_contract": "plans/{slug}-{date}/02_backbone/shared-shell-contract.md",
+    "shared_shell_index": "plans/{slug}-{date}/02_backbone/shared-shell-index.md",
+    "common_rules": "plans/{slug}-{date}/02_backbone/common-rules.md",
+    "message_list": "plans/{slug}-{date}/02_backbone/message-list.md",
+    "shared_rule_message_index": "plans/{slug}-{date}/02_backbone/shared-rule-message-index.md",
     "project_memory": "plans/{slug}-{date}/02_backbone/project-memory.md",
     "memory_root": "plans/{slug}-{date}/02_backbone/project-memory",
     "memory_index": "plans/{slug}-{date}/02_backbone/project-memory/index.md",
@@ -70,6 +95,7 @@
     "behavior_module_authoring": "core/behavior/module-authoring.md",
     "behavior_srs": "core/behavior/srs.md",
     "behavior_wireframes": "core/behavior/wireframes.md",
+    "behavior_figma_sync": "core/behavior/figma-sync.md",
     "behavior_package_status_next": "core/behavior/package-status-next.md",
     "impact_receipt": "plans/{slug}-{date}/02_backbone/impact-receipt.md",
     "options_receipt": "plans/{slug}-{date}/01_intake/options/options-receipt.md",
@@ -83,9 +109,9 @@
     "reverse_drift_state": "plans/{slug}-{date}/00_reverse/reverse-drift-state.json",
     "reverse_read_manifest": "plans/{slug}-{date}/00_reverse/reverse-read-manifest.ndjson",
     "behavior_reverse": "core/behavior/reverse.md",
-    "qc_output_root": "docs/QC-{PLATFORM}/review-doc/{UC-folder-name}",
-    "qc_report": "docs/QC-{PLATFORM}/review-doc/{UC-folder-name}/{filename}_audited_{slug}_v{N}.md",
-    "qc_backlog": "docs/QC-{PLATFORM}/review-doc/{UC-folder-name}/{filename}_question-backlog.md",
+    "qc_output_root": "plans/{slug}-{date}/03_modules/{module_slug}/qc-review",
+    "qc_report": "plans/{slug}-{date}/03_modules/{module_slug}/qc-review/{module_slug}-qc-review-report-v{N}.md",
+    "qc_backlog": "plans/{slug}-{date}/03_modules/{module_slug}/qc-review/{module_slug}-qc-review-question-backlog.md",
     "behavior_qc_review": "core/behavior/qc-review.md",
     "presale_root":              "plans/{slug}-{date}/00_presale",
     "presale_checkpoint":        "plans/{slug}-{date}/00_presale/_checkpoint.md",
@@ -123,13 +149,35 @@
     "stories_index": "agent_facing",
     "srs": "user_facing",
     "srs_index": "agent_facing",
+    "screen_root": "agent_facing",
+    "screen_item": "agent_facing",
+    "usecase_root": "agent_facing",
+    "usecase_item": "agent_facing",
+    "module_data_root": "agent_facing",
+    "module_erd": "agent_facing",
+    "flow_root": "agent_facing",
+    "flow_item": "agent_facing",
     "srs_group": "user_facing",
-    "wireframe_input": "agent_facing",
-    "wireframe_map": "agent_facing",
-    "wireframe_state": "machine_facing",
+    "srs_compile_receipt": "machine_facing",
+    "figma_sync_report": "agent_facing",
+    "figma_mismatch_report": "agent_facing",
+    "screen_field_contract": "machine_facing",
+    "tool_lane_state": "machine_facing",
+    "make_guidelines": "agent_facing",
+    "make_prompt_pack": "agent_facing",
+    "prototype_conformance_checklist": "agent_facing",
+    "prototype_conformance_report": "user_facing",
+    "figma_make_shared_rules": "agent_facing",
+    "figma_make_shared_prompt_skeleton": "agent_facing",
+    "figma_make_shared_component_contracts": "agent_facing",
     "compiled_frd": "user_facing",
     "compiled_srs": "user_facing",
     "design_doc": "agent_facing",
+    "shared_shell_contract": "agent_facing",
+    "shared_shell_index": "agent_facing",
+    "common_rules": "agent_facing",
+    "message_list": "agent_facing",
+    "shared_rule_message_index": "agent_facing",
     "project_memory": "agent_facing",
     "memory_index": "agent_facing",
     "memory_log": "agent_facing",
@@ -202,7 +250,7 @@
       "module_required": false,
       "mutable": true,
       "requires": ["intake"],
-      "outputs": ["project_home", "backbone", "backbone_index", "project_memory"]
+      "outputs": ["project_home", "backbone", "backbone_index", "common_rules", "message_list", "shared_rule_message_index", "project_memory"]
     },
     "frd": {
       "module_required": true,
@@ -220,13 +268,22 @@
       "module_required": true,
       "mutable": true,
       "requires": ["backbone", "stories"],
-      "outputs": ["srs", "srs_group", "srs_index", "wireframe_input"]
+      "outputs": ["srs", "srs_group", "srs_index", "screen_root", "usecase_root", "module_erd", "flow_root", "srs_compile_receipt", "screen_field_contract", "design_doc"],
+      "notes": "Canon-first SRS command. Canonical authoring sources are module screen/use case/data files plus routing indexes. Every UI-backed screen canon file must include current ASCII wireframe coverage before compile. The compiled deliverable remains paths.srs."
     },
     "wireframes": {
       "module_required": true,
+      "mutable": false,
+      "requires": ["srs_index", "screen_root", "srs_compile_receipt"],
+      "outputs": [],
+      "notes": "Deprecated compatibility inspection command. Do not create legacy wireframe pack artifacts. ASCII wireframes are mandatory inside screen canon files and compiled through srs."
+    },
+    "figma-sync": {
+      "module_required": true,
       "mutable": true,
-      "requires": ["wireframe_input"],
-      "outputs": ["design_doc", "wireframe_map", "wireframe_state"]
+      "requires": ["srs_index", "srs_compile_receipt", "design_doc", "shared_shell_contract"],
+      "outputs": ["figma_sync_report", "figma_mismatch_report"],
+      "notes": "Separate downstream visual consumer. It may interact with Figma MCP and write sync/mismatch reports, but it must not mutate BA canon sources, shared shell contracts, or compiled SRS."
     },
     "package": {
       "module_required": false,
@@ -286,33 +343,17 @@
       "mutable": false,
       "requires": ["srs"],
       "outputs": ["qc_report", "qc_backlog"],
-      "notes": "Audit UC/SRS for test-readiness. Non-mutable: reads artifacts, produces QC reports. Auto-triggered by quality gates."
+      "notes": "Audit module SRS canon for test-readiness. Non-mutable: reads module-local canon sources first, then compiled SRS as supporting evidence. Auto-triggered after module srs completion."
     }
   },
   "quality_gates": {
-    "pre_srs": {
-      "invoke": "qc-review",
-      "min_version": "1.0.0",
-      "profile": "completeness-clarity-only",
-      "platform": "${defaults.platform}",
-      "block_on": "verdict == NOT_READY",
-      "trigger_after": "stories"
-    },
-    "pre_wireframe": {
+    "post_srs_module_qc": {
       "invoke": "qc-review",
       "min_version": "1.0.0",
       "profile": "full-10ka",
       "platform": "${defaults.platform}",
       "block_on": "score < 70",
       "trigger_after": "srs"
-    },
-    "pre_package": {
-      "invoke": "qc-review",
-      "min_version": "1.0.0",
-      "profile": "cross-artifact-consistency",
-      "platform": "${defaults.platform}",
-      "block_on": "blockers.length > 0",
-      "trigger_after": "wireframes"
     }
   },
   "behavior_shards": {
@@ -324,6 +365,7 @@
     "stories": ["behavior_module_authoring"],
     "srs": ["behavior_srs"],
     "wireframes": ["behavior_wireframes"],
+    "figma-sync": ["behavior_figma_sync"],
     "package": ["behavior_package_status_next"],
     "status": ["behavior_package_status_next"],
     "next": ["behavior_package_status_next"],
@@ -335,7 +377,7 @@
     "qc-review": ["behavior_qc_review"]
   },
   "source_of_truth_order": ["backbone", "intake"],
-  "next_step_order": ["intake", "options", "backbone", "frd", "stories", "srs", "wireframes", "package", "status"],
+  "next_step_order": ["intake", "options", "backbone", "frd", "stories", "srs", "package", "status"],
   "reverse": {
     "canonical": false,
     "evidence_zone": true,
@@ -355,7 +397,7 @@
       "backbone_change": "backbone",
       "story_detail_change": "stories",
       "srs_behavior_change": "srs",
-      "ui_impact_follow_up": "wireframes"
+      "ui_impact_follow_up": "srs"
     }
   },
   "output_modes": {

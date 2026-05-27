@@ -60,11 +60,13 @@ Split when ANY of:
 
 ## Cross-Artifact Consistency
 - Use cases, screen descriptions, wireframe constraints, and any user-supplied wireframes must describe the **same** behavior using **identical** terminology.
+- Module `screens/*.md` and `usecases/*.md` are the canonical authoring sources for screen-level and use-case-level behavior. `srs.md` is the compiled deliverable, not the primary edit surface.
 - Every detailed Use Case in the SRS must include a Process Flow with swimlanes (using PlantUML) or a Sequence Diagram (using Mermaid).
 - When wireframe support is requested, an approved project `DESIGN.md` must exist and the resulting manual handoff pack must follow it consistently.
 - Screen Contract Plus must be sufficient to prepare wireframe constraints before final screen descriptions are written.
 - The backbone must lock a system-level `Portal Matrix` whenever UI-backed scope exists.
 - `DESIGN.md` must define a `Navigation Schema` for every portal that appears in module-level screen specs.
+- The machine-usable ownership contract for portals, nav schemas, shell variants, and layout variants must live in the system-level shared shell contract, not be redefined inside module screens.
 - UC actor actions must match screen User Actions — same wording, same sequence.
 - UC system responses must match screen field Behaviour Rules.
 - UC alternate flows must be reflected in screen Error/States.
@@ -72,7 +74,10 @@ Split when ANY of:
 - Screens in the same portal must reuse the same navigation schema unless an explicit exception is documented.
 - If global navigation is visible on a screen, the active/highlighted menu state must be documented as both behavior and visual evidence.
 - Modal, dialog, drawer, and overlay screens with distinct interaction logic must be modeled as primary screens with their own detailed screen sections.
+- Modal, dialog, drawer, and overlay screens with flow impact must also exist as first-class canon screen files, not only as inventory rows inside compiled SRS.
 - Supporting wireframe frames must reflect the parent screen's defined states and feedback rules, including empty, error, and message variants when applicable.
+- Every screen canon with visible state changes must declare `State Visual Coverage`; `L3` states require both ASCII representation and Figma-frame mapping.
+- Overlay screens must declare `Overlay Context`, including parent screen, entry trigger, render mode, and close/success/error return behavior.
 - Field names must be identical across UC steps, screen field tables, and wireframe constraint labels or user-supplied mockup labels.
 - Screen field descriptions must separate `Display Rules`, `Behaviour Rules`, and `Validation Rules`.
 - `Display Rules` should capture how the field appears, including label, placeholder, visibility, defaults, formatting, and read-only state when relevant.
@@ -87,7 +92,7 @@ Split when ANY of:
 - Inventory-only supporting screens must still be listed in the SRS screen inventory and kept aligned with the wireframe handoff checklist.
 - User story acceptance criteria must be covered by UC postconditions and screen Validation Rules.
 - FRD features must be fully traceable through user stories into SRS requirements.
-- Final screen descriptions must be derived from and remain consistent with the pre-wireframe screen spec, the wireframe constraint pack, and the upstream use cases.
+- Final screen descriptions must be derived from and remain consistent with the canonical screen/use case sources, the pre-wireframe screen spec, the transitional wireframe constraint pack when used, and the upstream use cases.
 - Final screen descriptions may enrich layout and interaction detail, but they must not redefine portal ownership, navigation schema, or active/highlight behavior that was already locked upstream.
 - Any user-supplied wireframe styling, density, and component treatment must remain consistent with the approved `designs/{slug}/DESIGN.md`.
 - When inconsistency is found, the upstream artifact (user story > use case > screen > wireframe) is the source of truth.

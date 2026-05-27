@@ -14,6 +14,8 @@ legal entity that purchased or was granted access, subject to the terms in
 
 Tài liệu chi tiết: [BA-kit GitBook](https://bakit.gitbook.io/)
 
+Nếu mới dùng lần đầu, đọc guide thực hành trước: [BA-kit Step-by-Step Guide](docs/ba-kit-step-by-step-guide.md).
+
 ## BA Làm Gì Với BA-kit?
 
 BA có thể dùng ngôn ngữ tự nhiên thay vì nhớ command:
@@ -31,7 +33,7 @@ Xuất gói bàn giao cho stakeholder
 
 Agent sẽ map intent sang workflow an toàn:
 
-- Lifecycle BA: intake, options khi cần, backbone, stories, FRD, SRS, wireframe handoff, package.
+- Lifecycle BA: intake, options khi cần, backbone, stories, FRD, SRS with mandatory ASCII, package.
 - Reverse BA: quét code/evidence để dựng as-built SRS, khóa baseline commit, theo dõi drift, và chỉ promote nội dung có evidence rõ.
 - Collaboration BA: claim module, check conflict, create review packet, optional GitHub PR handoff.
 - Git/GitHub là implementation detail; commit, push, PR, merge chỉ chạy khi user approve rõ.
@@ -44,9 +46,11 @@ Raw input
 -> PROJECT-HOME.md
 -> Option pack + comparison khi intake cần nhiều hướng solution
 -> Requirements Backbone
--> Module artifacts: FRD / Stories / SRS / Screen Contract Plus
--> DESIGN.md + wireframe-input.md + wireframe-map.md
--> User tự tạo mockup / wireframe
+-> Module canon artifacts: FRD / Stories / usecases/*.md / screens/*.md with mandatory ASCII / srs-index.md
+-> DESIGN.md + shared-shell-contract.md
+-> Compiled SRS deliverable (`srs.md`) with screen descriptions + ASCII wireframes
+-> Optional Figma sync as downstream consumer
+-> Optional tool lane: screen-field-contract + Make control pack + conformance review
 -> Final SRS + HTML package
 ```
 
@@ -72,13 +76,21 @@ Lead BA chia module
 | `01_intake/plan.md` | Kế hoạch artifact sẽ sinh theo mode/gate |
 | `01_intake/options/*` | Bộ phương án solution và bảng so sánh trước backbone |
 | `02_backbone/backbone.md` | Source of truth sau scope lock |
+| `02_backbone/common-rules.md` | Registry duy nhất cho rule code dùng chung `CR-*` |
+| `02_backbone/message-list.md` | Registry duy nhất cho message code dùng chung `MSG-*` |
+| `02_backbone/shared-rule-message-index.md` | Index gọn để runtime đọc trước khi mở registry đầy đủ |
 | `02_backbone/project-memory.md` | Bộ nhớ dự án: thuật ngữ, quyết định, assumptions, corrections |
 | `COLLAB-HOME.md` | Dashboard cộng tác: ai làm module nào, review status, blocker |
 | `03_modules/{module}/MODULE-HOME.md` | Dashboard riêng cho Module BA: scope được sửa, checklist review |
 | `03_modules/{module}/frd.md` | Functional Requirements Document theo module |
 | `03_modules/{module}/user-stories.md` | User stories và acceptance criteria |
 | `03_modules/{module}/srs.md` | SRS/use case/screen spec theo module |
-| `wireframe-input.md` / `wireframe-map.md` | Gói constraint và map để user tự tạo mockup |
+| `screens/*.md` / `usecases/*.md` / `srs-index.md` | Canon authoring sources; mỗi UI-backed screen phải có ASCII wireframe |
+| `03_modules/{module}/screen-field-contract.yaml` | Contract máy đọc được cho field/rule/state/navigation sau Step 8.1 |
+| `03_modules/{module}/tool-lanes/tool-lane-state.md` | Lane đã chọn cho Step 9: `manual` mặc định hoặc tool lane opt-in |
+| `05_tool-lanes/figma-make/*` | Shared prompt skeleton và shared component contracts cho Figma Make |
+| `03_modules/{module}/tool-lanes/figma-make/make-*.md` | Legacy/optional prompt pack theo module cho Figma Make |
+| `03_modules/{module}/tool-lanes/figma-make/prototype-conformance-*.md` | Legacy/optional checklist và report reject gate cho output từ tool lane |
 | `delegation/review-packets/{module}.md` | Gói gửi Lead BA review |
 | `04_compiled/*.html` | Bản HTML stakeholder review/edit trong browser |
 | `designs/{slug}/DESIGN.md` | Design direction runtime cho UI handoff |
@@ -93,6 +105,17 @@ plans/
     PROJECT-HOME.md
     COLLAB-HOME.md
     00_source/
+      manifest.json
+      summary.md
+      chunks/
+      chunk-index.md
+    00_reverse/
+      reverse-baseline-lock.json
+      reverse-index.md
+      reverse-focus-excerpts.md
+      reverse-evidence-ledger.md
+      reverse-drift-state.json
+      reverse-read-manifest.ndjson
     01_intake/
       intake.md
       plan.md
@@ -102,23 +125,70 @@ plans/
         option-02.md
         option-03.md
         comparison.md
+        options-receipt.md
     02_backbone/
       backbone.md
+      backbone-index.md
+      common-rules.md
+      message-list.md
+      shared-rule-message-index.md
+      shared-shell-contract.md
+      shared-shell-index.md
+      impact-receipt.md
+      index-validation-receipt.md
+      package-snapshot.md
       project-memory.md
       project-memory/
+        index.md
+        log.md
+        hot/
+          canonical-vocabulary.md
+          approved-decisions.md
+          pushback-triggers.md
+        warm/
+          modules/
+            {module_slug}.md
+        cold/
     03_modules/
       {module_slug}/
         MODULE-HOME.md
         frd.md
         user-stories.md
+        user-stories-index.md
+        screens/
+        usecases/
+        data/
+          erd.md
+        flows/
         srs.md
-        srs-group-a.md
-        srs-group-b.md
-        srs-group-c.md
-        wireframe-input.md
-        wireframe-map.md
-        wireframe-state.md
+        srs-index.md
+        srs-groups/
+          srs-group-a.md
+          srs-group-b.md
+          srs-group-c.md
+          srs-group-d.md
+          srs-group-e.md
+          srs-group-f.md
+        srs-compile-receipt.json
+        screen-field-contract.yaml
+        tool-lanes/
+          tool-lane-state.md
+          figma-make/
+            make-guidelines.md
+            make-prompt-pack.md
+            prototype-conformance-checklist.md
+            prototype-conformance-report.md
+        figma-sync/
+          figma-sync-report.md
+          figma-mismatch-report.md
     04_compiled/
+      compiled-frd.html
+      compiled-srs.html
+    05_tool-lanes/
+      figma-make/
+        shared-rules.md
+        shared-prompt-skeleton.md
+        shared-component-contracts.md
     delegation/
       packets/
       review-packets/
@@ -183,11 +253,11 @@ Command-level fallback:
 /ba-start options --slug warehouse-rfp --skip
 /ba-start backbone --slug warehouse-rfp
 /ba-start srs --slug warehouse-rfp --module auth-flow
-/ba-start wireframes --slug warehouse-rfp --module auth-flow
 /ba-start package --slug warehouse-rfp
 /ba-start status --slug warehouse-rfp
 /ba-start reverse --slug warehouse-rfp
 /ba-start reverse impact --slug warehouse-rfp
+/ba-figma-sync --slug warehouse-rfp --module auth-flow
 /ba-collab Tôi nhận module auth-flow
 /ba-collab Gửi module auth-flow cho Lead BA review
 ```
@@ -195,6 +265,21 @@ Command-level fallback:
 Dùng `options` khi intake cho thấy cần 1-3 hướng solution trước khi viết `backbone.md`. Step này tạo option pack + comparison dưới `01_intake/options/*`, rồi chốt `--select` hoặc `--skip` rõ ràng trước khi sang backbone.
 
 Dùng `reverse` khi mục tiêu là dựng tài liệu as-built từ hệ thống đang chạy hoặc code đã commit. Reverse lane chỉ promote nội dung có evidence rõ, không suy diễn business intent, không dùng cho future-state request, và bỏ qua wireframes vì không đề xuất UI mới. Nếu user đang yêu cầu thay đổi mong muốn trong tương lai, chuyển sang `impact` hoặc lifecycle forward bình thường.
+
+## Tool Lane Sau SRS
+
+- ASCII wireframe luôn bắt buộc trong `03_modules/{module}/screens/*.md` và được compile vào `srs.md`.
+- Nếu user opt-in `figma-make`, BA-kit không dùng raw `srs.md` làm prompt chính.
+- `srs` phải compile `screen-field-contract.yaml` sau Group C / Step 8.1.
+- Tool lane đọc contract này để sinh:
+  - shared prompt assets ở `05_tool-lanes/figma-make/`
+  - `03_modules/{module}/tool-lanes/figma-make/make-guidelines.md`
+  - `03_modules/{module}/tool-lanes/figma-make/make-prompt-pack.md`
+  - `03_modules/{module}/tool-lanes/figma-make/prototype-conformance-checklist.md`
+  - `03_modules/{module}/tool-lanes/figma-make/prototype-conformance-report.md`
+- Requirement drift phát hiện từ prototype phải route qua `impact`, không back-write vào SRS.
+
+Chi tiết: [docs/figma-make-lane.md](./docs/figma-make-lane.md)
 
 CLI helper:
 
@@ -230,14 +315,37 @@ Agent xử lý nội bộ:
 
 ## Wireframe Handoff
 
-`/ba-start wireframes` giữ tên để tương thích ngược, nhưng không generate hình UI. Bước này chỉ chuẩn bị manual handoff pack:
+`/ba-start srs` đang chuyển dần sang mô hình canon-first:
 
-- `designs/{slug}/DESIGN.md`
-- `03_modules/{module}/wireframe-input.md`
-- `03_modules/{module}/wireframe-map.md`
-- `03_modules/{module}/wireframe-state.md`
+- `03_modules/{module}/screens/*.md`
+- `03_modules/{module}/usecases/*.md`
+- `03_modules/{module}/data/erd.md` khi cần
+- `03_modules/{module}/srs-index.md`
+- `03_modules/{module}/srs.md` như compiled deliverable đầy đủ
 
-User hoặc designer tự tạo mockup/wireframe rồi attach vào đúng section trong SRS. Mockup không phải source of truth.
+Direct edit nên đi vào canon sources trước, rồi mới compile lại `srs.md`.
+
+Guardrail nhanh:
+
+```bash
+ba-kit doctor-srs plans/{slug}-{date}/03_modules/{module}
+ba-kit check-write-scope --command figma-sync plans/{slug}-{date}/03_modules/{module}/screens/scr-01.md
+```
+
+`doctor-srs` kiểm tra `srs-index.md`, screen canon schema, và compile receipt. `check-write-scope` dùng cho hook/runtime để chặn lệnh downstream như Figma sync sửa nhầm canon.
+
+`/ba-start wireframes` chỉ còn là compatibility validation command. Flow hiện tại không tạo legacy wireframe pack artifacts. Nếu ASCII thiếu hoặc stale, chạy lại `/ba-start srs --slug <slug> --module <module>`.
+
+User hoặc designer có thể attach mockup ngoài vào đúng section trong SRS. Mockup không phải source of truth và không thay thế ASCII wireframe.
+
+Figma MCP sync là lane riêng sau SRS canon:
+
+```text
+/ba-figma-sync --slug {slug} --module {module}
+/ba-do Đồng bộ Figma cho module {module} của dự án {slug}
+```
+
+Nó chỉ đọc `srs-index.md`, `screens/*.md`, `DESIGN.md`, `shared-shell-contract.md`, và `shared-rule-message-index.md`, rồi ghi `figma-sync/figma-sync-report.md` hoặc `figma-sync/figma-mismatch-report.md`. Nếu Figma khác canon, sửa canon trước rồi sync lại; không sửa Figma rồi coi đó là requirement mới.
 
 ## Nâng Cấp
 

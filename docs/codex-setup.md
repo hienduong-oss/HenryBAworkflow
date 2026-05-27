@@ -10,7 +10,7 @@ BA-kit can work with Codex as a repo-native BA operating guide. The [platform/co
 - `skills/` as reference playbooks for BA task types
 - `rules/` as BA quality and workflow constraints
 - `templates/` as deliverable structures
-- `designs/` for project-specific runtime `DESIGN.md` files used to constrain manual wireframe handoff
+- `designs/` for project-specific runtime `DESIGN.md` files used to constrain screen canon ASCII
 
 ## Codex Conversion Install
 
@@ -126,7 +126,7 @@ Or ask Codex to run:
 1. Start with the business outcome or artifact you need, not command names.
 2. For freeform BA requests, use `ba-do` as the router first.
 3. Tell Codex to read `PROJECT-HOME.md` when present, then use the BA playbook for the resolved step.
-4. If UI is involved, point it at the relevant project `DESIGN.md` and the module `wireframe-input.md` / `wireframe-map.md` artifacts.
+4. If UI is involved, point it at the relevant project `DESIGN.md`, system shared shell contract, and module SRS canon files under `screens/`, `usecases/`, and `srs-index.md`.
 5. For collaboration, use `ba-collab` for module claims, review packets, conflict checks, and approval-gated GitHub handoff.
 6. Use `/ba-start` for full workflow runs and the matching explicit subcommand for reruns.
 7. Use `/ba-start options --slug <slug>` when intake should brainstorm solution options before the backbone is written.
@@ -140,7 +140,7 @@ Or ask Codex to run:
 15. If the user sends only a short correction statement such as `Không có nhóm admin user`, treat it as change evidence for `impact`, not as permission to edit artifacts directly.
 16. Ask for assumptions, open questions, and a draft output.
 17. If you installed the Codex conversion, ask Codex to use `ba-do` from `~/.codex/skills/ba-do/SKILL.md` for freeform routing, `ba-start` from `~/.codex/skills/ba-start/SKILL.md` for explicit lifecycle execution, and the registered BA agents from `~/.codex/agents`.
-18. Unless you explicitly override it, BA-kit should use Shadcn UI as the default component baseline for wireframe constraints and UI handoff.
+18. Unless you explicitly override it, BA-kit should use Shadcn UI as the default component baseline for screen canon ASCII and UI handoff.
 19. Before Step 9 is run, BA-kit should ask for or confirm the design decisions needed to persist the project runtime artifact `designs/{slug}/DESIGN.md`, then use that file as the system design document.
 20. Unless you explicitly override it, BA deliverables should be written in Vietnamese.
 21. Treat the dated artifact-set token as `YYMMDD-HHmm` across both report filenames and `plans/{slug}-{date}/01_intake/plan.md`.
@@ -159,6 +159,7 @@ Global command helpers after Codex install:
 - `ba-do` — preferred freeform router for BA requests
 - `ba-impact` — run change-impact triage without mutating artifacts
 - `ba-next` — inspect the current artifact set and recommend the next BA command
+- `ba-figma-sync` — sync approved screen canon to Figma through Figma MCP
 
 Use `options` when intake needs multiple solution directions before backbone. The commands are:
 
@@ -178,17 +179,17 @@ Route this BA request to the correct BA-kit command and then follow that workflo
 "Parse the requirements in docs/raw/warehouse-rfp.pdf.
 Default to `hybrid` mode for a solo IT BA.
 If intake recommends multiple solution directions, create the option pack + comparison before backbone.
-Then build the requirements backbone and emit FRD, user stories, use case specifications, Screen Contract Plus, manual wireframe handoff artifacts, final screen descriptions, and FRD/SRS HTML only when each artifact is justified.
-If wireframe support is needed, ask me for design decisions and persist `designs/{slug}/DESIGN.md` before Step 9."
+Then build the requirements backbone and emit FRD, user stories, use case specifications, Screen Contract Plus, screen canon with mandatory ASCII wireframes, final screen descriptions, and FRD/SRS HTML only when each artifact is justified.
+If UI support is needed, ask me for design decisions and persist `designs/{slug}/DESIGN.md` before ASCII generation."
 ```
 
 ### Step-Level Rerun
 
 ```text
 Use AGENTS.md and skills/ba-start/SKILL.md.
-Run the equivalent of `/ba-start wireframes --slug warehouse-rfp --module auth-flow`.
+Run the equivalent of `/ba-start srs --slug warehouse-rfp --module auth-flow` for screen-canon ASCII refresh.
 Use the existing Screen Contract Plus artifacts only.
-Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask to refresh it before preparing the manual wireframe handoff pack.
+Reuse the existing `designs/{slug}/DESIGN.md` if it is approved, otherwise ask to refresh it before preparing ASCII wireframes.
 If more than one dated set exists for `warehouse-rfp`, stop and ask me which date to use.
 Do not regenerate intake, FRD, or user stories.
 ```
@@ -285,7 +286,7 @@ Do not silently choose a slug or dated set by mtime.
 Use the installed ba-start skill from ~/.codex/skills/ba-start/SKILL.md.
 Use the registered Codex BA agents from ~/.codex/agents when the skill delegates work.
 Parse the requirements in docs/raw/warehouse-rfp.pdf.
-Produce an intake form, requirements backbone, gated FRD/stories/SRS artifacts, project runtime `DESIGN.md`, manual wireframe handoff artifacts when justified, final screen descriptions, and the FRD/SRS HTML deliverables required by the selected mode.
+Produce an intake form, requirements backbone, gated FRD/stories/SRS artifacts, project runtime `DESIGN.md`, screen canon with mandatory ASCII wireframes, final screen descriptions, and the FRD/SRS HTML deliverables required by the selected mode.
 ```
 
 ### Formal Requirements Only
@@ -314,13 +315,14 @@ That means prompts should explicitly tell Codex which playbook to consult when t
 The `platform/codex/CODEX.md` carries the short non-negotiable defaults, but it does not replace the detailed routing and prerequisite logic in `skills/ba-start/SKILL.md`.
 For delegated BA work, resolve the workflow once in the orchestrator, then pass only the minimal handoff packet to each registered agent instead of replaying the entire playbook and merged artifact set every time.
 
-## Wireframe Handoff For Codex
+## ASCII Wireframes For Codex
 
-Use the default BA-kit flow for manual wireframe handoff in SRS-backed work:
-- persist or reuse `designs/{slug}/DESIGN.md` before preparing wireframe handoff artifacts
-- build or refresh `wireframe-input.md` and `wireframe-map.md`
-- keep screen IDs aligned across the SRS and the handoff artifacts
-- let the user create the actual wireframe externally and manually attach the result into the SRS
+Use the canon-first BA-kit flow for UI-backed SRS work:
+- persist or reuse `designs/{slug}/DESIGN.md` for visual direction
+- keep shared menu/layout ownership in `shared-shell-contract.md`
+- author screen behavior and ASCII wireframes in `screens/*.md`
+- compile the reader-facing `srs.md` and `srs-compile-receipt.json` from canon sources
+- treat Figma MCP sync as a separate downstream lane that writes sync/mismatch reports, not BA canon
 
 ## HTML Deliverable
 
@@ -328,7 +330,7 @@ The generated HTML set uses one shared BA-kit document shell. Open the packaged 
 
 If the user manually inserts wireframe images or links into the markdown source, the packaged HTML preserves those references only when the asset path stays inside the allowed base directory. Mermaid diagrams are bootstrapped explicitly after `DOMContentLoaded`, while PlantUML diagrams always prefer local rendering. Use `ba-kit install-plantuml` to auto-install PlantUML locally, or `--auto-install-plantuml` when running the renderer, before considering a configured server fallback.
 
-`/ba-start status` should report wireframe handoff using the explicit state marker: `completed`, `skipped`, `not-applicable`, or `missing`, plus the persisted wireframe input pack and wireframe map when they exist. It should also surface delegated slice trackers and flag likely stalls from stale heartbeats.
+`/ba-start status` should report screen canon ASCII coverage, compile receipt state, and shared shell state. It should also surface delegated slice trackers and flag likely stalls from stale heartbeats.
 
 ## Good Outcomes
 
@@ -338,4 +340,4 @@ You are set up correctly when Codex can:
 - use `COLLAB-HOME.md`, `MODULE-HOME.md`, and review packets for BA collaboration without exposing Git first
 - read the BA playbook from `skills/ba-start/SKILL.md`
 - draft a structured artifact from `templates/`
-- reference manual wireframe handoff artifacts and user-supplied mockups consistently from the SRS
+- reference screen canon ASCII and optional user-supplied mockups consistently from the SRS

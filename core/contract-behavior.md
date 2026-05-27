@@ -45,7 +45,7 @@ Parse arguments before doing any work.
 1. Read tokens left to right.
 2. Extract `--slug <slug>`, `--date <date>`, `--module <module_slug>`, and `--mode <lite|hybrid|formal>` when present.
 3. The first remaining lifecycle token is the subcommand: `intake`, `impact`, `options`, `backbone`, `frd`, `stories`, `srs`, `wireframes`, `package`, `status`, or `next`.
-4. Friendly aliases may be translated before execution: continue/resume -> `next`, change assessment -> `impact`, option brainstorming/selection -> `options`, UI handoff -> `wireframes`, handoff package -> `package`, status check -> `status`.
+4. Friendly aliases may be translated before execution: continue/resume -> `next`, change assessment -> `impact`, option brainstorming/selection -> `options`, UI/ASCII wireframe refresh -> `srs`, handoff package -> `package`, status check -> `status`.
 5. If no subcommand is present, run the full lifecycle from intake.
 6. For `intake`, allow one free argument as the source path hint.
 7. For `impact`, allow one free argument as the change file path hint.
@@ -97,8 +97,7 @@ Collaboration intent (module claim, review handoff, conflict check, PR, commit, 
 
 - Use `commands.<name>.requires` plus `paths.*` to resolve exact prerequisite files.
 - If any required artifact is missing, print the exact missing path, the prior command to run, and stop.
-- For `package`, block only when wireframe state is `missing`.
-- If no wireframe-state marker exists, treat it as `not-applicable` only when the SRS set has no UI-backed screens or Screen Contract Plus section. Otherwise treat it as `missing`.
+- For `package`, require current canon sources and compile receipt. UI-backed modules must have ASCII coverage in screen canon; external mockup state is not a package gate.
 
 ## Options Decision-Ledger Gate
 
@@ -474,16 +473,17 @@ Gate enforcement is automatic — no user invocation needed. Gates fire AFTER th
 
 When `qc-review` is invoked directly or via gate:
 - `--platform <mobile|web|api>` — override `defaults.platform` for this run
-- `--profile <full-10ka|completeness-clarity-only|cross-artifact-consistency>` — override gate profile
+- `--profile <full-10ka>` — override the runtime gate profile for this run
+- Legacy/manual-only profiles `completeness-clarity-only` and `cross-artifact-consistency` may still be used for ad hoc operator review, but they are not referenced by `quality_gates`
 - `--skip-gate` — bypass QC gate enforcement; requires explicit user confirmation before proceeding
 
 ### Gate Profiles
 
 | Profile | Scope |
 |---|---|
-| `completeness-clarity-only` | KA #1–#4 only (identity, scope, actors, preconditions) |
-| `full-10ka` | All 10 KAs, full scoring rubric |
-| `cross-artifact-consistency` | Cross-artefact conflict check + blocker scan only |
+| `full-10ka` | Runtime gate profile. All 10 KAs, full scoring rubric. |
+| `completeness-clarity-only` | Legacy/manual-only narrow review of KA #1–#4. Not used by `quality_gates`. |
+| `cross-artifact-consistency` | Legacy/manual-only blocker scan. Not used by `quality_gates`. |
 
 ## Reverse Mode Behavior
 

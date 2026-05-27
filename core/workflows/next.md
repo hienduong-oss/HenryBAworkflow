@@ -32,7 +32,7 @@ Rules:
 - prefer explicit `--slug`
 - otherwise detect a single existing project set from exact BA-kit artifact patterns
 - if ambiguous, stop and ask the user to choose
-- when the next exact command would be module-scoped (`frd`, `stories`, `srs`, or `wireframes`),
+- when the next exact command would be module-scoped (`frd`, `stories`, or `srs`),
   resolve the module using the contract rules before emitting the command
 - if multiple module directories exist, stop and ask instead of emitting an incomplete
   module-scoped command
@@ -107,9 +107,12 @@ Using the snapshot manifest or stat-only checks, determine which of these exist:
 - frd
 - user stories
 - srs
-- wireframe-input
-- wireframe-map
-- wireframe-state
+- srs-index
+- screens directory
+- usecases directory
+- data directory
+- flows directory
+- srs-compile-receipt
 - packaged FRD/SRS HTML
 - reverse_baseline_lock (stat only: `plans/{slug}-{date}/00_reverse/reverse-baseline-lock.json`)
 - reverse_index (stat only: `plans/{slug}-{date}/00_reverse/reverse-index.md`)
@@ -135,9 +138,11 @@ Apply the first matching rule:
 6. backbone exists and FRD is explicitly required but missing -> `ba-start frd --slug <slug> --module <module_slug>`
 7. backbone exists but user stories are missing -> `ba-start stories --slug <slug> --module <module_slug>`
 8. SRS is required and missing -> `ba-start srs --slug <slug> --module <module_slug>`
-9. wireframe-input exists and wireframe-state is missing while wireframe handoff is required -> `ba-start wireframes --slug <slug> --module <module_slug>`
-10. final markdown exists but required packaged HTML is missing -> `ba-start package --slug <slug>`
-11. everything required already exists -> `ba-start status --slug <slug>`
+9. SRS exists but `srs-index.md` is missing -> `ba-start srs --slug <slug> --module <module_slug>`
+10. SRS exists but canon sources (`screens/`, `usecases/`, optional `data/`, optional `flows/`) are absent for a UI-backed module -> `ba-start srs --slug <slug> --module <module_slug>`
+11. canon sources exist but `srs-compile-receipt.json` is missing or older than canon source files -> `ba-start srs --slug <slug> --module <module_slug>`
+12. final markdown exists but required packaged HTML is missing -> `ba-start package --slug <slug>`
+13. everything required already exists -> `ba-start status --slug <slug>`
 
 Reverse lane rules (apply before forward rules whenever reverse_baseline_lock exists):
 
@@ -159,7 +164,7 @@ Reverse lane guard:
 - If reverse lane status is stale, drifted, or blocked, surface the reverse guardrail code from the active status path instead of guessing a forward step.
 - Reverse lane rules (R0–R4) take priority over forward rules (1–11) whenever reverse_baseline_lock exists and reverse completion is not explicitly confirmed.
 
-When FRD/SRS/wireframe-handoff gates are unclear, explain the uncertainty and recommend
+When FRD/SRS/canon/compile gates are unclear, explain the uncertainty and recommend
 `ba-start status --slug <slug>` instead of guessing.
 </step>
 

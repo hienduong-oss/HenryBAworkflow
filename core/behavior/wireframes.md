@@ -2,29 +2,30 @@
 
 ## Read Scope
 
-- Must read: `core/contract.yaml`, `core/contract-behavior.md`, `paths.wireframe_input`, and `skills/ba-start/steps/wireframes.md`.
-- May read: `paths.project_memory` or hot decisions, `paths.design_doc`, module warm shard, and `paths.srs_index` for targeted screen lookup.
+- Must read: `core/contract.yaml`, `core/contract-behavior.md`, `paths.srs_index`, `paths.screen_root`, and `skills/ba-start/steps/wireframes.md`.
+- May read: `paths.design_doc`, `paths.shared_shell_contract`, `paths.shared_shell_index`, `paths.screen_field_contract`, and targeted screen canon files.
 - Must not read: `log.md`, `cold/`, other module shards, unrelated module artifacts.
+
+## Deprecated Command Scope
+
+- `wireframes` is a compatibility validation command only.
+- Do not create legacy wireframe pack artifacts.
+- Canonical ASCII wireframes live in module-local `paths.screen_item` files and are compiled by `ba-start srs`.
 
 ## Design Document Handling
 
 - `paths.design_doc` is the runtime design constraint source for UI-backed modules.
+- During the migration window, treat `paths.design_doc` as the visual-direction document and `paths.shared_shell_contract` as the machine-usable ownership contract for portals, nav schemas, shell variants, and active-menu rules.
 - If it exists, ask whether to reuse, refresh, or stop before changing it.
 - If absent or refresh is approved, synthesize it from approved decisions using `templates/design-md-template.md`.
 - Keep `defaults.ui_baseline` as fallback only when the approved design document does not specify another direction.
 - Do not proceed when design direction, portal navigation schema, or active-menu rules remain unresolved.
 
-## Wireframe-State Behavior
+## ASCII Validation Behavior
 
-- Use values from `states.wireframe` only: `completed`, `skipped`, `not-applicable`, or `missing`.
-- `wireframes` is read-only on upstream BA artifacts.
-- It may regenerate only the runtime `DESIGN.md`, wireframe input pack, wireframe map, and wireframe state.
+- Require each UI-backed screen canon file to contain `## ASCII Wireframe`.
+- Require `ascii_status: current`.
+- Require ASCII subsections for every required visual state.
+- If validation fails, route to `ba-start srs --slug <slug> --module <module_slug>`.
 
-## Allowed Outputs
-
-- `paths.design_doc`
-- `paths.wireframe_input`
-- `paths.wireframe_map`
-- `paths.wireframe_state`
-
-The wireframe map/checklist is a handoff artifact, not the source of truth for requirements. Screen and behavior changes discovered during wireframing route through `impact`.
+No outputs are allowed from this command. Screen and behavior changes discovered during visual review route through `impact`, then `srs`.

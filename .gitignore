@@ -18,6 +18,7 @@ __pycache__/
 
 # Local scratch files
 extract_pdf.py
+multivendor-ecommerce-requirements.pdf
 
 # Generated artifacts
 dist/

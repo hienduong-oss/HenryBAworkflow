@@ -18,6 +18,11 @@ Usage:
   ba-kit resolve [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit next [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit check-prereq <command> [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
+  ba-kit doctor-srs <module_root> [--json]
+  ba-kit check-write-scope --command <command> <path>...
+  ba-kit check-srs-index <srs-index.md> [--json]
+  ba-kit check-screen-canon <screen.md> [--json]
+  ba-kit check-source-of-truth <module_root> [--json]
   ba-kit template-section <template> <group>
   ba-kit source-extract <file> [--slug <slug>] [--date <YYMMDD-HHmm>] [--chunk-chars <n>] [--copy-raw] [--promote]
   ba-kit context-budget [--command <command>] [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
@@ -34,6 +39,11 @@ Commands:
   resolve         Resolve the exact slug/date/module target from the modular tree.
   next            Recommend the next BA-kit command for the resolved modular artifact set.
   check-prereq    Validate the exact prerequisite artifacts for a BA command.
+  doctor-srs      Run canon-first SRS guardrails for one module directory.
+  check-write-scope  Block writes outside the command-owned artifact scope.
+  check-srs-index Validate SRS index registry paths and required sections.
+  check-screen-canon Validate one screen canon markdown file.
+  check-source-of-truth Validate compiled SRS/receipt canon invariants.
   template-section  Print only the requested template group from templates/manifest.json.
   source-extract  Extract a source file into staged cache and optionally promote it into 00_source.
   context-budget  Estimate runtime read-context bytes for a BA command.
@@ -470,18 +480,128 @@ print_artifact_status_line() {
   fi
 }
 
-print_wireframe_status_line() {
+count_markdown_files() {
+  local path="$1"
+  [[ -d "${path}" ]] || {
+    printf '0\n'
+    return 0
+  }
+  find "${path}" -maxdepth 1 -type f -name '*.md' | wc -l | tr -d ' '
+}
+
+print_dir_status_line() {
+  local path="$1"
+  local label="$2"
+  local count
+
+  count="$(count_markdown_files "${path}")"
+  if [[ "${count}" -gt 0 ]]; then
+    printf -- "- [x] %s — %s file(s)\n" "${label}" "${count}"
+  elif [[ -d "${path}" ]]; then
+    printf -- "- [!] %s — empty\n" "${label}"
+  else
+    printf -- "- [ ] %s — missing\n" "${label}"
+  fi
+}
+
+canon_source_count() {
+  local module_root="$1"
+  local count=0
+  local dir
+
+  for dir in screens usecases data flows; do
+    if [[ -d "${module_root}/${dir}" ]]; then
+      count="$((count + $(find "${module_root}/${dir}" -maxdepth 1 -type f -name '*.md' | wc -l | tr -d ' ')))"
+    fi
+  done
+  printf '%s\n' "${count}"
+}
+
+newest_canon_mtime() {
+  local module_root="$1"
+  local newest=0
+  local path mtime
+
+  while IFS= read -r -d '' path; do
+    mtime="$(stat_mtime_epoch "${path}")"
+    if [[ "${mtime}" -gt "${newest}" ]]; then
+      newest="${mtime}"
+    fi
+  done < <(find "${module_root}/screens" "${module_root}/usecases" "${module_root}/data" "${module_root}/flows" -maxdepth 1 -type f -name '*.md' -print0 2>/dev/null || true)
+
+  printf '%s\n' "${newest}"
+}
+
+srs_receipt_state() {
+  local module_root="$1"
+  local srs_path="${module_root}/srs.md"
+  local receipt_path="${module_root}/srs-compile-receipt.json"
+  local source_count newest receipt_mtime srs_mtime
+
+  source_count="$(canon_source_count "${module_root}")"
+  if [[ "${source_count}" -eq 0 ]]; then
+    printf 'canon-missing\n'
+    return 0
+  fi
+  if [[ ! -f "${srs_path}" ]]; then
+    printf 'compiled-missing\n'
+    return 0
+  fi
+  if [[ ! -f "${receipt_path}" ]]; then
+    printf 'missing\n'
+    return 0
+  fi
+
+  newest="$(newest_canon_mtime "${module_root}")"
+  receipt_mtime="$(stat_mtime_epoch "${receipt_path}")"
+  srs_mtime="$(stat_mtime_epoch "${srs_path}")"
+  if [[ "${newest}" -gt "${receipt_mtime}" || "${newest}" -gt "${srs_mtime}" ]]; then
+    printf 'stale\n'
+    return 0
+  fi
+
+  printf 'current\n'
+}
+
+print_srs_receipt_status_line() {
+  local module_root="$1"
+  local receipt_path="${module_root}/srs-compile-receipt.json"
+  local state
+
+  state="$(srs_receipt_state "${module_root}")"
+  case "${state}" in
+    current)
+      printf -- "- [x] srs-compile-receipt.json — current — %s\n" "$(stat_mtime_pretty "${receipt_path}")"
+      ;;
+    stale)
+      printf -- "- [!] srs-compile-receipt.json — stale; rerun ba-start srs\n"
+      ;;
+    missing)
+      printf -- "- [!] srs-compile-receipt.json — missing; rerun ba-start srs\n"
+      ;;
+    compiled-missing)
+      printf -- "- [!] srs.md — missing while canon sources exist\n"
+      ;;
+    *)
+      printf -- "- [ ] srs-compile-receipt.json — not applicable yet\n"
+      ;;
+  esac
+}
+
+print_tool_lane_status() {
   local path="$1"
 
   if [[ ! -f "${path}" ]]; then
-    printf -- "- [!] wireframe handoff — missing\n"
+    printf -- "- [ ] tool lane state — missing\n"
     return
   fi
 
-  local state
-  state="$(read_md_field "${path}" "State")"
+  local lane state
+  lane="$(read_md_field "${path}" "Selected lane")"
+  state="$(read_md_field "${path}" "Lane state")"
+  [[ -n "${lane}" ]] || lane="unknown"
   [[ -n "${state}" ]] || state="unknown"
-  printf -- "- [!] wireframe handoff — %s — %s\n" "${state}" "$(stat_mtime_pretty "${path}")"
+  printf -- "- [!] tool lane — %s / %s — %s\n" "${lane}" "${state}" "$(stat_mtime_pretty "${path}")"
 }
 
 print_json_state_line() {
@@ -1149,22 +1269,50 @@ status_command() {
   if [[ -n "${modules}" ]]; then
     while IFS= read -r module_name; do
       [[ -n "${module_name}" ]] || continue
+      local module_root_abs
+      module_root_abs="${repo}/$(render_contract_path "${repo}" "module_root" "${slug}" "${date_token}" "${module_name}")"
       printf '\n[Module: %s]\n' "${module_name}"
       print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "frd" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/frd.md"
       print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "stories" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/user-stories.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs_index" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs-index.md"
+      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "screen_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/screens/*.md"
+      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "usecase_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/usecases/*.md"
+      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "module_data_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/data/*.md"
+      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "flow_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/flows/*.md"
       print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs.md"
-      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "wireframe_input" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/wireframe-input.md"
-      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "wireframe_map" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/wireframe-map.md"
-      print_wireframe_status_line "${repo}/$(render_contract_path "${repo}" "wireframe_state" "${slug}" "${date_token}" "${module_name}")"
+      print_srs_receipt_status_line "${module_root_abs}"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "screen_field_contract" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/screen-field-contract.yaml"
+      local tool_lane_path tool_lane
+      tool_lane_path="${repo}/$(render_contract_path "${repo}" "tool_lane_state" "${slug}" "${date_token}" "${module_name}")"
+      print_tool_lane_status "${tool_lane_path}"
+      tool_lane="$(read_md_field "${tool_lane_path}" "Selected lane")"
+      if [[ "${tool_lane}" == *"figma-make"* ]]; then
+        print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "make_guidelines" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/tool-lanes/figma-make/make-guidelines.md"
+        print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "make_prompt_pack" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/tool-lanes/figma-make/make-prompt-pack.md"
+        print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "prototype_conformance_checklist" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/tool-lanes/figma-make/prototype-conformance-checklist.md"
+        print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "prototype_conformance_report" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/tool-lanes/figma-make/prototype-conformance-report.md"
+      else
+        printf -- "- [ ] Figma Make pack — not selected\n"
+      fi
     done <<<"${modules}"
   fi
+
+  printf '\n[Shared Shell]\n'
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "design_doc" "${slug}")" "designs/${slug}/DESIGN.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "shared_shell_contract" "${slug}" "${date_token}")" "02_backbone/shared-shell-contract.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "shared_shell_index" "${slug}" "${date_token}")" "02_backbone/shared-shell-index.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "common_rules" "${slug}" "${date_token}")" "02_backbone/common-rules.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "message_list" "${slug}" "${date_token}")" "02_backbone/message-list.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "shared_rule_message_index" "${slug}" "${date_token}")" "02_backbone/shared-rule-message-index.md"
 
   printf '\n[Compiled]\n'
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "compiled_frd" "${slug}" "${date_token}")" "04_compiled/compiled-frd.html"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "compiled_srs" "${slug}" "${date_token}")" "04_compiled/compiled-srs.html"
 
-  printf '\n[Designs]\n'
-  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "design_doc" "${slug}")" "designs/${slug}/DESIGN.md"
+  printf '\n[Tool Lanes]\n'
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "figma_make_shared_rules" "${slug}" "${date_token}")" "05_tool-lanes/figma-make/shared-rules.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "figma_make_shared_prompt_skeleton" "${slug}" "${date_token}")" "05_tool-lanes/figma-make/shared-prompt-skeleton.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "figma_make_shared_component_contracts" "${slug}" "${date_token}")" "05_tool-lanes/figma-make/shared-component-contracts.md"
   print_delegation_status "${repo}" "${slug}" "${date_token}"
 }
 
@@ -1259,6 +1407,8 @@ check_prereq_command() {
         intake) printf 'Run first: ba-start intake\n' ;;
         backbone) printf 'Run first: ba-start backbone --slug %s\n' "${slug}" ;;
         stories) printf 'Run first: ba-start stories --slug %s --module %s\n' "${slug}" "${module}" ;;
+        srs_index|srs_compile_receipt) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
+        design_doc|shared_shell_contract) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
         wireframe_input) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
       esac
       exit 1
@@ -1268,8 +1418,42 @@ check_prereq_command() {
   printf 'OK: %s prerequisites satisfied\n' "${target_command}"
 }
 
+python_guardrail_command() {
+  local script_name="$1"
+  shift
+
+  local repo
+  repo="$(resolve_registered_repo)"
+  python3 "${repo}/scripts/${script_name}" "$@"
+}
+
+doctor_srs_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit doctor-srs <module_root> [--json]"
+  python_guardrail_command "doctor-srs.py" "$@"
+}
+
+check_write_scope_command() {
+  [[ "$#" -ge 3 ]] || fail "Usage: ba-kit check-write-scope --command <command> <path>..."
+  python_guardrail_command "check-write-scope.py" "$@"
+}
+
+check_srs_index_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-srs-index <srs-index.md> [--json]"
+  python_guardrail_command "check-srs-index-consistency.py" "$@"
+}
+
+check_screen_canon_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-screen-canon <screen.md> [--json]"
+  python_guardrail_command "check-screen-canon-schema.py" "$@"
+}
+
+check_source_of_truth_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-source-of-truth <module_root> [--json]"
+  python_guardrail_command "check-source-of-truth.py" "$@"
+}
+
 next_command() {
-  local slug="" date_token="" module="" repo story_path srs_path wireframe_input_path wireframe_state_path compiled_frd compiled_srs project_home_path
+  local slug="" date_token="" module="" repo story_path srs_path srs_index_path wireframe_input_path wireframe_state_path compiled_frd compiled_srs project_home_path module_root_abs receipt_state source_count
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -1325,10 +1509,14 @@ next_command() {
 
   story_path="${repo}/$(render_contract_path "${repo}" "stories" "${slug}" "${date_token}" "${module}")"
   srs_path="${repo}/$(render_contract_path "${repo}" "srs" "${slug}" "${date_token}" "${module}")"
+  srs_index_path="${repo}/$(render_contract_path "${repo}" "srs_index" "${slug}" "${date_token}" "${module}")"
+  module_root_abs="${repo}/$(render_contract_path "${repo}" "module_root" "${slug}" "${date_token}" "${module}")"
   wireframe_input_path="${repo}/$(render_contract_path "${repo}" "wireframe_input" "${slug}" "${date_token}" "${module}")"
   wireframe_state_path="${repo}/$(render_contract_path "${repo}" "wireframe_state" "${slug}" "${date_token}" "${module}")"
   compiled_frd="${repo}/$(render_contract_path "${repo}" "compiled_frd" "${slug}" "${date_token}")"
   compiled_srs="${repo}/$(render_contract_path "${repo}" "compiled_srs" "${slug}" "${date_token}")"
+  receipt_state="$(srs_receipt_state "${module_root_abs}")"
+  source_count="$(canon_source_count "${module_root_abs}")"
 
   if [[ ! -f "${story_path}" ]]; then
     printf 'BA-facing next step: Viết user stories cho module %s.\n' "${module}"
@@ -1337,15 +1525,29 @@ next_command() {
     return 0
   fi
   if [[ ! -f "${srs_path}" ]]; then
-    printf 'BA-facing next step: Viết SRS/use case/screen spec cho module %s.\n' "${module}"
+    printf 'BA-facing next step: Viết SRS canon và compile deliverable cho module %s.\n' "${module}"
     printf 'Next command: ba-start srs --slug %s --module %s\n' "${slug}" "${module}"
     printf 'Reason: SRS is missing for the resolved module.\n'
     return 0
   fi
-  if [[ -f "${wireframe_input_path}" && ! -f "${wireframe_state_path}" ]]; then
-    printf 'BA-facing next step: Chuẩn bị handoff UI thủ công cho module %s.\n' "${module}"
-    printf 'Next command: ba-start wireframes --slug %s --module %s\n' "${slug}" "${module}"
-    printf 'Reason: wireframe constraint pack exists but wireframe handoff state is missing.\n'
+  if [[ ! -f "${srs_index_path}" ]]; then
+    printf 'BA-facing next step: Tạo routing index cho SRS canon module %s.\n' "${module}"
+    printf 'Next command: ba-start srs --slug %s --module %s\n' "${slug}" "${module}"
+    printf 'Reason: srs-index.md is missing, so agents cannot route to the right canon files safely.\n'
+    return 0
+  fi
+  case "${receipt_state}" in
+    missing|stale|compiled-missing)
+      printf 'BA-facing next step: Recompile SRS deliverable từ canon sources cho module %s.\n' "${module}"
+      printf 'Next command: ba-start srs --slug %s --module %s\n' "${slug}" "${module}"
+      printf 'Reason: srs compile receipt state is %s.\n' "${receipt_state}"
+      return 0
+      ;;
+  esac
+  if [[ "${source_count}" -eq 0 ]]; then
+    printf 'BA-facing next step: Migrate SRS module %s sang canon screen/use case sources.\n' "${module}"
+    printf 'Next command: ba-start srs --slug %s --module %s\n' "${slug}" "${module}"
+    printf 'Reason: srs.md exists, but screens/usecases/data/flows canon sources are absent.\n'
     return 0
   fi
   if [[ ! -f "${compiled_frd}" || ! -f "${compiled_srs}" ]]; then
@@ -1697,6 +1899,21 @@ main() {
       ;;
     check-prereq)
       check_prereq_command "$@"
+      ;;
+    doctor-srs)
+      doctor_srs_command "$@"
+      ;;
+    check-write-scope)
+      check_write_scope_command "$@"
+      ;;
+    check-srs-index)
+      check_srs_index_command "$@"
+      ;;
+    check-screen-canon)
+      check_screen_canon_command "$@"
+      ;;
+    check-source-of-truth)
+      check_source_of_truth_command "$@"
       ;;
     template-section)
       template_section_command "$@"
