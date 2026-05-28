@@ -1,23 +1,25 @@
-# ASCII Screen Index
+---
+type: ascii-screen-index
+module: "{module_slug}"
+generated_at: "{YYYY-MM-DD}"
+stale_status: unknown
+---
 
-## Metadata
+# ASCII Screen Index — {module_slug}
 
 | Field | Value |
-| --- | --- |
-| index_type | ascii-screen |
-| source_artifact | `./ascii-screen` |
-| source_hash | [sha256] |
-| generated_at | [ISO-8601] |
-| generated_by_command | `ba-start srs` |
-| stale_status | unknown |
-| validated_at | [ISO-8601 or blank] |
-| validated_by | [validator id or blank] |
+|---|---|
+| index_type | `ascii_screen_index` |
+| source_artifact | `plans/{slug}-{date}/03_modules/{module_slug}/ascii-screen` |
+| source_hash | `` |
+| generated_at | `` |
+| generated_by_command | `` |
+| validated_at | `` |
+| validated_by | `` |
+| stale_status | `unknown` |
 
-Producer note: new indexes keep `stale_status: unknown`; only the validator may set `validated_at`, `validated_by`, and promote to `current`.
+## Screen Index
 
-## Screen Registry
-
-| screen_id | screen_name | path | portal_id | nav_schema_id | actor | linked_uc | linked_story | ascii_status | stale_status |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| SCR-01 | [Screen] | `./ascii-screen/scr-01.md` | PORTAL-ADMIN | NAV-01 | [Actor] | UC-01 | US-001 | pending | unknown |
-
+| Screen ID | File | Portal ID | Nav Schema ID | Actor | Linked UCs | Linked Stories | ASCII Status | Stale Status |
+|---|---|---|---|---|---|---|---|---|
+| SCR-01 | `ascii-screen/{screen-slug}.md` | {PORTAL-ID} | {NAV-SCHEMA-ID} | {actor} | UC-{slug} | US-001 | pending | unknown |

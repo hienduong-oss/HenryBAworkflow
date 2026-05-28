@@ -1,23 +1,25 @@
-# Use Cases Index
+---
+type: usecases-index
+module: "{module_slug}"
+generated_at: "{YYYY-MM-DD}"
+stale_status: unknown
+---
 
-## Metadata
+# Use Cases Index — {module_slug}
 
 | Field | Value |
-| --- | --- |
-| index_type | usecases |
-| source_artifact | `./usecases` |
-| source_hash | [sha256] |
-| generated_at | [ISO-8601] |
-| generated_by_command | `ba-start srs` |
-| stale_status | unknown |
-| validated_at | [ISO-8601 or blank] |
-| validated_by | [validator id or blank] |
+|---|---|
+| index_type | `usecases_index` |
+| source_artifact | `plans/{slug}-{date}/03_modules/{module_slug}/usecases` |
+| source_hash | `` |
+| generated_at | `` |
+| generated_by_command | `` |
+| validated_at | `` |
+| validated_by | `` |
+| stale_status | `unknown` |
 
-Producer note: new indexes keep `stale_status: unknown`; only the validator may set `validated_at`, `validated_by`, and promote to `current`.
+## Use Case Index
 
-## Use Case Registry
-
-| uc_id | uc_name | path | diagram_type | primary_actor | screens | fr_links | status |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| UC-01 | [Use Case] | `./usecases/uc-01.md` | activity | [Actor] | SCR-01 | FR-001 | draft |
-
+| UC ID | File | Actor | Trigger | Linked Stories | Linked Screens | Source Backbone IDs | Stale Status |
+|---|---|---|---|---|---|---|---|
+| UC-{slug} | `usecases/uc-{slug}.md` | {actor} | {trigger summary} | US-001 | SCR-01 | {backbone-id} | unknown |

@@ -13,13 +13,17 @@ SECTION_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$")
 
 INDEX_TABLE_HEADERS = {
     "backbone_index": "Section Index",
+    "stories_index": "Story Index",
+    "srs_index": "SRS Index",
     "userstories_index": "Story Index",
-    "usecases_index": "Use Case Registry",
-    "ascii_screen_index": "Screen Registry",
+    "usecases_index": "Use Case Index",
+    "ascii_screen_index": "Screen Index",
 }
 
 INDEX_SOURCE_KEYS = {
     "backbone_index": "backbone",
+    "stories_index": "stories",
+    "srs_index": "srs",
     "userstories_index": "userstories_root",
     "usecases_index": "usecases_root",
     "ascii_screen_index": "ascii_screen_root",
@@ -52,11 +56,24 @@ COMMAND_POLICIES = {
         },
         "project_home_override": False,
     },
+    "srs": {
+        "guardrail_mode": "index-first",
+        "required_indexes": ["backbone_index", "userstories_index"],
+        "required_reads": ["core/contract.yaml", "core/contract-behavior.md", "backbone_index", "userstories_index"],
+        "deny_reads": ["backbone"],
+        "action_guardrail": {
+            "required": True,
+            "navigation_source": "backbone_index",
+            "packet_scope": "per-action",
+            "reason": "consult backbone_index before broader backbone reads; validate backbone alignment before writing module artifacts",
+        },
+        "project_home_override": False,
+    },
     "package": {
         "guardrail_mode": "index-first",
         "required_indexes": ["backbone_index", "userstories_index", "usecases_index", "ascii_screen_index"],
         "required_reads": ["core/contract.yaml", "core/contract-behavior.md", "backbone_index", "userstories_index", "usecases_index", "ascii_screen_index", "memory_index", "project_memory"],
-        "deny_reads": ["source_summary", "source_chunk_index", "intake", "backbone", "userstory_item", "srs", "memory_log"],
+        "deny_reads": ["source_summary", "source_chunk_index", "intake", "backbone", "memory_log"],
         "action_guardrail": {
             "required": True,
             "navigation_source": "backbone_index",
@@ -118,7 +135,7 @@ INDEX_VALIDATION_RULES = {
             "reason": "consult backbone_index before broader backbone reads",
         },
     },
-    "userstories_index": {
+    "stories_index": {
         "required_columns": ["Epic / Story ID", "Feature / FR", "Acceptance Criteria Count", "Screen IDs", "Path / Heading"],
         "required_row_fields": ["Epic / Story ID", "Feature / FR", "Acceptance Criteria Count", "Path / Heading"],
         "target_field": "Path / Heading",
@@ -132,12 +149,12 @@ INDEX_VALIDATION_RULES = {
             "reason": "re-enter through backbone_index before broader downstream action context",
         },
     },
-    "usecases_index": {
-        "required_columns": ["uc_id", "uc_name", "path", "diagram_type", "primary_actor", "screens", "fr_links", "status"],
-        "required_row_fields": ["uc_id", "path", "primary_actor"],
-        "target_field": "path",
-        "id_fields": ["uc_id", "screens", "fr_links"],
-        "coverage_patterns": [r"\b(?:UC|SCR|FR|NFR)-[A-Za-z0-9-]+\b"],
+    "srs_index": {
+        "required_columns": ["Group", "UC / SCR / Rule / Message IDs", "Screen / Flow", "Path / Heading", "Dependency"],
+        "required_row_fields": ["Group", "UC / SCR / Rule / Message IDs", "Path / Heading", "Dependency"],
+        "target_field": "Path / Heading",
+        "id_fields": ["UC / SCR / Rule / Message IDs", "Dependency"],
+        "coverage_patterns": [r"\b(?:UC|SCR|CR|MSG|FR|NFR)-[A-Za-z0-9-]+\b"],
         "action_guardrail": {
             "required": True,
             "navigation_source": "backbone_index",
@@ -145,17 +162,44 @@ INDEX_VALIDATION_RULES = {
             "reason": "re-enter through backbone_index before broad backbone-backed downstream action context",
         },
     },
-    "ascii_screen_index": {
-        "required_columns": ["screen_id", "screen_name", "path", "portal_id", "nav_schema_id", "actor", "linked_uc", "linked_story", "ascii_status", "stale_status"],
-        "required_row_fields": ["screen_id", "path", "ascii_status"],
-        "target_field": "path",
-        "id_fields": ["screen_id", "linked_uc", "linked_story"],
-        "coverage_patterns": [r"\b(?:UC|SCR|CR|MSG|FR|NFR)-[A-Za-z0-9-]+\b"],
+    "userstories_index": {
+        "required_columns": ["Story ID", "File", "Actor", "Feature / FR", "Acceptance Criteria Count", "Linked Use Cases", "Linked Screens", "Source Backbone IDs", "Stale Status"],
+        "required_row_fields": ["Story ID", "File", "Actor", "Feature / FR", "Acceptance Criteria Count"],
+        "target_field": "File",
+        "id_fields": ["Story ID", "Feature / FR", "Linked Use Cases", "Linked Screens", "Source Backbone IDs"],
+        "coverage_patterns": [r"\b(?:US|FR|UC|SCR)-[A-Za-z0-9-]+\b"],
+        "count_fields": ["Acceptance Criteria Count"],
         "action_guardrail": {
             "required": True,
             "navigation_source": "backbone_index",
             "packet_scope": "per-action",
-            "reason": "re-enter through backbone_index before broad backbone-backed downstream action context",
+            "reason": "re-enter through backbone_index before broader downstream action context",
+        },
+    },
+    "usecases_index": {
+        "required_columns": ["UC ID", "File", "Actor", "Trigger", "Linked Stories", "Linked Screens", "Source Backbone IDs", "Stale Status"],
+        "required_row_fields": ["UC ID", "File", "Actor", "Trigger"],
+        "target_field": "File",
+        "id_fields": ["UC ID", "Linked Stories", "Linked Screens", "Source Backbone IDs"],
+        "coverage_patterns": [r"\b(?:UC|US|SCR)-[A-Za-z0-9-]+\b"],
+        "action_guardrail": {
+            "required": True,
+            "navigation_source": "backbone_index",
+            "packet_scope": "per-action",
+            "reason": "re-enter through backbone_index before broader downstream action context",
+        },
+    },
+    "ascii_screen_index": {
+        "required_columns": ["Screen ID", "File", "Portal ID", "Nav Schema ID", "Actor", "Linked UCs", "Linked Stories", "ASCII Status", "Stale Status"],
+        "required_row_fields": ["Screen ID", "File", "Portal ID", "Nav Schema ID", "Actor"],
+        "target_field": "File",
+        "id_fields": ["Screen ID", "Linked UCs", "Linked Stories"],
+        "coverage_patterns": [r"\b(?:SCR|UC|US)-[A-Za-z0-9-]+\b"],
+        "action_guardrail": {
+            "required": True,
+            "navigation_source": "backbone_index",
+            "packet_scope": "per-action",
+            "reason": "re-enter through backbone_index before broader downstream action context",
         },
     },
 }
@@ -173,19 +217,7 @@ def load_contract(repo: Path) -> dict[str, Any]:
     return json.loads((repo / "core" / "contract.yaml").read_text(encoding="utf-8"))
 
 
-def render_path(
-    template: str,
-    *,
-    slug: str,
-    date: str,
-    module: str = "",
-    option: str = "*",
-    group: str = "*",
-    source_hash: str = "*",
-    story_slug: str = "*",
-    usecase_slug: str = "*",
-    screen_slug: str = "*",
-) -> str:
+def render_path(template: str, *, slug: str, date: str, module: str = "", option: str = "*", group: str = "*", source_hash: str = "*") -> str:
     return (
         template.replace("{slug}", slug)
         .replace("{date}", date)
@@ -193,9 +225,6 @@ def render_path(
         .replace("{option}", option)
         .replace("{group}", group)
         .replace("{source_hash}", source_hash)
-        .replace("{story_slug}", story_slug)
-        .replace("{usecase_slug}", usecase_slug)
-        .replace("{screen_slug}", screen_slug)
     )
 
 
@@ -285,7 +314,10 @@ def parse_index_file(index_path: Path) -> dict[str, Any]:
 
 def expected_source_path(contract: dict[str, Any], *, index_key: str, slug: str, date: str, module: str) -> str:
     source_key = INDEX_SOURCE_KEYS[index_key]
-    return render_path(contract["paths"][source_key], slug=slug, date=date, module=module)
+    template = contract["paths"].get(source_key, "")
+    if not template:
+        return ""
+    return render_path(template, slug=slug, date=date, module=module)
 
 
 def classify_index_state(

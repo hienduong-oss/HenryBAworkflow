@@ -11,12 +11,9 @@ from pathlib import Path
 
 ALLOWED_SUFFIXES = {
     "srs": (
-        "/ascii-screen/",
         "/usecases/",
-        "/srs/spec.md",
-        "/srs/flows.md",
-        "/srs/states.md",
-        "/srs/erd.md",
+        "/ascii-screen/",
+        "/srs/",
         "/srs.md",
         "/srs-compile-receipt.json",
         "/screen-field-contract.yaml",
@@ -37,12 +34,18 @@ FORBIDDEN_BY_COMMAND = {
         "/srs.md",
         "/ascii-screen/",
         "/usecases/",
+        "/userstories/",
         "/shared-shell-contract.md",
     ),
     "package": (
         "/ascii-screen/",
         "/usecases/",
+        "/userstories/",
+        "/srs/",
         "/shared-shell-contract.md",
+    ),
+    "srs": (
+        "/userstories/",
     ),
 }
 

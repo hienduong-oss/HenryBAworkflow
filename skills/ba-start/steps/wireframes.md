@@ -28,7 +28,7 @@ For every `ascii-screen/*.md` file:
 
 - require `## ASCII Wireframe`
 - require `ascii_status: current`
-- require a `### ST-*` subsection for every state where ASCII is required
+- require a subsection for every required state
 - block if any screen relies on external mockup notes instead of inline ASCII
 
 If validation fails, stop and run `ba-start srs --slug <slug> --module <module_slug>` to regenerate canon and compile receipt.

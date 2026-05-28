@@ -14,9 +14,9 @@ COMMAND_SCOPES = {
     "frd": ["backbone_index", "plan", "project_memory"],
     "stories": ["backbone_index", "plan", "frd", "project_memory"],
     "srs": ["backbone_index", "userstories_index", "frd", "project_memory"],
-    "impact": ["intake", "backbone_index", "backbone", "userstories_index", "usecases_index", "ascii_screen_index", "project_memory"],
-    "wireframes": ["ascii_screen_index", "design_doc", "project_memory"],
-    "package": ["backbone_index", "userstories_index", "usecases_index", "ascii_screen_index", "memory_index"],
+    "impact": ["intake", "backbone_index", "backbone", "userstories_index", "usecases_index", "ascii_screen_index", "srs_compile_receipt", "project_memory"],
+    "wireframes": ["ascii_screen_index", "design_doc", "srs_compile_receipt", "project_memory"],
+    "package": ["backbone_index", "userstories_index", "usecases_index", "ascii_screen_index", "srs_compile_receipt", "memory_index"],
     "status": ["project_home", "project_memory", "memory_index"],
 }
 
@@ -42,9 +42,6 @@ def render_path(template: str, *, slug: str, date: str, module: str) -> str:
         .replace("{module_slug}", module)
         .replace("{group}", "*")
         .replace("{option}", "*")
-        .replace("{story_slug}", "*")
-        .replace("{usecase_slug}", "*")
-        .replace("{screen_slug}", "*")
     )
 
 
