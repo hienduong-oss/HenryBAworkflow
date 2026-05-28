@@ -62,6 +62,7 @@ EOF
 
 create_workflow_ki() {
   local artifacts_dir="${BA_KIT_KI}/artifacts"
+  rm -rf "${BA_KIT_KI}"
   ensure_dir "${artifacts_dir}"
 
   create_ki_metadata "${BA_KIT_KI}" \

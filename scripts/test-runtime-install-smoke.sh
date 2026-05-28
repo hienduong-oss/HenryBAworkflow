@@ -53,6 +53,33 @@ run_installer "claude" bash "${ROOT_DIR}/install.sh"
 run_installer "codex" bash "${ROOT_DIR}/scripts/install-codex-ba-kit.sh"
 run_installer "antigravity" bash "${ROOT_DIR}/scripts/install-antigravity-ba-kit.sh"
 
+printf '\nSeeding stale managed runtime assets and reinstalling...\n'
+mkdir -p \
+  "${TMP_HOME}/.claude/skills/ba-stale" \
+  "${TMP_HOME}/.codex/skills/ba-stale" \
+  "${TMP_HOME}/.gemini/antigravity/knowledge/ba-kit-workflow/artifacts"
+printf 'stale\n' > "${TMP_HOME}/.claude/skills/ba-stale/SKILL.md"
+printf 'stale\n' > "${TMP_HOME}/.codex/skills/ba-stale/SKILL.md"
+printf 'stale\n' > "${TMP_HOME}/.gemini/antigravity/knowledge/ba-kit-workflow/artifacts/stale.md"
+cat >> "${TMP_HOME}/.codex/config.toml" <<'EOF'
+
+[agents.requirements-engineer]
+description = "stale BA-kit registration"
+config_file = "agents/requirements-engineer.toml"
+EOF
+
+run_installer "claude-reinstall" bash "${ROOT_DIR}/install.sh"
+run_installer "codex-reinstall" bash "${ROOT_DIR}/scripts/install-codex-ba-kit.sh"
+run_installer "antigravity-reinstall" bash "${ROOT_DIR}/scripts/install-antigravity-ba-kit.sh"
+
+[[ ! -e "${TMP_HOME}/.claude/skills/ba-stale" ]] || fail "stale Claude skill survived reinstall"
+[[ ! -e "${TMP_HOME}/.codex/skills/ba-stale" ]] || fail "stale Codex skill survived reinstall"
+[[ ! -e "${TMP_HOME}/.gemini/antigravity/knowledge/ba-kit-workflow/artifacts/stale.md" ]] || fail "stale Antigravity KI artifact survived reinstall"
+if [[ "$(grep -c '^\[agents\.requirements-engineer\]$' "${TMP_HOME}/.codex/config.toml")" -ne 1 ]]; then
+  sed -n '1,220p' "${TMP_HOME}/.codex/config.toml" >&2
+  fail "Codex agent registration was not refreshed cleanly"
+fi
+
 printf '\nChecking installed runtime assets...\n'
 check_file "${TMP_HOME}/.local/bin/ba-kit"
 check_file "${TMP_HOME}/.local/share/ba-kit/installations/claude.env"
