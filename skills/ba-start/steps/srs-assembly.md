@@ -15,24 +15,24 @@ Sections:
 - Glossary
 - Traceability cross-references
 
-Output: `paths.srs_group` with `group=f`
+Output: validation and traceability sections inside `paths.srs`.
 
 ## Step 11 - Assembly and quality review
 
-The orchestrator assembles the final SRS inline. Do not delegate assembly. In the canon-first flow, `paths.srs` is a compiled deliverable assembled from canonical module sources and routing indexes.
+The orchestrator assembles `paths.srs` inline from canonical module sources. Do not delegate assembly.
 
 Assembly procedure:
 
 1. Write the SRS skeleton to `paths.srs` using the `srs-template.md` heading structure.
-2. Resolve `paths.srs_index` first. Use its registries to locate canonical `usecases/*.md`, `screens/*.md`, optional `data/erd.md`, and `flows/*.md`.
-3. Append group fragments (`A -> B -> C -> D -> E -> F`) into the matching compiled sections when they are emitted.
-4. For canon-first sections, compile near-verbatim from source files:
-   - use case canon files into the Use Cases section, including the primary diagram
-   - screen canon files into Screen Descriptions, including state visual coverage, overlay context, ASCII wireframes, and Figma frame map
-   - data/ERD and flow canon files into the Diagrams/Data Model sections
-   - `srs-index.md` registries into inventory and traceability summaries
-5. Write `paths.srs_compile_receipt` using `templates/srs-compile-receipt-template.md`, recording source paths and hashes used for the compile.
-6. After all sections are assembled, run a cross-artifact consistency check on the file on disk:
+2. Synthesize an Executive / BA Summary from backbone goals, user story scope, `srs/*`, `usecases/index.md`, `ascii-screen/index.md`, and receipt metadata. Keep it under 15 lines.
+3. Resolve `paths.usecases_index` and `paths.ascii_screen_index`; use them to locate `usecases/*.md`, `ascii-screen/*.md`, and present `paths.srs_*` slices.
+4. Compile source sections into matching SRS sections:
+   - use cases into Use Cases, including diagrams
+   - screen canon into Screen Descriptions, including states and ASCII
+   - `srs/flows.md` and `srs/erd.md` into diagrams/data model
+   - indexes into inventory and traceability summaries
+5. Write `paths.srs_compile_receipt` with source paths and hashes.
+6. Run cross-artifact consistency checks on disk:
    - every UC step maps to a screen field or action and vice versa
    - Screen Contract Plus entries have matching canon screen sources and final screen descriptions
    - UC actor actions use the same wording as screen User Actions
@@ -41,23 +41,8 @@ Assembly procedure:
    - every UI-backed screen canon file has `ascii_status: current` and required `## ASCII Wireframe` state subsections
    - user story acceptance criteria are covered by UC postconditions and screen validation rules
    - final screen descriptions do not redefine `Portal ID`, `Nav Schema ID`, or active/highlight behavior captured in Group C, screen canon, or the shared shell contract
-   - run `python3 scripts/validate-navigation-consistency.py --design {paths.design_doc} --screen-contract {paths.srs_group group=c}` when UI-backed screens and `paths.design_doc` exist
+   - run `python3 scripts/validate-navigation-consistency.py --design {paths.design_doc} --screen-contract {paths.screen_field_contract}` when applicable
    - treat `MENU_SCHEMA_MISMATCH`, `NAV_SCHEMA_MISMATCH`, and `MENU_ACTIVE_MISSING` as blocking before final assembly is accepted
 7. Resolve placeholder references and ID conflicts inline.
 8. Verify every SCR and UC traces back to user stories.
-9. Do not delete canonical source files. Delete group fragments only after the compiled SRS and receipt are verified.
-
-Execution order:
-
-```text
-Group A
-  -> Group B
-  -> Group D
-Group B -> Group C
-Group C -> ASCII wireframes
-ASCII wireframes -> Group E
-Group E -> Group F
-Group F -> Canon/index verification -> Assembly -> Compile receipt
-```
-
-If a grouped pass fails, retry once. If it still fails, complete that group inline. The merge itself always runs inline.
+9. Do not delete canonical source files. If a source pass fails, retry once; then complete inline. The merge itself always runs inline.

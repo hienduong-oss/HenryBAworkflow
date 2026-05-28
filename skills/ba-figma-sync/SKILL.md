@@ -25,15 +25,15 @@ Use this skill when the user asks to create, update, or synchronize Figma wirefr
 5. Run or follow the equivalent of:
    - `ba-kit check-prereq figma-sync --slug <slug> --module <module_slug>`
    - `ba-kit doctor-srs plans/{slug}-{date}/03_modules/{module_slug}`
-6. Read `srs-index.md` before individual screen files.
+6. Read `ascii-screen/index.md` before individual screen files.
 
 ## Source Inputs
 
 Required:
 
-- `plans/{slug}-{date}/03_modules/{module_slug}/srs-index.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/ascii-screen/index.md`
 - `plans/{slug}-{date}/03_modules/{module_slug}/srs-compile-receipt.json`
-- `plans/{slug}-{date}/03_modules/{module_slug}/screens/*.md`
+- `plans/{slug}-{date}/03_modules/{module_slug}/ascii-screen/*.md`
 - `designs/{slug}/DESIGN.md`
 - `plans/{slug}-{date}/02_backbone/shared-shell-contract.md`
 
@@ -53,8 +53,8 @@ Allowed repo writes:
 Forbidden repo writes:
 
 - `srs.md`
-- `srs-index.md`
-- `screens/*.md`
+- `ascii-screen/index.md`
+- `ascii-screen/*.md`
 - `usecases/*.md`
 - `DESIGN.md`
 - `shared-shell-contract.md`
@@ -88,7 +88,7 @@ After the run, report:
 ## Stop Conditions
 
 - Missing or stale `srs-compile-receipt.json`
-- Missing `srs-index.md`
+- Missing `ascii-screen/index.md`
 - Missing `DESIGN.md`
 - Missing `shared-shell-contract.md`
 - `doctor-srs` blocks the module

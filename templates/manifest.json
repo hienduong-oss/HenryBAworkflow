@@ -2,9 +2,9 @@
   "srs-template.md": {
     "routing": {
       "artifact": "srs",
-      "group_path_key": "srs_group",
-      "selector": "group",
-      "load_policy": "load requested group headings for grouped generation; load the full template only for final assembly"
+      "group_path_key": "srs_spec",
+      "selector": "section",
+      "load_policy": "load requested headings for source-slice generation; load the full template only for final assembly"
     },
     "groups": {
       "A": {
@@ -376,11 +376,20 @@
       }
     }
   },
-  "srs-index-template.md": {
+  "usecases-index-template.md": {
     "groups": {
       "all": {
         "headings": [
-          "# SRS Index"
+          "# Use Cases Index"
+        ]
+      }
+    }
+  },
+  "ascii-screen-index-template.md": {
+    "groups": {
+      "all": {
+        "headings": [
+          "# ASCII Screen Index"
         ]
       }
     }

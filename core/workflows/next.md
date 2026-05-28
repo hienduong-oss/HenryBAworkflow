@@ -47,13 +47,13 @@ Using the snapshot manifest or stat-only checks, determine which of these exist:
 - comparison file
 - backbone
 - frd
-- user stories
+- userstories/index
 - srs
-- srs-index
-- screens directory
+- usecases/index
+- ascii-screen/index
+- ascii-screen directory
 - usecases directory
-- data directory
-- flows directory
+- srs source directory
 - srs-compile-receipt
 - packaged FRD/SRS HTML
 - reverse_baseline_lock (stat only: `plans/{slug}-{date}/00_reverse/reverse-baseline-lock.json`)
@@ -78,10 +78,10 @@ Apply the first matching rule:
 4. intake exists, `paths.plan` says options are `not-needed`, and no backbone -> `ba-start backbone --slug <slug>`
 5. intake exists, `paths.plan` says options are `skipped`, or `completed` with `selected option` recorded in `paths.plan`, and no backbone -> `ba-start backbone --slug <slug>`
 6. backbone exists and FRD is explicitly required but missing -> `ba-start frd --slug <slug> --module <module_slug>`
-7. backbone exists but user stories are missing -> `ba-start stories --slug <slug> --module <module_slug>`
+7. backbone exists but `userstories/index.md` is missing -> `ba-start stories --slug <slug> --module <module_slug>`
 8. SRS is required and missing -> `ba-start srs --slug <slug> --module <module_slug>`
-9. SRS exists but `srs-index.md` is missing -> `ba-start srs --slug <slug> --module <module_slug>`
-10. SRS exists but canon sources (`screens/`, `usecases/`, optional `data/`, optional `flows/`) are absent for a UI-backed module -> `ba-start srs --slug <slug> --module <module_slug>`
+9. SRS exists but `usecases/index.md` or `ascii-screen/index.md` is missing -> `ba-start srs --slug <slug> --module <module_slug>`
+10. SRS exists but canon sources (`ascii-screen/`, `usecases/`, or `srs/`) are absent for a UI-backed module -> `ba-start srs --slug <slug> --module <module_slug>`
 11. canon sources exist but `srs-compile-receipt.json` is missing or older than canon source files -> `ba-start srs --slug <slug> --module <module_slug>`
 12. final markdown exists but required packaged HTML is missing -> `ba-start package --slug <slug>`
 13. everything required already exists -> `ba-start status --slug <slug>`
@@ -118,13 +118,13 @@ BA Next
 
 Project: {slug}
 Date set: {date}
-Snapshot: current | degraded | absent
-Project Home: {PROJECT-HOME.md exists/missing}
-Reverse lane: active | complete | absent
-Next command: /ba-start ...
-BA-facing next step: ...
-Hint: {only when rule 1 matched — "Chưa có requirements? Thử /brainstorm <ý tưởng> trước."}
-Reason: ...
+Gói bàn giao tại thời điểm: hiện tại | cũ | chưa có
+Trang điều phối: {PROJECT-HOME.md có/chưa có}
+Làn ngược: đang chạy | hoàn tất | chưa có
+Lệnh tiếp theo: /ba-start ...
+Bước BA tiếp theo: ...
+Gợi ý: {chỉ khi rule 1 matched — "Chưa có requirements? Thử /brainstorm <ý tưởng> trước."}
+Lý do: ...
 ```
 
 Do not mutate artifacts during this command.

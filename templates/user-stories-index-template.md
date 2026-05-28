@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | index_type | stories |
-| source_artifact | `plans/{slug}-{date}/03_modules/{module_slug}/user-stories.md` |
+| source_artifact | `plans/{slug}-{date}/03_modules/{module_slug}/userstories/*.md` |
 | source_hash | [sha256] |
 | generated_at | [YYYY-MM-DDTHH:mm:ssZ] |
 | generated_by_command | `ba-start stories` |

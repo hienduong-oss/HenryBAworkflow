@@ -18,19 +18,25 @@ commands:
   srs:
     read:
       - backbone_index
-      - stories_index
+      - userstories_index
       - design_doc
       - shared_shell_contract
       - shared_shell_index
-      - srs_index
+      - screen_field_contract
     write:
-      - screen_root
-      - usecase_root
-      - module_erd
-      - flow_root
-      - srs_index
+      - srs_spec
+      - srs_flows
+      - srs_states
+      - srs_erd
+      - usecases_index
+      - usecase_item
+      - usecase_diagrams
+      - ascii_screen_index
+      - ascii_screen_item
       - srs
       - srs_compile_receipt
+      - design_doc
+      - screen_field_contract
     forbidden_write:
       - unrelated_module_root
       - design_doc
@@ -41,8 +47,8 @@ commands:
 
   figma-sync:
     read:
-      - srs_index
-      - screen_root
+      - ascii_screen_index
+      - ascii_screen_root
       - design_doc
       - shared_shell_contract
       - shared_shell_index
@@ -52,8 +58,8 @@ commands:
       - figma_mismatch_report
     forbidden_write:
       - srs
-      - screen_root
-      - usecase_root
+      - ascii_screen_root
+      - usecases_root
       - shared_shell_contract
     post_checks:
       - figma_readback_verification
@@ -62,8 +68,9 @@ commands:
     read:
       - package_snapshot
       - backbone_index
-      - stories_index
-      - srs_index
+      - userstories_index
+      - usecases_index
+      - ascii_screen_index
       - srs_compile_receipt
       - srs
     write:
@@ -71,8 +78,8 @@ commands:
       - compiled_srs
       - package_snapshot
     forbidden_write:
-      - screen_root
-      - usecase_root
+      - ascii_screen_root
+      - usecases_root
       - shared_shell_contract
     pre_checks:
       - doctor_srs

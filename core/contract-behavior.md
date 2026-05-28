@@ -49,11 +49,9 @@ Parse arguments before doing any work.
 5. If no subcommand is present, run the full lifecycle from intake.
 6. For `intake`, allow one free argument as the source path hint.
 7. For `impact`, allow one free argument as the change file path hint.
-8. For `options`, allow `--select <option-id>` and `--skip` as mutually exclusive controls.
+8. For `options`, allow `--select <option-id>` and `--skip` as mutually exclusive control arguments.
 9. For `frd`, `stories`, `srs`, and `wireframes`, enforce `commands.<name>.module_required`.
 10. Reject unknown subcommands and unexpected free arguments instead of guessing.
-
-For `options`, allow `--select <option-id>` and `--skip` as mutually exclusive control arguments.
 
 ## Natural-Language Routing
 
@@ -165,7 +163,7 @@ After the user explicitly approves a mutating rerun step:
 - Use `templates/manifest.json` or CLI extraction helpers instead of loading full templates when only one group is needed.
 - Reuse summaries and excerpts instead of rereading large raw sources when normalized artifacts already exist.
 - For large source inputs, read `paths.source_summary` and `paths.source_chunk_index` before selecting chunk files.
-- After `paths.backbone_index`, `paths.stories_index`, or `paths.srs_index` exists, read the index first and open only targeted sections from the source artifact.
+- After `paths.backbone_index`, `paths.userstories_index`, `paths.usecases_index`, or `paths.ascii_screen_index` exists, read the index first and open only targeted sections from the source artifact.
 - Treat index files as navigators only; they do not replace source-of-truth artifacts.
 
 ### Internal Artifact Compactness
@@ -175,6 +173,10 @@ Artifact profile controls format and length:
 - `user_facing`: deliverable or package output; write complete BA-readable content.
 - `agent_facing`: navigator, packet, memory shard, or state summary; write compact tables/lists with IDs, paths, freshness, ownership, and route hints only.
 - `machine_facing`: deterministic state or manifest; prefer JSON/YAML/NDJSON and avoid prose beyond stable labels.
+
+### Wording-Layer Policy For User-Facing Artifacts
+
+When generating `user_facing` artifacts, use reader-friendly Vietnamese labels for internal terms: source of truth -> tài liệu gốc, gate -> điều kiện tiến hành, canon -> tài liệu nguồn chuẩn, compile receipt -> biên bản tổng hợp, index -> chỉ mục điều hướng, backbone -> khung yêu cầu đã chốt, intake -> tiếp nhận yêu cầu, package snapshot -> gói bàn giao tại thời điểm, project memory -> bộ nhớ dự án, shared shell -> khung giao diện dùng chung, screen field contract -> đặc tả trường màn hình, qc-review -> kiểm tra chất lượng, scope lock -> chốt phạm vi. Keep raw state values, IDs, file paths, receipt filenames, option IDs, command names, and QC verdict fields literal. Do not apply to `agent_facing` or `machine_facing`.
 
 Generated internal artifacts must not duplicate requirement prose from intake, backbone, stories, or SRS. Keep excerpts short, include stale/unknown status instead of guessing, and move substantial prose into the source-of-truth artifact.
 

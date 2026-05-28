@@ -49,8 +49,9 @@ def make_refresh_command(index_key: str, *, slug: str, date: str, module: str, i
 
     refresh_map = {
         "backbone_index": f"ba-start backbone --slug {slug}",
-        "stories_index": f"ba-start stories --slug {slug} --module {module}",
-        "srs_index": f"ba-start srs --slug {slug} --module {module}",
+        "userstories_index": f"ba-start stories --slug {slug} --module {module}",
+        "usecases_index": f"ba-start srs --slug {slug} --module {module}",
+        "ascii_screen_index": f"ba-start srs --slug {slug} --module {module}",
     }
     return refresh_map[index_key]
 

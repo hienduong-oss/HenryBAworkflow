@@ -9,7 +9,7 @@ This step requires:
 ## Governance Gate
 
 Before mutating any SRS artifact:
-1. **Skip this gate for first-pass creation** (when the target `paths.srs_group` or `paths.srs` does not yet exist).
+1. **Skip this gate for first-pass creation** (when `paths.srs_spec` and `paths.srs` do not yet exist).
 2. For reruns (artifact already exists): verify write authority and locate the active impact receipt at `paths.impact_receipt`. If no active receipt exists and `change_class` is not `wording-only`, emit `GOVERNANCE_BLOCK: impact_receipt missing or invalidated` and stop.
 3. If either check fails on a rerun: emit `GOVERNANCE_BLOCK: {reason}` and stop.
 4. After mutation completes: offer to file the change into canonical memory using `templates/project-memory-fileback-record-template.md`.
@@ -18,7 +18,7 @@ Receipt reference: `templates/impact-receipt-template.md`
 
 ## Scope
 
-Run Steps 8-11 only. This path stays split so SRS execution can load only the group instructions needed for the current pass.
+Run Steps 8-11 only. Keep execution split across the listed step files.
 
 ## Read Order
 
@@ -30,25 +30,28 @@ Run Steps 8-11 only. This path stays split so SRS execution can load only the gr
 ## Prerequisites
 
 - Resolve slug, date, and module using the shared contract.
-- Require `paths.backbone`, `paths.stories`, `paths.backbone_index`, and `paths.stories_index`.
-- If a required artifact is missing, print the exact missing path, tell the user which subcommand to run first, and stop.
+- Require `paths.backbone`, `paths.backbone_index`, and `paths.userstories_index`.
+- If a required artifact is missing, print the path, recommend the prerequisite subcommand, and stop.
 - Run preflight from indexes first; read only targeted backbone/story sections, optional module FRD, and `paths.plan` when it exists.
-- In reverse mode, gate on a valid reverse baseline, current drift state, and traceable reverse evidence; do not require `paths.design_doc`.
+- In reverse mode, require valid baseline/drift/evidence; skip `paths.design_doc`.
 
 ## Outputs
 
-- `paths.srs_group` for groups `a` through `f`
+- `paths.srs_spec` — FR/NFR/rules/API/data constraints
+- `paths.srs_flows` — module/system flows
+- `paths.srs_states` — module state registry
+- `paths.srs_erd` — business data model when justified
 - `paths.srs`
-- `paths.srs_index`
-- `paths.screen_root` and module `paths.screen_item` files as canonical screen sources
-- `paths.usecase_root` and module `paths.usecase_item` files as canonical use case sources
-- `paths.module_erd` and optional `paths.flow_item` files when data/flow detail is justified
+- `paths.usecases_index` and `paths.usecase_item` files as canonical use case sources
+- `paths.usecase_diagrams`
+- `paths.ascii_screen_index` and `paths.ascii_screen_item` files as canonical screen sources
 - `paths.srs_compile_receipt`
-- `paths.design_doc` when Step 8.2/Step 9 confirms or refreshes the UI design direction
+- `paths.design_doc` when UI design direction is confirmed or refreshed
 
-Treat generated index/state/memory artifacts as `agent_facing` or `machine_facing`; keep them compact.
-When `paths.srs_index` is written or refreshed, keep `stale_status: unknown`, leave `validated_at` and `validated_by` blank, then run `python3 scripts/validate-index-quality.py --repo . --index-key srs_index --slug <slug> --date <date> --module <module> --writeback` before downstream work treats the index as `current`.
-Treat `paths.srs` as the compiled, reader-facing deliverable. Direct edits to `paths.srs` are blocked by default; canonical edits belong in the module screen/use case/data sources and must compile back into `paths.srs`.
+Keep generated index/state artifacts compact. When `paths.usecases_index` or `paths.ascii_screen_index` is written, set `stale_status: unknown`, leave validator fields blank, then run:
+`python3 scripts/validate-index-quality.py --repo . --index-key usecases_index --slug <slug> --date <date> --module <module> --writeback`
+`python3 scripts/validate-index-quality.py --repo . --index-key ascii_screen_index --slug <slug> --date <date> --module <module> --writeback`
+before downstream work trusts the indexes. `paths.srs` is compiled output only; canonical edits belong in `usecases/`, `ascii-screen/`, or `srs/` and must compile back into it.
 
 ## Execution Order
 

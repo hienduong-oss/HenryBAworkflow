@@ -14,7 +14,7 @@ This step requires:
 ## Governance Gate
 
 Before mutating this artifact:
-1. **Skip this gate for first-pass creation** (when `paths.stories` does not yet exist).
+1. **Skip this gate for first-pass creation** (when `paths.userstories_index` does not yet exist).
 2. For reruns (artifact already exists): verify write authority and locate the active impact receipt at `paths.impact_receipt`. If no active receipt exists and `change_class` is not `wording-only`, emit `GOVERNANCE_BLOCK: impact_receipt missing or invalidated` and stop.
 3. If either check fails on a rerun: emit `GOVERNANCE_BLOCK: {reason}` and stop.
 4. After mutation completes: offer to file the change into canonical memory using `templates/project-memory-fileback-record-template.md`.
@@ -40,8 +40,8 @@ Run Step 7 only.
 
 ## Output
 
-- `paths.stories`
-- `paths.stories_index`
+- `paths.userstories_index`
+- `paths.userstory_item`
 
 ## Step 7 - Produce user stories
 
@@ -59,6 +59,6 @@ Execution rules:
 - If the user already confirmed that story generation should proceed, continue from the resolved backbone instead of reopening discovery.
 - Treat generated index/state/memory artifacts as `agent_facing` or `machine_facing`; keep them compact and do not duplicate source-of-truth requirement text.
 
-Save to `paths.stories`.
-After generation, create or refresh `paths.stories_index` using [../../../templates/user-stories-index-template.md](../../../templates/user-stories-index-template.md). Keep it as a navigator over epics, stories, acceptance-criteria counts, screen IDs, and source headings.
-Generate `paths.stories_index` with `stale_status: unknown`, leave `validated_at` and `validated_by` blank, then run `python3 scripts/validate-index-quality.py --repo . --index-key stories_index --slug <slug> --date <date> --module <module> --writeback` before any downstream routing trusts the index as `current`.
+Save individual stories to `paths.userstory_item`.
+After generation, create or refresh `paths.userstories_index` using [../../../templates/user-stories-index-template.md](../../../templates/user-stories-index-template.md). Keep it as a navigator over epics, stories, acceptance-criteria counts, screen IDs, and source files.
+Generate `paths.userstories_index` with `stale_status: unknown`, leave `validated_at` and `validated_by` blank, then run `python3 scripts/validate-index-quality.py --repo . --index-key userstories_index --slug <slug> --date <date> --module <module> --writeback` before any downstream routing trusts the index as `current`.

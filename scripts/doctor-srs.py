@@ -32,13 +32,15 @@ def main() -> int:
     shared_index = project_root / "02_backbone" / "shared-rule-message-index.md"
     checks: list[dict[str, object]] = []
 
-    index_path = module_root / "srs-index.md"
+    index_path = module_root / "ascii-screen" / "index.md"
     if index_path.exists():
         checks.append(run_check([sys.executable, str(script_dir / "check-srs-index-consistency.py"), str(index_path)]))
     else:
-        checks.append({"cmd": "check-srs-index-consistency", "returncode": 1, "stdout": "", "stderr": "missing srs-index.md"})
+        checks.append({"cmd": "check-srs-index-consistency", "returncode": 1, "stdout": "", "stderr": "missing ascii-screen/index.md"})
 
-    for screen in sorted((module_root / "screens").glob("*.md")):
+    for screen in sorted((module_root / "ascii-screen").glob("*.md")):
+        if screen.name == "index.md":
+            continue
         cmd = [sys.executable, str(script_dir / "check-screen-canon-schema.py"), str(screen)]
         if shared_index.exists():
             cmd.extend(["--shared-index", str(shared_index)])

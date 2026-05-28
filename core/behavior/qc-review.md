@@ -13,7 +13,7 @@
 | Must read | `skills/qc-uc-review/profiles/{platform}.md` |
 | Must read | `skills/qc-uc-review/references/scoring-rubric.md` |
 | Must read | Current module canon root resolved from `paths.module_root` |
-| May read | `paths.srs_index`, `paths.usecase_root`, `paths.screen_root`, `paths.screen_field_contract`, `paths.srs`, `paths.srs_compile_receipt` |
+| May read | `paths.usecases_index`, `paths.ascii_screen_index`, `paths.usecases_root`, `paths.ascii_screen_root`, `paths.screen_field_contract`, `paths.srs`, `paths.srs_compile_receipt` |
 | May read | `paths.design_doc`, `paths.shared_shell_contract`, and legacy wireframe artifacts only as supporting evidence when they already exist |
 | May read | `skills/qc-uc-review/references/first-audit-workflow.md` or `re-audit-workflow.md` |
 | Must not read | Module artifacts outside the current audit scope |
@@ -28,7 +28,7 @@ After a mutable command completes, check `quality_gates` in `contract.yaml` for 
 If found:
 1. Resolve platform: use `--platform` flag if present, else `defaults.platform`.
 2. Load profile from `skills/qc-uc-review/profiles/{platform}.md`.
-3. Resolve the current module root and prefer canon artifacts in this order: `paths.srs_index` -> `paths.usecase_root` -> `paths.screen_root` -> `paths.screen_field_contract` -> `paths.srs` -> optional supporting artifacts.
+3. Resolve the current module root and prefer canon artifacts in this order: `paths.usecases_index` -> `paths.ascii_screen_index` -> `paths.usecases_root` -> `paths.ascii_screen_root` -> `paths.screen_field_contract` -> `paths.srs` -> optional supporting artifacts.
 4. Execute audit per `skills/qc-uc-review/references/first-audit-workflow.md`.
 5. Produce verdict signal: `{ verdict, score, platform, blockers, report_path }`.
 6. Evaluate `block_on` condition from gate config.

@@ -28,7 +28,7 @@ Sections:
 - API specifications
 - Constraints
 
-Output: `paths.srs_group` with `group=d`
+Output: `paths.srs_flows`, `paths.srs_states`, or `paths.srs_erd` when justified.
 
 Produce Group D only when integrations, NFR exposure, data modelling, API handoff, or vendor/governance needs justify it.
 
@@ -36,7 +36,7 @@ Produce Group D only when integrations, NFR exposure, data modelling, API handof
 
 Skip this step when reverse mode is the active lane. Reverse mode documents existing behavior from evidence and does not generate future-state wireframes.
 
-For every UI-backed primary screen in `paths.screen_root`, create or refresh the `## ASCII Wireframe` section directly inside the matching screen canon file. ASCII wireframes are mandatory review evidence and must be derived from the screen canon itself.
+For every UI-backed primary screen in `paths.ascii_screen_root`, create or refresh the `## ASCII Wireframe` section directly inside the matching screen canon file. ASCII wireframes are mandatory review evidence and must be derived from the screen canon itself.
 
 Mode defaults inside the SRS pipeline:
 
@@ -67,7 +67,7 @@ Group E rules:
 - if IA or menu behavior must change, route through `impact`
 - run the navigation validator described in `core/behavior/srs.md` before writing Group E when UI-backed screens exist
 
-Output: `paths.srs_group` with `group=e`
+Output: `paths.ascii_screen_index` and `paths.ascii_screen_item`.
 
 Screen field table format:
 

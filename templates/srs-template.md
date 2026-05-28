@@ -1,11 +1,30 @@
 # Đặc tả yêu cầu phần mềm (Software Requirements Specification)
 
-> **Compiled deliverable:** Tài liệu này là bản SRS đọc/handoff cho stakeholder. Khi dự án dùng canon-first SRS, nguồn chỉnh sửa chính nằm ở `usecases/*.md`, `screens/*.md`, `data/erd.md`, `flows/*.md`, và `srs-index.md`; sau đó compile lại vào `srs.md`. ASCII wireframe bắt buộc nằm trong từng `screens/*.md` và được compile vào đây. Không chỉnh trực tiếp `srs.md` như source of truth trừ khi có manual override và backport vào canon.
+> **Tài liệu tổng hợp:** Tài liệu này là bản SRS đọc/handoff cho stakeholder. Khi dự án dùng tài liệu nguồn chuẩn, nguồn chỉnh sửa chính nằm ở `usecases/*.md`, `ascii-screen/*.md`, `srs/spec.md`, `srs/flows.md`, `srs/states.md`, và `srs/erd.md`; sau đó tổng hợp lại vào `srs.md`. ASCII wireframe bắt buộc nằm trong từng `ascii-screen/*.md` và được tổng hợp vào đây. Không chỉnh trực tiếp `srs.md` trừ khi có manual override và backport vào tài liệu nguồn chuẩn.
 
 **Dự án (Project):** [Tên dự án]
 **Phiên bản (Version):** [v1.0]
 **Chủ sở hữu (Owner):** [BA/technical owner]
 **Ngày (Date):** [YYYY-MM-DD]
+
+## Tóm tắt dành cho BA và stakeholder
+
+> Phần này được tổng hợp tự động khi chạy `ba-start srs`. Không chỉnh sửa trực tiếp — nội dung được lấy từ tài liệu nguồn chuẩn.
+
+**Mục tiêu kinh doanh:** [Tóm tắt 1-2 câu mục tiêu chính của dự án]
+
+**Phạm vi tính năng:** [Liệt kê ngắn các tính năng/module trong phạm vi]
+
+**Đối tượng sử dụng:** [Các nhóm người dùng chính]
+
+**Trạng thái tài liệu:**
+- Tài liệu nguồn chuẩn: [số lượng use case / màn hình / user story]
+- Biên bản tổng hợp: [srs-compile-receipt.json — ngày tổng hợp]
+- Kết quả kiểm tra chất lượng: [verdict / score — hoặc "chưa chạy"]
+
+**Lưu ý kỹ thuật:** Chi tiết đặc tả, mã định danh (FR/UC/SCR/CR/MSG), và thông tin truy vết nằm ở các phần bên dưới.
+
+---
 
 ## Mục đích và phạm vi (Purpose and Scope)
 Nêu phạm vi phần mềm, ranh giới hệ thống, và đối tượng đọc.
@@ -130,7 +149,7 @@ Viết mục chi tiết màn hình đầy đủ từ use case canon, screen cano
 **Tham chiếu mockup ngoài (External Mockup Reference):** [Link / file path / ghi chú]
 **Phạm vi artifact (Artifact Scope):** [Single screen / multi-screen flow / module pack]
 **Frame hỗ trợ (Supporting Frames):** [SCR-01-EMPTY - Trạng thái rỗng, SCR-01-ERROR - Lỗi inline, SCR-01-TOAST-SUCCESS - Toast thành công]
-**Nguồn canon (Canon Source):** [`screens/scr-xx.md`]
+**Nguồn canon (Canon Source):** [`ascii-screen/scr-xx.md`]
 **Tóm tắt bố cục (Layout Summary):** [Các vùng, panel, hoặc section chính]
 **Quy tắc điều hướng (Navigation Rules):** [Menu, breadcrumbs, modal, hành vi back/next]
 **UC liên kết (Linked Use Cases):** [UC-01, UC-02]
@@ -177,7 +196,7 @@ Các rule/message dùng chung không được định nghĩa lại trong SRS mod
 - [MSG-SUC-01]
 
 ## ASCII Wireframes
-ASCII wireframe là bắt buộc cho mọi UI-backed screen và phải được compile từ screen canon. User có thể dán thêm ảnh/mockup/link sau đó, nhưng mockup ngoài không thay thế ASCII trong `screens/*.md`.
+ASCII wireframe là bắt buộc cho mọi UI-backed screen và phải được compile từ screen canon. User có thể dán thêm ảnh/mockup/link sau đó, nhưng mockup ngoài không thay thế ASCII trong `ascii-screen/*.md`.
 
 ```text
 +--------------------------------------------------+

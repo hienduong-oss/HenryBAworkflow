@@ -30,7 +30,7 @@ Run the change-impact triage path only. Do not mutate artifacts.
 - Require `paths.intake`. If missing, print exact path and stop.
 - Read `paths.backbone` when it exists.
 - Read module-scoped downstream artifacts only when relevant to suspected impact:
-  `paths.frd`, `paths.stories`, `paths.srs`, `paths.screen_field_contract`, `paths.tool_lane_state`, `paths.make_guidelines`, `paths.make_prompt_pack`, `paths.prototype_conformance_checklist`, `paths.prototype_conformance_report`, `paths.design_doc`, `paths.plan`
+  `paths.frd`, `paths.userstories_index`, `paths.userstory_item`, `paths.srs`, `paths.screen_field_contract`, `paths.tool_lane_state`, `paths.make_guidelines`, `paths.make_prompt_pack`, `paths.prototype_conformance_checklist`, `paths.prototype_conformance_report`, `paths.design_doc`, `paths.plan`
 
 ## Decision Rules
 
@@ -95,7 +95,7 @@ guardrail_code: [none | reverse hard-guardrail code]
 Rules:
 - Map change to `affected_node_ids` before opening broad downstream context.
 - Use `owner_artifact` to choose the smallest rerun path.
-- Include index files in `stale_artifacts` when a CR can invalidate backbone_index, stories_index, srs_index, screen_field_contract, wireframe_input, wireframe_map, tool_lane_state, make_guidelines, make_prompt_pack, prototype_conformance_checklist, or prototype_conformance_report.
+- Include index files in `stale_artifacts` when a CR can invalidate backbone_index, userstories_index, usecases_index, ascii_screen_index, screen_field_contract, tool_lane_state, make_guidelines, make_prompt_pack, prototype_conformance_checklist, or prototype_conformance_report.
 - If CR cannot be mapped to a node, emit `read_escalation` and ask focused questions.
 - When `reverse_lane` is not `absent`, print the exact reverse lane command before forward lifecycle commands.
 - When a reverse hard guardrail is the blocker, set `guardrail_code` before any forward lifecycle command.

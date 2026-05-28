@@ -2,7 +2,7 @@
 
 ## Read Scope
 
-- Must read: `core/contract.yaml`, `core/contract-behavior.md`, `paths.srs_index`, `paths.screen_root`, and `skills/ba-start/steps/wireframes.md`.
+- Must read: `core/contract.yaml`, `core/contract-behavior.md`, `paths.ascii_screen_index`, `paths.ascii_screen_root`, and `skills/ba-start/steps/wireframes.md`.
 - May read: `paths.design_doc`, `paths.shared_shell_contract`, `paths.shared_shell_index`, `paths.screen_field_contract`, and targeted screen canon files.
 - Must not read: `log.md`, `cold/`, other module shards, unrelated module artifacts.
 
@@ -10,7 +10,7 @@
 
 - `wireframes` is a compatibility validation command only.
 - Do not create legacy wireframe pack artifacts.
-- Canonical ASCII wireframes live in module-local `paths.screen_item` files and are compiled by `ba-start srs`.
+- Canonical ASCII wireframes live in module-local `paths.ascii_screen_item` files and are compiled by `ba-start srs`.
 
 ## Design Document Handling
 

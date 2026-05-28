@@ -31,7 +31,7 @@ Sections:
 - Overall Description
 - Functional Requirements table
 
-Output: `paths.srs_group` with `group=a`
+Output: `paths.srs_spec`
 
 ### Group B - Behavioral
 
@@ -39,7 +39,7 @@ Sections:
 
 - Use Case Specifications
 
-Output: `paths.srs_group` with `group=b`
+Output: `paths.usecases_index`, `paths.usecase_item`, and `paths.usecase_diagrams`
 
 Consistency rules:
 
@@ -53,7 +53,7 @@ Sections:
 - Screen Contract Plus
 - Screen Inventory
 
-Output: `paths.srs_group` with `group=c`
+Output: `paths.srs_spec` and `paths.screen_field_contract`
 
 Before Group C for UI-backed screens, apply the navigation schema gate in `core/behavior/srs.md`. If `paths.design_doc` is missing or unresolved, run Step 8.2 from `srs-wireframes.md` first.
 
@@ -62,7 +62,7 @@ If the required active-menu item or schema route is absent, stop with `MENU_SCHE
 After Group C, run:
 
 ```text
-python3 scripts/validate-navigation-consistency.py --design {paths.design_doc} --screen-contract {paths.srs_group group=c}
+python3 scripts/validate-navigation-consistency.py --design {paths.design_doc} --screen-contract {paths.screen_field_contract}
 ```
 
 Fix blocking navigation validator findings before continuing.
@@ -73,8 +73,8 @@ When the module has UI-backed screens, also compile `paths.screen_field_contract
 
 Source inputs:
 
-- `paths.srs_group` with `group=b`
-- `paths.srs_group` with `group=c`
+- `paths.usecases_index` and selected `paths.usecase_item` files
+- `paths.srs_spec` and `paths.screen_field_contract`
 - relevant portal snapshot from `paths.backbone`
 - relevant FRD and user-story excerpts for traceability
 

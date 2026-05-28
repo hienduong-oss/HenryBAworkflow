@@ -9,9 +9,9 @@
 ### Step 1: Read all artefacts
 
 **Reading order:**
-1. `srs-index.md` — module inventory and routing map
+1. `usecases/index.md` and `ascii-screen/index.md` — module inventory and routing maps
 2. `usecases/*.md` — primary functional flows
-3. `screens/*.md` — primary screen behavior and ASCII evidence
+3. `ascii-screen/*.md` — primary screen behavior and ASCII evidence
 4. `screen-field-contract.yaml` — shared rules, states, validations, navigation
 5. Current compiled `srs.md` — supporting cross-check only
 6. `srs-compile-receipt.json` — proof compiled output matches canon

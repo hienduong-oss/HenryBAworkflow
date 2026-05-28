@@ -36,14 +36,14 @@ from guardrail_common import (
 
 SNAPSHOT_VERSION = "1"
 
-SNAPSHOT_INDEX_KEYS = ["backbone_index", "stories_index", "srs_index"]
+SNAPSHOT_INDEX_KEYS = ["backbone_index", "userstories_index", "usecases_index", "ascii_screen_index"]
 
 SNAPSHOT_ARTIFACT_KEYS = [
     "intake",
     "plan",
     "backbone",
     "frd",
-    "stories",
+    "userstories_index",
     "srs",
     "compiled_frd",
     "compiled_srs",

@@ -1,4 +1,7 @@
-# SRS Index
+# Legacy SRS Index Template
+
+> Deprecated. Current BA-kit canon uses `usecases/index.md` and `ascii-screen/index.md`.
+> Keep this file only for compatibility with old artifacts; do not use it for new SRS generation.
 
 ## Metadata
 
@@ -12,7 +15,7 @@
 | stale_status | unknown |
 | validated_at | [ISO-8601 or blank] |
 | validated_by | [validator id or blank] |
-| canon_roots | `./screens`, `./usecases`, `./data`, `./flows` |
+| canon_roots | `./ascii-screen`, `./usecases`, `./srs` |
 | compiled_artifact | `./srs.md` |
 
 ## Module Summary
@@ -26,7 +29,7 @@
 
 | screen_id | screen_name | path | screen_type | portal_id | nav_schema_id | active_menu | states | ascii | figma_sync | status |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| SCR-01 | [Screen] | `./screens/scr-01.md` | primary | PORTAL-ADMIN | NAV-01 | dashboard | default,error | ready | eligible | draft |
+| SCR-01 | [Screen] | `./ascii-screen/scr-01.md` | primary | PORTAL-ADMIN | NAV-01 | dashboard | default,error | ready | eligible | draft |
 
 ## Use Case Registry
 
@@ -44,7 +47,7 @@
 
 | artifact_id | artifact_type | path | scope | status |
 | --- | --- | --- | --- | --- |
-| DATA-ERD-01 | erd | `./data/erd.md` | module | draft |
+| DATA-ERD-01 | erd | `./srs/erd.md` | module | draft |
 
 ## Trace Summary
 
