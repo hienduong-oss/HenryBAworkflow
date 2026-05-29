@@ -31,6 +31,7 @@ Usage:
   ba-kit chunk-write --file <target_file>
   ba-kit status [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit collab status [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
+  ba-kit qc-export --slug <slug> --date <YYMMDD-HHmm> --module <module_slug> [--external-output <dir>] [--usecase-list]
 
 Commands:
   doctor          Check BA-kit runtime readiness, installed manifests, and optional MCP/tool dependencies.
@@ -1845,6 +1846,100 @@ stitch_state_command() {
       ;;
   esac
 }
+qc_export_command() {
+  local slug="" date_token="" module="" external_output="" usecase_list=""
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --slug)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --slug"
+        slug="$2"
+        shift 2
+        ;;
+      --date)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --date"
+        date_token="$2"
+        shift 2
+        ;;
+      --module)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --module"
+        module="$2"
+        shift 2
+        ;;
+      --external-output)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --external-output"
+        external_output="$2"
+        shift 2
+        ;;
+      --usecase-list)
+        usecase_list="1"
+        shift
+        ;;
+      *)
+        fail "Unknown argument: $1"
+        ;;
+    esac
+  done
+
+  [[ -n "${slug}" ]] || fail "Missing required argument: --slug"
+  [[ -n "${date_token}" ]] || fail "Missing required argument: --date"
+  [[ -n "${module}" ]] || fail "Missing required argument: --module"
+
+  local repo
+  repo="$(resolve_registered_repo)"
+
+  # Resolve relative --external-output against repo root, not caller CWD.
+  local resolved_external=""
+  if [[ -n "${external_output}" ]]; then
+    resolved_external="$(python3 -c '
+import os, sys
+p = sys.argv[1]
+p = os.path.expanduser(p)
+if not os.path.isabs(p):
+    p = os.path.join(sys.argv[2], p)
+print(os.path.normpath(p))
+' "${external_output}" "${repo}")"
+  fi
+
+  local cmd=(python3 "${repo}/scripts/qc-export.py"
+    --slug "${slug}"
+    --date "${date_token}"
+    --module "${module}"
+    --repo "${repo}"
+  )
+  if [[ -n "${external_output}" ]]; then
+    cmd+=(--external-output "${resolved_external}")
+  fi
+  if [[ -n "${usecase_list}" ]]; then
+    cmd+=(--usecase-list)
+  fi
+
+  # Write-scope guard: output must stay within 04_compiled/qc-kit/
+  local default_out="plans/${slug}-${date_token}/04_compiled/qc-kit"
+  if [[ -z "${external_output}" ]]; then
+    python3 "${repo}/scripts/check-write-scope.py" --command qc-export "${default_out}" >/dev/null 2>&1 \
+      || fail "qc-export write-scope blocked: ${default_out} outside allowed scope"
+  else
+    # external-output must be outside the repo or pass the same write-scope check.
+    # Use python so resolution works even when parent dirs don't exist yet.
+    local ext_real repo_real
+    ext_real="$(python3 -c '
+import os, sys
+print(os.path.abspath(os.path.expanduser(sys.argv[1])))
+' "${resolved_external}")"
+    repo_real="$(python3 -c '
+import os, sys
+print(os.path.abspath(os.path.expanduser(sys.argv[1])))
+' "${repo}")"
+    if [[ "${ext_real}" == "${repo_real}" || "${ext_real}" == "${repo_real}"/* ]]; then
+      # external-output points inside the repo — validate against write-scope
+      python3 "${repo}/scripts/check-write-scope.py" --command qc-export "${resolved_external}" >/dev/null 2>&1 \
+        || fail "qc-export write-scope blocked: ${external_output} inside repo but outside allowed scope"
+    fi
+  fi
+
+  "${cmd[@]}"
+}
 chunk_write_command() {
   local target_file=""
 
@@ -1943,6 +2038,9 @@ main() {
       ;;
     collab)
       collab_command "$@"
+      ;;
+    qc-export)
+      qc_export_command "$@"
       ;;
     status)
       status_command "$@"
