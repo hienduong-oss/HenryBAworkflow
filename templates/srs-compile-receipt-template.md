@@ -42,3 +42,15 @@
 | in_scope_sources_match_receipt | unknown | [Validator fills] |
 | out_of_scope_sources_changed | unknown | [Does not affect receipt validity] |
 | compiled_matches_in_scope_sources | unknown | [Validator fills] |
+
+## Cross-Function Inlining
+
+| field | value |
+| --- | --- |
+| ucs_scanned | [N] |
+| ucs_with_section | [N] |
+| ucs_with_edges | [N] |
+| intra_module_resolved | [N] |
+| inter_module_resolved | [N] |
+| inter_module_pending | [N] |
+| inter_module_mismatch | [N] |

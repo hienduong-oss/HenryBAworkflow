@@ -19,6 +19,57 @@
 
 `impact` is the only command that may read across warm module shards by default when Modular or Program activation is detected. Use `paths.memory_index` first and read only routed shards.
 
+## Cross-Function Propagation
+
+When a changed artifact is a UC, extend the impact report with dependency propagation.
+Reverse inbound scanning runs for **any changed UC** (even without its own `## Cross-Function Impact` section).
+Outbound tracing runs only when the changed UC declares dependencies.
+
+### Reverse Inbound Scan (always runs for changed UC)
+
+1. Scan **other UC files** for reverse inbound edges — UCs that declare "Depends on" or "Consumes from" this UC:
+   - **Intra-module**: Read `## Cross-Function Impact` from each sibling UC in the same module
+   - **Cross-module**: When Modular/Program activation detected, scan other module UC files for `Consumes from` entries targeting this module
+   - Collect entries where Direction = "Depends on" and UC = this UC's ID
+   - For `Consumes from` cross-module matches, require at least one of:
+     - Backbone ref matches a feature ID this UC's module is known to satisfy
+     - Data/State overlaps with this UC's known outputs (from SRS or backbone)
+   - Module-only match (Target Module matches but no backbone/data overlap confirmed) → classify as **possible**, not confirmed downstream impact
+2. Add confirmed matches to **downstream impact** list. Module-only matches go to **cross-module warnings**.
+
+### Outbound Tracing (only when changed UC has ## Cross-Function Impact)
+
+3. Read `## Cross-Function Impact` from the affected UC.
+4. Build **downstream impact** from "Produces for" entries (Within Module + Across Modules):
+   - Intra-module: list specific UCs that consume this UC's output, with data/state items
+   - Inter-module: flag target modules and backbone feature IDs — consumer may not exist yet
+5. Build **upstream impact** from "Depends on" / "Consumes from" entries:
+   - Intra-module: list specific UCs this UC depends on, with data/state items
+   - Inter-module: flag source modules — upstream change may break this UC's assumptions
+6. Classify each impact edge:
+   - **Intra-module**: full traceability — affected UCs listed with specific data/state items
+   - **Inter-module "produces for"**: warning-level — consumer may not exist yet
+   - **Inter-module "consumes from"**: warning if producer UC changes
+7. Add to impact report output:
+
+```markdown
+### Cross-Function Propagation
+
+**Downstream impact** (UCs that consume this UC's output):
+| UC | Module | Data / State | Impact |
+|----|--------|--------------|--------|
+
+**Upstream impact** (UCs this UC depends on):
+| UC | Module | Data / State | Impact |
+|----|--------|--------------|--------|
+
+**Cross-module warnings:**
+- {uc_id} produces {data} for module {module} ({backbone_ref}) — module not yet authored
+- {module} UC may consume {data} from this UC ({backbone_ref}) — module-only match, not confirmed
+```
+
+8. Impact remains read-only — cross-function data is read, never mutated.
+
 ## Governance And File-Back
 
 - Verify write authority before recommending mutation.
