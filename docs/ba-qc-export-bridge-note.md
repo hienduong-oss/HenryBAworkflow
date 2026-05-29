@@ -86,8 +86,7 @@ BA-kit UC `## Cross-Function Impact` section maps to a `### Functional Integrati
 - Generate PNG exports (BA places designs manually)
 - Build QC-kit's project config or context master (QC's job)
 - Create QC-kit's site map or dashboard (QC's job)
-- Resolve cross-module integration analysis gaps (separate feature — see `cross-function-impact-analysis-note.md`)
-- Resolve cross-function dependencies at export time — only resolved dependencies appear; pending ones become "Expected: TBD"
+- Cross-function dependencies are exported from `## Cross-Function Impact` UC declarations; pending inter-module edges appear as "Expected: TBD" — full resolution requires both modules to be authored
 - Enumrate atomic UI elements (QC-kit's agent does this from screen descriptions + PNGs)
 
 ## Known Gaps in Export
@@ -95,7 +94,7 @@ BA-kit UC `## Cross-Function Impact` section maps to a `### Functional Integrati
 | Gap | Impact on QC-kit | Mitigation |
 |-----|-----------------|------------|
 | No PNG designs placed yet | KA #5 visual enumeration can't run | QC-kit skips image verification; uses text-based screen descriptions |
-| No cross-function integration analysis (§4) | KA #8 scores low | Export now includes cross-function data from `## Cross-Function Impact`; pending dependencies appear as "Expected: TBD" — QC-kit treats as known limitation |
+| Partial cross-function dependency resolution (§4) | KA #8 may score Partial when inter-module edges are pending | Export includes cross-function data from `## Cross-Function Impact`; resolved edges appear fully, pending dependencies appear as "Expected: TBD" — QC-kit treats as known limitation |
 | AC not categorized by Interface/Function/Integration | AC synthesis less granular | QC-kit's agent categorizes from existing AC text |
 
 ## Open Questions

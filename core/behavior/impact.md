@@ -27,14 +27,19 @@ When a changed artifact is a UC with `## Cross-Function Impact` declarations, ex
 2. Build **downstream impact** list from "Produces for" entries (Within Module + Across Modules):
    - Intra-module: list specific UCs that consume this UC's output, with data/state items
    - Inter-module: flag target modules and backbone feature IDs — consumer may not exist yet
-3. Build **upstream impact** list from "Depends on" / "Consumes from" entries:
+3. Scan **other UC files** in the same module for reverse inbound edges — UCs that declare "Depends on" or "Consumes from" this UC:
+   - Read `## Cross-Function Impact` from each sibling UC in the module
+   - Collect entries where Direction = "Depends on" and UC = this UC's ID
+   - Collect entries where Direction = "Consumes from" and data matches this UC's output
+   - Add to **downstream impact** list (these are consumers discovered from their side)
+4. Build **upstream impact** list from "Depends on" / "Consumes from" entries in the affected UC:
    - Intra-module: list specific UCs this UC depends on, with data/state items
    - Inter-module: flag source modules — upstream change may break this UC's assumptions
-4. Classify each impact edge:
+5. Classify each impact edge:
    - **Intra-module**: full traceability — affected UCs listed with specific data/state items
    - **Inter-module "produces for"**: warning-level — consumer may not exist yet
    - **Inter-module "consumes from"**: warning if producer UC changes
-5. Add to impact report output:
+6. Add to impact report output:
 
 ```markdown
 ### Cross-Function Propagation

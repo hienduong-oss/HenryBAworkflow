@@ -53,6 +53,13 @@ Assembly procedure:
    - `included_sources`
    - `excluded_sources`
    - `source_hashes` for each included source
+   - `cross_function` — counts and status from Step 10.5 inlining:
+     - `ucs_scanned`: number of UCs checked for `## Cross-Function Impact`
+     - `ucs_with_declarations`: number of UCs that declared dependencies
+     - `intra_module_resolved`: count of within-module edges inlined
+     - `inter_module_resolved`: count of inter-module edges resolved (both sides declared)
+     - `inter_module_pending`: count of inter-module edges pending (consumer/producer not yet authored)
+     - `inter_module_mismatch`: count of inter-module edges with conflicting declarations
 6. After assembly, run cross-artifact consistency check:
    - every UC step maps to a screen field or action and vice versa
    - UC actor actions use the same wording as screen User Actions
