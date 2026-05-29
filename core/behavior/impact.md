@@ -65,6 +65,7 @@ Outbound tracing runs only when the changed UC declares dependencies.
 
 **Cross-module warnings:**
 - {uc_id} produces {data} for module {module} ({backbone_ref}) — module not yet authored
+- {module} UC may consume {data} from this UC ({backbone_ref}) — module-only match, not confirmed
 ```
 
 8. Impact remains read-only — cross-function data is read, never mutated.

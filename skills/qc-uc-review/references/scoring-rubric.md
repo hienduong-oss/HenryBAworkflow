@@ -145,7 +145,7 @@ Edge case groups are defined in the platform profile.
 **Cross-function evidence rules:**
 - UC has `## Cross-Function Impact` section with at least one table → evidence source is the section
 - Within Module table has ≥1 entry OR explicit "None" marker → 8.1 eligible for Clear
-- Across Modules table present (even if empty) with backbone refs → 8.2 eligible for Clear
+- Across Modules table has ≥1 non-None entry with backbone refs OR explicit "None" marker → 8.2 eligible for Clear
 - Shared State entries declare which entity and which UCs share access → 8.3 eligible for Clear
 - UC missing `## Cross-Function Impact` entirely → all KA #8 sub-items score **Partial** (reviewer infers from UC text)
 
