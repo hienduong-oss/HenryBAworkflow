@@ -113,7 +113,88 @@
           "effort_cols": "Fill both G and H. Use 0 for inapplicable side. Leave 0 when unestimated — estimator fills later."
         }
       },
-      "QnA": {
+      "WBS_mode_b": {
+        "_note": "Mode B — epic-component. Used when wbs_mode=B is selected at /ba-presale build.",
+        "freeze_panes": "A1",
+        "formatting_order": [
+          "writeSpreadsheet (data first)",
+          "formatCells with wrapStrategy:WRAP (wrap + alignment)",
+          "formatCells with backgroundColor (colors LAST)"
+        ],
+        "columns": {
+          "A": {"header": "#", "width_px": 60, "note": "WBS ID — integer for EPIC rows, decimal for task rows"},
+          "B": {"header": "Phase", "width_px": 60, "note": "P1, P2, etc."},
+          "C": {"header": "Epic", "width_px": 80, "note": "Epic code e.g. E1, E2 — matches EPIC row label"},
+          "D": {"header": "Task Name", "width_px": 280, "note": "Layer tag prefix + deliverable description: '[BE] HMAC signing + nonce dedup'"},
+          "E": {"header": "Layer", "width_px": 80, "note": "Mobile | FE | BE | SC | DevOps | QC | PM | BA"},
+          "F": {"header": "Notes", "width_px": 320, "note": "Technical scope boundary + [src:...] refs. No function names or file paths."},
+          "G": {"header": "PM", "width_px": 60, "note": "PM effort in MD. 0 if not applicable."},
+          "H": {"header": "BA", "width_px": 60, "note": "BA effort in MD. 0 if not applicable."},
+          "I": {"header": "SC", "width_px": 60, "note": "Smart Contract effort in MD. 0 if not applicable."},
+          "J": {"header": "BE", "width_px": 60, "note": "Backend effort in MD. 0 if not applicable."},
+          "K": {"header": "DevOps", "width_px": 70, "note": "DevOps effort in MD. 0 if not applicable."},
+          "L": {"header": "Mobile", "width_px": 70, "note": "Mobile effort in MD. 0 if not applicable."},
+          "M": {"header": "FE", "width_px": 60, "note": "Frontend effort in MD. 0 if not applicable."},
+          "N": {"header": "QC", "width_px": 60, "note": "QC effort in MD. 0 if not applicable."},
+          "O": {"header": "Total MD", "width_px": 80, "note": "Sum of all role columns for this row."}
+        },
+        "row_types": {
+          "header": {
+            "background": "#37474F",
+            "font_color": "#FFFFFF",
+            "bold": true,
+            "alignment_horizontal": "center",
+            "alignment_vertical": "middle",
+            "wrap_text": true,
+            "row_height": 36
+          },
+          "phase_header": {
+            "note": "Col A = 'PHASE N', col B = phase label, cols C-O empty",
+            "background": "#1A3C6E",
+            "font_color": "#FFFFFF",
+            "bold": true,
+            "alignment_vertical": "middle"
+          },
+          "epic": {
+            "note": "Col A = integer WBS ID, col C = EPIC NAME ALL CAPS, cols D-O empty",
+            "bold": true,
+            "alignment_vertical": "middle",
+            "background": "#DCE9F7"
+          },
+          "task": {
+            "note": "Col A = decimal WBS ID, Task Name starts with [Layer] tag",
+            "wrap_text": true,
+            "alignment_vertical": "top",
+            "background": "#FFFFFF"
+          },
+          "subtotal": {
+            "note": "Phase subtotal row",
+            "bold": true,
+            "background": "#F2F2F2"
+          },
+          "grand_total": {
+            "bold": true,
+            "background": "#FFC000"
+          }
+        },
+        "layer_color_map": {
+          "Mobile": "#E8F5E9",
+          "FE":     "#E3F2FD",
+          "BE":     "#FFF3E0",
+          "SC":     "#EDE7F6",
+          "DevOps": "#FCE4D6",
+          "QC":     "#F3E5F5",
+          "PM":     "#F5F5F5",
+          "BA":     "#F5F5F5"
+        },
+        "content_rules": {
+          "row_atomicity": "1 row = 1 deliverable independently buildable, testable, assignable. If task needs 'and also' → split.",
+          "layer_tag_required": "Every task row Task Name MUST start with [Layer] tag. No tag = blocked from render.",
+          "be_complexity_rule": "BE complexity MUST be broken into separate rows. No hiding sub-tasks in Notes.",
+          "cross_cutting_epics": "Infra, Smart Contract, QA are mandatory EPICs. Never fold into feature EPICs.",
+          "effort_cols": "Fill only the column matching the row layer tag. All other role columns = 0. Total MD = sum of all role columns."
+        }
+      },
         "freeze_panes": "B2",
         "header_row": {
           "background": "#2B4C7E",

@@ -32,7 +32,9 @@ This step requires:
 
 ## Pre-run: Build Target Selection (MANDATORY)
 
-Before any work, present a build target selection using `AskUserQuestion`. Do NOT assume "build all."
+Before any work, present build target + WBS mode selection. Do NOT assume "build all" or default mode.
+
+**Step A — Build target question:**
 
 **Question:** "What would you like to build?"
 
@@ -41,7 +43,17 @@ Before any work, present a build target selection using `AskUserQuestion`. Do NO
 2. **Proposal only** — Proposal markdown + docx render (skip WBS)
 3. **WBS only** — WBS markdown + CSV + xlsx render (skip Proposal)
 
-After user selects, print the pre-run description block reflecting the chosen target:
+**Step B — WBS mode question (ask ONLY when build target includes WBS — "Build all" or "WBS only"):**
+
+**Question:** "Which WBS break mode?"
+
+**Options:**
+1. **Mode A — feature-ui** — break by actor action. Best for: stakeholder review, requirements traceability, UC/AC authoring. Output: `# | Category | Function | Sub-Function | Actor | Notes | Web/mobile (day) | Backend (day)`
+2. **Mode B — epic-component** — break by deliverable task, FE/BE separated, BE complexity exposed as individual rows, cross-cutting EPICs (Infra/SC/QA) mandatory. Best for: sprint planning, dev task assignment, delivery tracking. Output: `# | Phase | Epic | Task Name | Layer | Notes | PM | BA | SC | BE | DevOps | Mobile | FE | QC | Total MD`
+
+Ask Step A and Step B in a **single `AskUserQuestion` call** with 2 questions. Do NOT ask sequentially.
+
+After user selects, print the pre-run description block reflecting the chosen target and mode:
 
 ```
 ────────────────────────────────────────
@@ -54,6 +66,8 @@ Will:
   2. {dispatch description based on target}
   3. {sync-check if both, skip if single}
   4. AUTO-RENDER {xlsx and/or docx based on target}
+
+WBS Mode: {A — feature-ui | B — epic-component | N/A (Proposal only)}
 
 Outputs:
   {list only relevant outputs}
@@ -108,6 +122,7 @@ Dispatch only `wbs-builder`. Skip Proposal dispatch entirely.
 objective: Author WBS markdown + CSV (English) from Domain Primer + answered clarifications.
 target_md:  paths.presale_wbs
 target_csv: paths.presale_wbs_csv
+wbs_mode:   {A | B}  ← REQUIRED — pass the mode selected by user in Pre-run Step B
 templates:
   - bakit/templates/wbs-template.md
   - bakit/templates/wbs-template.csv
@@ -118,45 +133,40 @@ inputs:
 language: English
 source_ref_format: see rules/ba-presale-standards.md §5
 write_scope: target_md + target_csv only
-return_format: ~50-token summary (status, row counts, open flags)
+return_format: ~50-token summary (status, mode used, row counts, open flags)
 tracker: paths.presale_state_cards/03a-wbs.md
 
-WBS FORMAT (8 columns for Google Sheets xlsx output — MANDATORY):
+WBS MODE A — feature-ui (8 columns for Google Sheets xlsx output):
   # | Category | Function | Sub-Function | Actor | Notes | Web/mobile (day) | Backend (day)
+  Style spec: output-style-spec.json xlsx.sheets.WBS
+  Break rules: see bakit/templates/wbs-template.md §MODE A rules
 
-Column roles:
-  - # (col A): WBS ID — integer for EPIC rows, decimal for feature rows
-  - Category (col B): EPIC NAME ALL CAPS for EPIC rows; empty for feature rows
-  - Function (col C): task name at feature-card level — PM-readable without context
-  - Sub-Function (col D): actor-perspective acceptance condition — "Actor does X and sees Y"
-  - Actor (col E): specific actor — "User (Nara App)", "Group Admin", "System", "Tech Lead", "BA", "DevOps"
-  - Notes (col F): full behavioral spec + edge cases + [src:...] refs. No implementation detail.
-  - Web/mobile (day) (col G): FE/mobile effort — use 0 if not applicable, never blank
-  - Backend (day) (col H): BE effort — use 0 if not applicable, never blank
+WBS MODE B — epic-component (15 columns for Google Sheets xlsx output):
+  # | Phase | Epic | Task Name | Layer | Notes | PM | BA | SC | BE | DevOps | Mobile | FE | QC | Total MD
+  Style spec: output-style-spec.json xlsx.sheets.WBS_mode_b
+  Break rules: see bakit/templates/wbs-template.md §MODE B rules
+  CRITICAL for Mode B:
+    - Every Task Name MUST start with [Layer] tag
+    - BE complexity = separate rows, never hidden in Notes
+    - Cross-cutting EPICs (Infra, SC, QA) are mandatory — never fold into feature EPICs
+    - Effort: fill only the column matching the row's layer tag; all others = 0
 
-Note: Milestone and Dependencies are markdown-WBS fields only — omit from Google Sheets xlsx output.
+Common column roles (both modes):
+  - # (col A): WBS ID — integer for EPIC rows, decimal for task rows
+  - Notes: full behavioral spec (Mode A) or technical scope boundary (Mode B) + [src:...] refs
 
-EPIC row rules:
+Note: Milestone and Dependencies are markdown-WBS fields only — omit from xlsx output.
+
+EPIC row rules (both modes):
   - Col A = integer only (1, 2, 3, 4)
-  - Col B = ALL CAPS name
-  - Cols C-H = LEAVE EMPTY
-
-Feature row rules:
-  - Col A = decimal (1.1, 1.2, 2.1, ...)
-  - 1 row = 1 actor + 1 action + 1 observable outcome
-  - Every feature row MUST include a [src:...] ref in Notes
-
-GROUP header rows (optional, for multi-group sheets):
-  - Col A = "GROUP X", col B = GROUP NAME ALL CAPS, cols C-H empty
+  - EPIC name ALL CAPS
+  - All other columns = LEAVE EMPTY
 
 Clarification confidence:
   - Assumed rows (Status=Assumed) = agent-inferred, lower confidence — flag in Notes if scope-impacting
   - Answered rows (Status=Answered) = client-confirmed, use as facts
 
-Content rules (row atomicity, EPIC creation, split criteria, Function/Sub-Function depth, Actor convention):
-  See bakit/templates/wbs-template.md §WBS Content Rules — single canonical source for all WBS authoring.
-
-See output-style-spec.json xlsx.sheets.WBS for full color scheme, row types, and formatting order.
+Content rules: see bakit/templates/wbs-template.md §WBS Content Rules — single canonical source.
 ```
 
 ### Packet B → `proposal-writer` (model: **sonnet**) — skip if "WBS only"

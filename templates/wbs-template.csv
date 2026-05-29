@@ -1,3 +1,4 @@
+// MODE A — feature-ui (default): actor-centric, stakeholder communication
 WBS_ID,Category,Function,Sub-Function,Actor,Notes,Web_mobile_day,Backend_day
 1,DISCOVERY & ARCHITECTURE,,,,,,
 1.1,,Review client documents and confirm scope,BA reviews all input documents and confirms scope boundaries,BA,BA reviews RFP and confirms integration mechanism and scope boundaries [src:client:RFP§1],0,0
@@ -9,3 +10,13 @@ WBS_ID,Category,Function,Sub-Function,Actor,Notes,Web_mobile_day,Backend_day
 4,PHASE 4 EPIC NAME,,,,,,
 4.1,,Feature or function name,Actor does X and sees Y,Actor name,Full behavioral spec + edge cases [src:client:RFP§4],0,0
 Coding man-hour (man.day),,,,,,0,0
+
+// MODE B — epic-component: deliverable-centric, sprint planning
+// Replace the above block with this header when mode=B:
+// WBS_ID,Phase,Epic,Task_Name,Layer,Notes,PM,BA,SC,BE,DevOps,Mobile,FE,QC,Total_MD
+// 1,P1,INFRA & DEVOPS SETUP,,,,,,,,,,,,
+// 1.1,P1,E1,[DevOps] CF provisioning: Pages Workers D1 Queues KV,DevOps,Provision all CF products; link monorepo; domain [src:domain:§infra],0,0,0,0.5,2.5,0,0,0,3
+// 2,P1,EPIC 2 NAME,,,,,,,,,,,,
+// 2.1,P1,E2,[FE] Feature UI: description of deliverable,FE,Technical scope boundary [src:clarify:Q1],0,0,0,0,0,0,2,0,2
+// 2.2,P1,E2,[BE] Feature backend: description of deliverable,BE,Technical scope boundary [src:clarify:Q1],0,0,0,3,0,0,0,0.5,3.5
+// Grand Total,,,,,,0,0,0,0,0,0,0,0,0

@@ -18,7 +18,15 @@ Source: IIBA, *BABOK Guide* v3.
 
 ### Phase 3 — Build: WBS
 **PMI PMBOK 7th Edition — Work Breakdown Structure**
-The WBS follows PMI's decomposition standard: EPIC rows = work packages, feature rows = work items. Each feature row carries an actor-perspective acceptance condition and effort estimates split by frontend and backend. The 8-column schema (ID · Category · Function · Sub-Function · Actor · Notes · Web/mobile days · Backend days) is derived from PMBOK's WBS dictionary concept.
+The WBS follows PMI's decomposition standard: EPIC rows = work packages, feature rows = work items. BA-kit supports two WBS break modes, selected by the user at `/ba-presale build` time:
+
+**Mode A — feature-ui** (default for stakeholder communication)
+Break axis: domain category → feature → actor action. Each feature row carries an actor-perspective acceptance condition. The 8-column schema (ID · Category · Function · Sub-Function · Actor · Notes · Web/mobile days · Backend days) is derived from PMBOK's WBS dictionary concept. BE complexity is captured in Notes — not broken into sub-rows. Best for: client review, requirements traceability, UC/AC authoring.
+
+**Mode B — epic-component** (for delivery planning)
+Break axis: phase → epic (technical layer) → deliverable task. Each row is a deliverable independently buildable, testable, and assignable. BE complexity is always broken into separate rows — no hiding in Notes. Cross-cutting EPICs (Infrastructure, Smart Contract, QA) are mandatory first-class EPICs. The 15-column schema (ID · Phase · Epic · Task Name · Layer · Notes · PM · BA · SC · BE · DevOps · Mobile · FE · QC · Total MD) supports multi-role effort allocation. Best for: sprint planning, dev task assignment, delivery tracking.
+
+Both modes can coexist in the same project as separate files. Mode is declared at the top of every WBS file and passed explicitly to the `wbs-builder` sub-agent.
 Source: PMI, *PMBOK Guide* 7th ed.
 
 ### Phase 3 — Build: Proposal
@@ -197,7 +205,7 @@ The gate fires after every mutable command that touches UC artifacts. It cannot 
 | Standard | Applied to | Source |
 |----------|-----------|--------|
 | BABOK v3 — Elicitation | Intake, Gap Analysis, Clarify | IIBA |
-| PMI PMBOK 7th ed. — WBS | Presale WBS | PMI |
+| PMI PMBOK 7th ed. — WBS (Mode A + Mode B) | Presale WBS | PMI |
 | IEEE 830 / ISO/IEC 29148 | SRS structure, FR/NFR separation | IEEE / ISO |
 | Wiegers/IIBA 13-field UC | FRD Use Cases, SRS Group B | Wiegers & Beatty |
 | Cockburn goal levels + coffee-break test | UC scoping | Cockburn |
