@@ -11,12 +11,9 @@ from pathlib import Path
 
 ALLOWED_SUFFIXES = {
     "srs": (
-        "/screens/",
         "/usecases/",
-        "/data/",
-        "/flows/",
-        "/srs-groups/",
-        "/srs-index.md",
+        "/ascii-screen/",
+        "/srs/",
         "/srs.md",
         "/srs-compile-receipt.json",
         "/screen-field-contract.yaml",
@@ -30,25 +27,47 @@ ALLOWED_SUFFIXES = {
         "/04_compiled/",
         "/package-snapshot.md",
     ),
+    "qc-export": (
+        "/04_compiled/qc-kit",
+    ),
 }
 
 FORBIDDEN_BY_COMMAND = {
     "figma-sync": (
         "/srs.md",
-        "/screens/",
+        "/ascii-screen/",
         "/usecases/",
+        "/userstories/",
         "/shared-shell-contract.md",
     ),
     "package": (
-        "/screens/",
+        "/ascii-screen/",
         "/usecases/",
+        "/userstories/",
+        "/srs/",
         "/shared-shell-contract.md",
+    ),
+    "srs": (
+        "/userstories/",
+    ),
+    "qc-export": (
+        "/usecases/",
+        "/ascii-screen/",
+        "/userstories/",
+        "/srs/",
+        "/02_backbone/",
     ),
 }
 
 
 def normalized(path: Path) -> str:
     return "/" + path.as_posix().lstrip("./")
+
+
+def _token_matches(token: str, value: str) -> bool:
+    """Boundary-aware path match: token /04_compiled/qc-kit matches
+    /plans/.../04_compiled/qc-kit but not /plans/.../04_compiled/qc-kit-backup."""
+    return (token.rstrip("/") + "/") in (value + "/")
 
 
 def validate(command: str, paths: list[Path]) -> dict[str, object]:
@@ -63,10 +82,10 @@ def validate(command: str, paths: list[Path]) -> dict[str, object]:
 
     for path in paths:
         value = normalized(path)
-        if any(token in value for token in forbidden):
+        if any(_token_matches(t, value) for t in forbidden):
             errors.append(f"{path}: forbidden write for command {command}")
             continue
-        if allowed and not any(token in value for token in allowed):
+        if allowed and not any(_token_matches(t, value) for t in allowed):
             errors.append(f"{path}: outside allowed write scope for command {command}")
 
     return {"command": command, "errors": errors, "warnings": warnings, "ok": not errors}

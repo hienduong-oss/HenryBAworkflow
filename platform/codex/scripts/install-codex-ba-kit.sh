@@ -33,6 +33,57 @@ STALE_TEMPLATE_FILES=(
 STALE_CORE_PATHS=(
   "references"
 )
+MANAGED_SKILL_DIRS=(
+  "ba-*"
+  "brainstorm"
+  "reverse-web"
+  "qc-uc-review"
+)
+
+cleanup_managed_skill_dirs() {
+  local pattern path
+
+  mkdir -p "${TARGET_SKILLS}"
+  shopt -s nullglob
+  for pattern in "${MANAGED_SKILL_DIRS[@]}"; do
+    for path in "${TARGET_SKILLS}"/${pattern}; do
+      [[ -e "${path}" ]] || continue
+      rm -rf "${path}"
+    done
+  done
+  shopt -u nullglob
+}
+
+cleanup_managed_agent_files() {
+  local agent_path
+
+  mkdir -p "${TARGET_AGENTS}"
+  shopt -s nullglob
+  for agent_path in "${SOURCE_AGENTS}"/*; do
+    [[ -f "${agent_path}" ]] || continue
+    rm -f "${TARGET_AGENTS}/$(basename "${agent_path}")"
+  done
+  shopt -u nullglob
+}
+
+cleanup_managed_template_files() {
+  local template_path
+
+  mkdir -p "${TARGET_TEMPLATES}"
+  shopt -s nullglob
+  for template_path in "${SOURCE_TEMPLATES}"/*; do
+    [[ -f "${template_path}" ]] || continue
+    rm -f "${TARGET_TEMPLATES}/$(basename "${template_path}")"
+  done
+  shopt -u nullglob
+}
+
+cleanup_previous_install() {
+  cleanup_managed_skill_dirs
+  cleanup_managed_agent_files
+  cleanup_managed_template_files
+  rm -rf "${CORE_TARGET}"
+}
 
 if [[ ! -d "${SOURCE_SKILLS}" ]] && [[ ! -d "${SOURCE_AGENTS}" ]]; then
   echo "BA-kit Codex conversion not found."
@@ -116,6 +167,7 @@ remove_stale_core_paths() {
 }
 
 generate_codex_assets
+cleanup_previous_install
 
 node - "${SOURCE_SKILLS}" "${SOURCE_AGENTS}" "${SOURCE_TEMPLATES}" "${TARGET_HOME}" "${TARGET_SKILLS}" "${TARGET_AGENTS}" "${TARGET_TEMPLATES}" "${TARGET_CONFIG}" "${CANONICAL_STEP_SOURCE}" <<'NODE'
 const fs = require("node:fs");
@@ -171,34 +223,90 @@ const parseField = (content, field) => {
 };
 
 const escapeTomlString = (value) => value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+const managedAgentNames = new Set([
+  "ba-documentation-manager",
+  "ba-researcher",
+  "requirements-engineer",
+  "ui-ux-designer",
+]);
+const beginMarker = "# BEGIN BA-kit managed agents";
+const endMarker = "# END BA-kit managed agents";
 
-const appendAgentRegistration = (configPath, agentTomlPath) => {
+const removeManagedAgentRegistrations = (configPath) => {
+  if (!fs.existsSync(configPath)) {
+    return;
+  }
+
+  const lines = fs.readFileSync(configPath, "utf8").split(/\r?\n/);
+  const kept = [];
+
+  for (let index = 0; index < lines.length; ) {
+    const line = lines[index];
+
+    if (line.trim() === beginMarker) {
+      index += 1;
+      while (index < lines.length && lines[index].trim() !== endMarker) {
+        index += 1;
+      }
+      if (index < lines.length) {
+        index += 1;
+      }
+      continue;
+    }
+
+    const headerMatch = line.match(/^\[agents\.([^\]]+)\]$/);
+    if (headerMatch && managedAgentNames.has(headerMatch[1])) {
+      const block = [];
+      while (index < lines.length && (block.length === 0 || !/^\[/.test(lines[index]))) {
+        block.push(lines[index]);
+        index += 1;
+      }
+      const agentName = headerMatch[1];
+      const baKitConfigFile = new RegExp(`^config_file\\s*=\\s*"agents/${agentName}\\.toml"\\s*$`, "m");
+      if (baKitConfigFile.test(block.join("\n"))) {
+        continue;
+      }
+      kept.push(...block);
+      continue;
+    }
+
+    kept.push(line);
+    index += 1;
+  }
+
+  const cleaned = kept.join("\n").replace(/\n{3,}/g, "\n\n").replace(/\s+$/, "");
+  fs.writeFileSync(configPath, cleaned ? `${cleaned}\n` : "");
+};
+
+const buildAgentRegistration = (agentTomlPath) => {
   const content = fs.readFileSync(agentTomlPath, "utf8");
   const agentName =
     parseField(content, "name") || path.basename(agentTomlPath, path.extname(agentTomlPath));
   const description =
     parseField(content, "description") || `Codex BA agent from ${path.basename(agentTomlPath)}`;
   const registrationHeader = `[agents.${agentName}]`;
-  const registrationBlock = [
+  return [
     registrationHeader,
     `description = "${escapeTomlString(description)}"`,
     `config_file = "agents/${path.basename(agentTomlPath)}"`,
     "",
   ].join("\n");
+};
 
-  const configContent = fs.existsSync(configPath) ? fs.readFileSync(configPath, "utf8") : "";
-  const headerPattern = new RegExp(`^\\[agents\\.${agentName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\]$`, "m");
-  if (headerPattern.test(configContent)) {
-    return false;
-  }
+const writeAgentRegistrations = (configPath, agentTomlPaths) => {
+  removeManagedAgentRegistrations(configPath);
+  const configContent = fs.existsSync(configPath) ? fs.readFileSync(configPath, "utf8").replace(/\s+$/, "") : "";
+  const registrationBlock = [
+    beginMarker,
+    ...agentTomlPaths.map(buildAgentRegistration).map((block) => block.trimEnd()),
+    endMarker,
+    "",
+  ].join("\n");
 
   ensureDir(path.dirname(configPath));
   const updated =
-    configContent.length === 0
-      ? registrationBlock
-      : `${configContent}${configContent.endsWith("\n") ? "\n" : "\n\n"}${registrationBlock}`;
+    configContent.length === 0 ? registrationBlock : `${configContent}\n\n${registrationBlock}`;
   fs.writeFileSync(configPath, updated);
-  return true;
 };
 
 ensureDir(targetHome);
@@ -212,13 +320,14 @@ const installedTemplates = copyContents(sourceTemplates, targetTemplates);
 const installedStepFiles = copyContents(canonicalStepSource, path.join(targetSkills, "ba-start", "steps"));
 
 const registrations = [];
+const agentTomlPaths = [];
 for (const entry of installedAgents) {
   if (entry.endsWith(".toml")) {
-    if (appendAgentRegistration(targetConfig, entry)) {
-      registrations.push(path.basename(entry, ".toml"));
-    }
+    agentTomlPaths.push(entry);
+    registrations.push(path.basename(entry, ".toml"));
   }
 }
+writeAgentRegistrations(targetConfig, agentTomlPaths);
 
 console.log(`Installed skills into ${targetSkills}`);
 console.log(`Installed agents into ${targetAgents}`);
@@ -236,9 +345,9 @@ if (installedStepFiles.length === 0) {
   console.log("No canonical ba-start step files were copied.");
 }
 if (registrations.length > 0) {
-  console.log(`Registered Codex agents in ${targetConfig}: ${registrations.join(", ")}`);
+  console.log(`Refreshed Codex agent registrations in ${targetConfig}: ${registrations.join(", ")}`);
 } else {
-  console.log(`No new agent registrations were needed in ${targetConfig}`);
+  console.log(`No Codex agent registrations were available for ${targetConfig}`);
 }
 NODE
 

@@ -31,6 +31,7 @@ Usage:
   ba-kit chunk-write --file <target_file>
   ba-kit status [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit collab status [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
+  ba-kit qc-export --slug <slug> --date <YYMMDD-HHmm> --module <module_slug> [--external-output <dir>] [--usecase-list]
 
 Commands:
   doctor          Check BA-kit runtime readiness, installed manifests, and optional MCP/tool dependencies.
@@ -41,8 +42,8 @@ Commands:
   check-prereq    Validate the exact prerequisite artifacts for a BA command.
   doctor-srs      Run canon-first SRS guardrails for one module directory.
   check-write-scope  Block writes outside the command-owned artifact scope.
-  check-srs-index Validate SRS index registry paths and required sections.
-  check-screen-canon Validate one screen canon markdown file.
+  check-srs-index [LEGACY] Validate old srs-index.md registry (deprecated; use doctor-srs for new architecture).
+  check-screen-canon [LEGACY] Validate old screens/*.md canon file (deprecated; use check-ascii-screen-index for new architecture).
   check-source-of-truth Validate compiled SRS/receipt canon invariants.
   template-section  Print only the requested template group from templates/manifest.json.
   source-extract  Extract a source file into staged cache and optionally promote it into 00_source.
@@ -509,7 +510,7 @@ canon_source_count() {
   local count=0
   local dir
 
-  for dir in screens usecases data flows; do
+  for dir in userstories usecases ascii-screen srs; do
     if [[ -d "${module_root}/${dir}" ]]; then
       count="$((count + $(find "${module_root}/${dir}" -maxdepth 1 -type f -name '*.md' | wc -l | tr -d ' ')))"
     fi
@@ -527,7 +528,7 @@ newest_canon_mtime() {
     if [[ "${mtime}" -gt "${newest}" ]]; then
       newest="${mtime}"
     fi
-  done < <(find "${module_root}/screens" "${module_root}/usecases" "${module_root}/data" "${module_root}/flows" -maxdepth 1 -type f -name '*.md' -print0 2>/dev/null || true)
+  done < <(find "${module_root}/userstories" "${module_root}/usecases" "${module_root}/ascii-screen" "${module_root}/srs" -maxdepth 1 -type f -name '*.md' -print0 2>/dev/null || true)
 
   printf '%s\n' "${newest}"
 }
@@ -1254,12 +1255,12 @@ status_command() {
   print_json_state_line "${repo}/$(render_contract_path "${repo}" "source_manifest" "${slug}" "${date_token}")" "00_source/manifest.json"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "source_summary" "${slug}" "${date_token}")" "00_source/summary.md"
 
-  printf '\n[Core]\n'
-  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "project_home" "${slug}" "${date_token}")" "PROJECT-HOME.md (BA-facing dashboard)"
-  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "collab_home" "${slug}" "${date_token}")" "COLLAB-HOME.md (BA collaboration dashboard)"
+  printf '\n[Tài liệu gốc]\n'
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "project_home" "${slug}" "${date_token}")" "PROJECT-HOME.md (trang điều phối dự án)"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "collab_home" "${slug}" "${date_token}")" "COLLAB-HOME.md (trang cộng tác BA)"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "intake" "${slug}" "${date_token}")" "01_intake/intake.md"
-  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "plan" "${slug}" "${date_token}")" "01_intake/plan.md"
-  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "backbone" "${slug}" "${date_token}")" "02_backbone/backbone.md"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "plan" "${slug}" "${date_token}")" "01_intake/plan.md (nhật ký quyết định)"
+  print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "backbone" "${slug}" "${date_token}")" "02_backbone/backbone.md (khung yêu cầu đã chốt)"
   print_memory_status "${repo}" "${slug}" "${date_token}"
 
   modules="${module}"
@@ -1273,19 +1274,27 @@ status_command() {
       module_root_abs="${repo}/$(render_contract_path "${repo}" "module_root" "${slug}" "${date_token}" "${module_name}")"
       printf '\n[Module: %s]\n' "${module_name}"
       print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "frd" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/frd.md"
-      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "stories" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/user-stories.md"
-      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs_index" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs-index.md"
-      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "screen_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/screens/*.md"
-      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "usecase_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/usecases/*.md"
-      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "module_data_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/data/*.md"
-      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "flow_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/flows/*.md"
+      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "userstories_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/userstories/*.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "userstories_index" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/userstories/index.md"
+      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "usecases_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/usecases/*.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "usecases_index" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/usecases/index.md"
+      print_dir_status_line "${repo}/$(render_contract_path "${repo}" "ascii_screen_root" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/ascii-screen/*.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "ascii_screen_index" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/ascii-screen/index.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs_spec" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs/spec.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs_flows" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs/flows.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs_states" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs/states.md"
+      print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs_erd" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs/erd.md"
       print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "srs" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/srs.md"
       print_srs_receipt_status_line "${module_root_abs}"
       print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "screen_field_contract" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/screen-field-contract.yaml"
       local tool_lane_path tool_lane
       tool_lane_path="${repo}/$(render_contract_path "${repo}" "tool_lane_state" "${slug}" "${date_token}" "${module_name}")"
       print_tool_lane_status "${tool_lane_path}"
-      tool_lane="$(read_md_field "${tool_lane_path}" "Selected lane")"
+      if [[ -f "${tool_lane_path}" ]]; then
+        tool_lane="$(read_md_field "${tool_lane_path}" "Selected lane")"
+      else
+        tool_lane=""
+      fi
       if [[ "${tool_lane}" == *"figma-make"* ]]; then
         print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "make_guidelines" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/tool-lanes/figma-make/make-guidelines.md"
         print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "make_prompt_pack" "${slug}" "${date_token}" "${module_name}")" "03_modules/${module_name}/tool-lanes/figma-make/make-prompt-pack.md"
@@ -1297,7 +1306,7 @@ status_command() {
     done <<<"${modules}"
   fi
 
-  printf '\n[Shared Shell]\n'
+  printf '\n[Khung giao diện dùng chung]\n'
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "design_doc" "${slug}")" "designs/${slug}/DESIGN.md"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "shared_shell_contract" "${slug}" "${date_token}")" "02_backbone/shared-shell-contract.md"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "shared_shell_index" "${slug}" "${date_token}")" "02_backbone/shared-shell-index.md"
@@ -1305,11 +1314,11 @@ status_command() {
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "message_list" "${slug}" "${date_token}")" "02_backbone/message-list.md"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "shared_rule_message_index" "${slug}" "${date_token}")" "02_backbone/shared-rule-message-index.md"
 
-  printf '\n[Compiled]\n'
+  printf '\n[Tài liệu đã tổng hợp]\n'
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "compiled_frd" "${slug}" "${date_token}")" "04_compiled/compiled-frd.html"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "compiled_srs" "${slug}" "${date_token}")" "04_compiled/compiled-srs.html"
 
-  printf '\n[Tool Lanes]\n'
+  printf '\n[Làn công cụ]\n'
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "figma_make_shared_rules" "${slug}" "${date_token}")" "05_tool-lanes/figma-make/shared-rules.md"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "figma_make_shared_prompt_skeleton" "${slug}" "${date_token}")" "05_tool-lanes/figma-make/shared-prompt-skeleton.md"
   print_artifact_status_line "${repo}/$(render_contract_path "${repo}" "figma_make_shared_component_contracts" "${slug}" "${date_token}")" "05_tool-lanes/figma-make/shared-component-contracts.md"
@@ -1406,8 +1415,10 @@ check_prereq_command() {
       case "${requirement}" in
         intake) printf 'Run first: ba-start intake\n' ;;
         backbone) printf 'Run first: ba-start backbone --slug %s\n' "${slug}" ;;
+        userstories_index) printf 'Run first: ba-start stories --slug %s --module %s\n' "${slug}" "${module}" ;;
         stories) printf 'Run first: ba-start stories --slug %s --module %s\n' "${slug}" "${module}" ;;
-        srs_index|srs_compile_receipt) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
+        srs_compile_receipt|ascii_screen_index|usecases_index|srs_spec) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
+        srs_index) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
         design_doc|shared_shell_contract) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
         wireframe_input) printf 'Run first: ba-start srs --slug %s --module %s\n' "${slug}" "${module}" ;;
       esac
@@ -1453,7 +1464,7 @@ check_source_of_truth_command() {
 }
 
 next_command() {
-  local slug="" date_token="" module="" repo story_path srs_path srs_index_path wireframe_input_path wireframe_state_path compiled_frd compiled_srs project_home_path module_root_abs receipt_state source_count
+  local slug="" date_token="" module="" repo userstories_index_path srs_path srs_spec_path compiled_frd compiled_srs project_home_path module_root_abs receipt_state source_count
 
   while [[ "$#" -gt 0 ]]; do
     case "$1" in
@@ -1498,7 +1509,7 @@ next_command() {
     return 0
   fi
   if [[ ! -f "${repo}/$(render_contract_path "${repo}" "backbone" "${slug}" "${date_token}")" ]]; then
-    printf 'BA-facing next step: Chốt khung yêu cầu làm source of truth.\n'
+    printf 'BA-facing next step: Chốt khung yêu cầu làm tài liệu gốc.\n'
     printf 'Next command: ba-start backbone --slug %s\n' "${slug}"
     printf 'Reason: backbone is missing.\n'
     return 0
@@ -1507,21 +1518,19 @@ next_command() {
   module="$(resolve_module_name "${repo}" "${slug}" "${date_token}" "${module}")"
   [[ -n "${module}" ]] || fail "Next-step detection needs --module when more than one module exists."
 
-  story_path="${repo}/$(render_contract_path "${repo}" "stories" "${slug}" "${date_token}" "${module}")"
+  userstories_index_path="${repo}/$(render_contract_path "${repo}" "userstories_index" "${slug}" "${date_token}" "${module}")"
   srs_path="${repo}/$(render_contract_path "${repo}" "srs" "${slug}" "${date_token}" "${module}")"
-  srs_index_path="${repo}/$(render_contract_path "${repo}" "srs_index" "${slug}" "${date_token}" "${module}")"
+  srs_spec_path="${repo}/$(render_contract_path "${repo}" "srs_spec" "${slug}" "${date_token}" "${module}")"
   module_root_abs="${repo}/$(render_contract_path "${repo}" "module_root" "${slug}" "${date_token}" "${module}")"
-  wireframe_input_path="${repo}/$(render_contract_path "${repo}" "wireframe_input" "${slug}" "${date_token}" "${module}")"
-  wireframe_state_path="${repo}/$(render_contract_path "${repo}" "wireframe_state" "${slug}" "${date_token}" "${module}")"
   compiled_frd="${repo}/$(render_contract_path "${repo}" "compiled_frd" "${slug}" "${date_token}")"
   compiled_srs="${repo}/$(render_contract_path "${repo}" "compiled_srs" "${slug}" "${date_token}")"
   receipt_state="$(srs_receipt_state "${module_root_abs}")"
   source_count="$(canon_source_count "${module_root_abs}")"
 
-  if [[ ! -f "${story_path}" ]]; then
+  if [[ ! -f "${userstories_index_path}" ]]; then
     printf 'BA-facing next step: Viết user stories cho module %s.\n' "${module}"
     printf 'Next command: ba-start stories --slug %s --module %s\n' "${slug}" "${module}"
-    printf 'Reason: user stories are missing.\n'
+    printf 'Reason: userstories/index.md is missing.\n'
     return 0
   fi
   if [[ ! -f "${srs_path}" ]]; then
@@ -1530,10 +1539,10 @@ next_command() {
     printf 'Reason: SRS is missing for the resolved module.\n'
     return 0
   fi
-  if [[ ! -f "${srs_index_path}" ]]; then
-    printf 'BA-facing next step: Tạo routing index cho SRS canon module %s.\n' "${module}"
+  if [[ ! -f "${srs_spec_path}" ]]; then
+    printf 'BA-facing next step: Tạo SRS source set cho module %s.\n' "${module}"
     printf 'Next command: ba-start srs --slug %s --module %s\n' "${slug}" "${module}"
-    printf 'Reason: srs-index.md is missing, so agents cannot route to the right canon files safely.\n'
+    printf 'Reason: srs/spec.md is missing; source set not yet generated.\n'
     return 0
   fi
   case "${receipt_state}" in
@@ -1837,6 +1846,100 @@ stitch_state_command() {
       ;;
   esac
 }
+qc_export_command() {
+  local slug="" date_token="" module="" external_output="" usecase_list=""
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --slug)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --slug"
+        slug="$2"
+        shift 2
+        ;;
+      --date)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --date"
+        date_token="$2"
+        shift 2
+        ;;
+      --module)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --module"
+        module="$2"
+        shift 2
+        ;;
+      --external-output)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --external-output"
+        external_output="$2"
+        shift 2
+        ;;
+      --usecase-list)
+        usecase_list="1"
+        shift
+        ;;
+      *)
+        fail "Unknown argument: $1"
+        ;;
+    esac
+  done
+
+  [[ -n "${slug}" ]] || fail "Missing required argument: --slug"
+  [[ -n "${date_token}" ]] || fail "Missing required argument: --date"
+  [[ -n "${module}" ]] || fail "Missing required argument: --module"
+
+  local repo
+  repo="$(resolve_registered_repo)"
+
+  # Resolve relative --external-output against repo root, not caller CWD.
+  local resolved_external=""
+  if [[ -n "${external_output}" ]]; then
+    resolved_external="$(python3 -c '
+import os, sys
+p = sys.argv[1]
+p = os.path.expanduser(p)
+if not os.path.isabs(p):
+    p = os.path.join(sys.argv[2], p)
+print(os.path.normpath(p))
+' "${external_output}" "${repo}")"
+  fi
+
+  local cmd=(python3 "${repo}/scripts/qc-export.py"
+    --slug "${slug}"
+    --date "${date_token}"
+    --module "${module}"
+    --repo "${repo}"
+  )
+  if [[ -n "${external_output}" ]]; then
+    cmd+=(--external-output "${resolved_external}")
+  fi
+  if [[ -n "${usecase_list}" ]]; then
+    cmd+=(--usecase-list)
+  fi
+
+  # Write-scope guard: output must stay within 04_compiled/qc-kit/
+  local default_out="plans/${slug}-${date_token}/04_compiled/qc-kit"
+  if [[ -z "${external_output}" ]]; then
+    python3 "${repo}/scripts/check-write-scope.py" --command qc-export "${default_out}" >/dev/null 2>&1 \
+      || fail "qc-export write-scope blocked: ${default_out} outside allowed scope"
+  else
+    # external-output must be outside the repo or pass the same write-scope check.
+    # Use python so resolution works even when parent dirs don't exist yet.
+    local ext_real repo_real
+    ext_real="$(python3 -c '
+import os, sys
+print(os.path.abspath(os.path.expanduser(sys.argv[1])))
+' "${resolved_external}")"
+    repo_real="$(python3 -c '
+import os, sys
+print(os.path.abspath(os.path.expanduser(sys.argv[1])))
+' "${repo}")"
+    if [[ "${ext_real}" == "${repo_real}" || "${ext_real}" == "${repo_real}"/* ]]; then
+      # external-output points inside the repo — validate against write-scope
+      python3 "${repo}/scripts/check-write-scope.py" --command qc-export "${resolved_external}" >/dev/null 2>&1 \
+        || fail "qc-export write-scope blocked: ${external_output} inside repo but outside allowed scope"
+    fi
+  fi
+
+  "${cmd[@]}"
+}
 chunk_write_command() {
   local target_file=""
 
@@ -1935,6 +2038,9 @@ main() {
       ;;
     collab)
       collab_command "$@"
+      ;;
+    qc-export)
+      qc_export_command "$@"
       ;;
     status)
       status_command "$@"

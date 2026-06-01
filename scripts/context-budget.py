@@ -13,10 +13,10 @@ COMMAND_SCOPES = {
     "backbone": ["intake", "plan", "options_index", "options_comparison"],
     "frd": ["backbone_index", "plan", "project_memory"],
     "stories": ["backbone_index", "plan", "frd", "project_memory"],
-    "srs": ["backbone_index", "stories_index", "frd", "project_memory"],
-    "impact": ["intake", "backbone_index", "backbone", "stories_index", "srs_index", "project_memory"],
-    "wireframes": ["wireframe_input", "design_doc", "srs_index", "project_memory"],
-    "package": ["backbone_index", "stories_index", "srs_index", "memory_index", "wireframe_state"],
+    "srs": ["backbone_index", "userstories_index", "frd", "project_memory"],
+    "impact": ["intake", "backbone_index", "backbone", "userstories_index", "usecases_index", "ascii_screen_index", "srs_compile_receipt", "project_memory"],
+    "wireframes": ["ascii_screen_index", "design_doc", "srs_compile_receipt", "project_memory"],
+    "package": ["backbone_index", "userstories_index", "usecases_index", "ascii_screen_index", "srs_compile_receipt", "memory_index"],
     "status": ["project_home", "project_memory", "memory_index"],
 }
 
@@ -26,6 +26,8 @@ LANE_SCOPES = {
         "tool_lane_state",
         "make_guidelines",
         "make_prompt_pack",
+        "make_uc_prompt",
+        "make_uc_change_log",
         "prototype_conformance_checklist",
         "prototype_conformance_report",
         "figma_make_shared_rules",
@@ -40,6 +42,7 @@ def render_path(template: str, *, slug: str, date: str, module: str) -> str:
         template.replace("{slug}", slug)
         .replace("{date}", date)
         .replace("{module_slug}", module)
+        .replace("{usecase_slug}", "*")
         .replace("{group}", "*")
         .replace("{option}", "*")
     )

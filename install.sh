@@ -19,6 +19,57 @@ STALE_TEMPLATE_FILES=(
 STALE_CORE_PATHS=(
   "references"
 )
+MANAGED_SKILL_DIRS=(
+  "ba-*"
+  "brainstorm"
+  "reverse-web"
+  "qc-uc-review"
+)
+
+cleanup_managed_skill_dirs() {
+  local pattern path
+
+  mkdir -p "${SKILLS_TARGET}"
+  shopt -s nullglob
+  for pattern in "${MANAGED_SKILL_DIRS[@]}"; do
+    for path in "${SKILLS_TARGET}"/${pattern}; do
+      [[ -e "${path}" ]] || continue
+      rm -rf "${path}"
+    done
+  done
+  shopt -u nullglob
+}
+
+cleanup_managed_agent_files() {
+  local agent_path
+
+  mkdir -p "${AGENTS_TARGET}"
+  shopt -s nullglob
+  for agent_path in "${ROOT_DIR}"/agents/*; do
+    [[ -f "${agent_path}" ]] || continue
+    rm -f "${AGENTS_TARGET}/$(basename "${agent_path}")"
+  done
+  shopt -u nullglob
+}
+
+cleanup_managed_template_files() {
+  local template_path
+
+  mkdir -p "${TEMPLATES_TARGET}"
+  shopt -s nullglob
+  for template_path in "${ROOT_DIR}"/templates/*; do
+    [[ -f "${template_path}" ]] || continue
+    rm -f "${TEMPLATES_TARGET}/$(basename "${template_path}")"
+  done
+  shopt -u nullglob
+}
+
+cleanup_previous_install() {
+  cleanup_managed_skill_dirs
+  cleanup_managed_agent_files
+  cleanup_managed_template_files
+  rm -rf "${RULES_TARGET}" "${CORE_TARGET}"
+}
 
 copy_tree() {
   local source_dir="$1"
@@ -67,6 +118,7 @@ EOF
 
 echo "Installing BA-kit from: ${ROOT_DIR}"
 mkdir -p "${TARGET_HOME}"
+cleanup_previous_install
 
 mkdir -p "${SKILLS_TARGET}"
 for skill_dir in "${ROOT_DIR}"/skills/*; do

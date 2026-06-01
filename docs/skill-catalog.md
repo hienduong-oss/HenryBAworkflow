@@ -8,7 +8,7 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 
 | Skill | When to Use | Related Templates | Related Agents | Typical Output |
 | --- | --- | --- | --- | --- |
-| `ba-start` | Full BA engagement, reverse as-built analysis, or resumable step-level reruns from raw input to packaged deliverables | `project-home-template.md`, `intake-form-template.md`, `requirements-backbone-template.md`, `frd-template.md`, `user-story-template.md`, `srs-template.md`, `design-md-template.md`, `screen-canon-template.md` | `requirements-engineer`, `ui-ux-designer`, `ba-documentation-manager`, `ba-researcher` | Project Home dashboard, intake form, option pack + comparison when needed, requirements backbone, gated FRD/stories/SRS artifacts, canon screen/use case/data sources with mandatory ASCII, routing indexes, compiled SRS deliverable, reverse evidence lane, project runtime `DESIGN.md`, FRD/SRS HTML, quality review, artifact status |
+| `ba-start` | Full BA engagement, reverse as-built analysis, or resumable step-level reruns from raw input to packaged deliverables | `project-home-template.md`, `intake-form-template.md`, `requirements-backbone-template.md`, `frd-template.md`, `userstory-item-template.md`, `userstories-index-template.md`, `srs-template.md`, `srs-spec-template.md`, `usecase-item-template.md`, `ascii-screen-template.md`, `design-md-template.md` | `requirements-engineer`, `ui-ux-designer`, `ba-documentation-manager`, `ba-researcher` | Project Home dashboard, intake form, option pack + comparison when needed, requirements backbone, gated FRD/stories/SRS artifacts, canon screen/use case/data sources with mandatory ASCII, routing indexes, compiled SRS deliverable, reverse evidence lane, project runtime `DESIGN.md`, FRD/SRS HTML, quality review, artifact status |
 | `brainstorm` | Pre-intake idea clarification — capture and expand a raw idea through a 7-section deep interview before entering the BA lifecycle | `brainstorm-template.md` | None | Structured brainstorm doc with flows, ASCII diagrams, scenario matrix, state transitions, interrupted-tx handling, exact wording, open questions |
 | `ba-collab` | Module ownership, review packets, conflict checks, and approval-gated GitHub handoff | `collab-home-template.md`, `module-home-template.md`, `review-packet-template.md` | Lead BA / Module BA roles | Collab Home, Module Home, review packet, optional approved PR handoff |
 | `qc-uc-review` | Module-level QC audit after `ba-start srs` or when a BA explicitly asks for readiness review | QC report template + backlog conventions under `skills/qc-uc-review/` | QA/Test Lead | Module-scoped QC report, verdict, blockers, question backlog |
@@ -42,7 +42,7 @@ After brainstorm, feed the output into `/ba-start intake` as source material.
 8. Gated FRD and user story generation
 9. Selective use case and Screen Contract Plus production when needed
 10. Design decision capture and project runtime `DESIGN.md` creation when UI support is justified
-11. Canon-first SRS authoring into module `screens/*.md`, `usecases/*.md`, optional `data/erd.md`, and `srs-index.md`
+11. Canon-first SRS authoring into module `ascii-screen/*.md`, `usecases/*.md`, `srs/*.md`, and their indexes
 12. Compiled `srs.md` production as the full reader-facing deliverable with screen descriptions and ASCII wireframes
 13. Automatic module QC review after `srs` using canon-first evidence and module-scoped QC outputs
 14. Optional downstream Figma sync from canon screen files and shared shell contract
@@ -88,9 +88,9 @@ After brainstorm, feed the output into `/ba-start intake` as source material.
 | `backbone` | Build the persisted source-of-truth artifact after scope lock and refresh Project Home | Matching intake artifact |
 | `frd` | Produce the FRD and FRD HTML only when the gate is open | Matching backbone artifact |
 | `stories` | Produce user stories only | Matching backbone artifact |
-| `srs` | Produce grouped SRS artifacts, canon screen/use case/data sources, mandatory ASCII wireframes, routing indexes, and compiled `srs.md` | Matching backbone and user stories |
-| `wireframes` | Deprecated compatibility validation for existing screen canon ASCII | Current `srs-index.md`, screen canon, and compile receipt |
-| `ba-figma-sync` | Sync approved SRS screen canon to Figma through Figma MCP and write sync/mismatch reports | Current `srs-index.md`, `srs-compile-receipt.json`, screen canon, `DESIGN.md`, and shared shell contract |
+| `srs` | Produce folder-based SRS sources, use cases, mandatory ASCII screens, routing indexes, and compiled `srs.md` | Matching backbone and user stories |
+| `wireframes` | Deprecated compatibility validation for existing screen canon ASCII | Current `ascii-screen/index.md`, screen canon, and compile receipt |
+| `ba-figma-sync` | Sync approved SRS screen canon to Figma through Figma MCP and write sync/mismatch reports | Current `ascii-screen/index.md`, `srs-compile-receipt.json`, screen canon, `DESIGN.md`, and shared shell contract |
 | `package` | Run aggregate validation, validate existing packaged HTML artifacts, and regenerate only the needed packaged outputs | Emitted artifact set and non-missing wireframe state |
 | `status` | Print artifact checklist with dates | Resolved slug and dated set |
 | `reverse` | Scan committed source files, lock the baseline commit, and build the reverse evidence index | None (creates `00_reverse/` lane) |
@@ -126,15 +126,15 @@ Packaged HTML artifacts are meant to be edited in the browser. Update copy, swap
 
 If the user manually inserts wireframe images or links into the markdown source, the packaged HTML preserves those references only when the asset path stays inside the allowed base directory. Mermaid diagrams are rendered explicitly after the DOM is ready, and PlantUML diagrams always prefer local rendering. Use `ba-kit install-plantuml` or the renderer's `--auto-install-plantuml` option before falling back to a configured server.
 
-`/ba-start status` reports `PROJECT-HOME.md` first as the BA-facing dashboard, then regular artifacts as exists or missing with last-modified dates, including the persisted backbone. For SRS modules it must also show `srs-index.md`, canon source counts under `screens/`, `usecases/`, `data/`, `flows/`, compiled `srs.md`, `srs-compile-receipt.json`, screen canon ASCII coverage, and any module-scoped QC outputs under `03_modules/{module_slug}/qc-review/`. Shared shell files (`DESIGN.md`, `shared-shell-contract.md`, `shared-shell-index.md`) are reported separately because menu/layout ownership is system-level. Delegated slices should also appear from their trackers, with likely stalled slices flagged when heartbeats go stale.
+`/ba-start status` reports `PROJECT-HOME.md` first, then regular artifacts with dates. For SRS modules it must show `userstories/index.md`, `usecases/index.md`, `ascii-screen/index.md`, counts under `ascii-screen/`, `usecases/`, and `srs/`, compiled `srs.md`, receipt, ASCII coverage, and module QC outputs. Shared shell files are reported separately.
 
-`qc-uc-review` now reads module canon sources first: `srs-index.md`, `usecases/*.md`, `screens/*.md`, `screen-field-contract.yaml`, then the compiled `srs.md` and receipt as supporting evidence. Automatic QC firing happens after module `srs`, not after `stories` or `wireframes`.
+`qc-uc-review` reads module canon sources first: `usecases/index.md`, `ascii-screen/index.md`, `usecases/*.md`, `ascii-screen/*.md`, `screen-field-contract.yaml`, then compiled `srs.md` and receipt as supporting evidence. Automatic QC fires after module `srs`.
 
 `wireframes` is compatibility validation only. It must not emit legacy handoff artifacts and must not act as the primary `qc-review` trigger.
 
 Runtime guardrail helpers:
 
-- `ba-kit doctor-srs <module_root>` validates SRS index paths, screen canon schema, source-of-truth invariants, and compile receipt presence.
+- `ba-kit doctor-srs <module_root>` validates ASCII screen index paths, screen canon schema, source-of-truth invariants, and compile receipt presence.
 - `ba-kit check-write-scope --command <command> <path>...` blocks downstream commands such as `figma-sync` and `package` from mutating canon files.
 - `ba-kit check-srs-index`, `ba-kit check-screen-canon`, and `ba-kit check-source-of-truth` expose the narrow validators for hooks and CI.
 
