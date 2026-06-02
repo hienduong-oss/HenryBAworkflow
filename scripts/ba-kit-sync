@@ -41,6 +41,11 @@ done
 sync_tree "${ROOT_DIR}/rules" "${TARGET_HOME}/rules/ba-kit"
 sync_tree "${ROOT_DIR}/agents" "${TARGET_HOME}/agents"
 sync_tree "${ROOT_DIR}/templates" "${TARGET_HOME}/templates"
-sync_tree "${ROOT_DIR}/core" "${TARGET_HOME}/ba-kit"
+sync_tree "${ROOT_DIR}/core" "${TARGET_HOME}/core"
+
+# Remove stale ba-kit/ directory from old sync destination
+if [[ -d "${TARGET_HOME}/ba-kit" ]]; then
+  rm -rf "${TARGET_HOME}/ba-kit"
+fi
 
 echo "Synced BA-kit → ~/.claude/ from ${ROOT_DIR}"
