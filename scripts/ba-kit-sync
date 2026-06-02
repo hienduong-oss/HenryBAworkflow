@@ -43,9 +43,11 @@ sync_tree "${ROOT_DIR}/agents" "${TARGET_HOME}/agents"
 sync_tree "${ROOT_DIR}/templates" "${TARGET_HOME}/templates"
 sync_tree "${ROOT_DIR}/core" "${TARGET_HOME}/core"
 
-# Remove stale ba-kit/ directory from old sync destination
-if [[ -d "${TARGET_HOME}/ba-kit" ]]; then
-  rm -rf "${TARGET_HOME}/ba-kit"
+# Remove stale files from old sync destination (~/.claude/ba-kit/core/)
+# but preserve guardrail assets installed by install-claude-code-ba-kit.sh
+# (hooks/, scripts/, docs/, state/)
+if [[ -d "${TARGET_HOME}/ba-kit/core" ]]; then
+  rm -rf "${TARGET_HOME}/ba-kit/core"
 fi
 
 echo "Synced BA-kit → ~/.claude/ from ${ROOT_DIR}"
