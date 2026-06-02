@@ -94,6 +94,11 @@ if [[ ! -d "${SOURCE_SKILLS}" ]] && [[ ! -d "${SOURCE_AGENTS}" ]]; then
   exit 1
 fi
 
+if ! command -v node >/dev/null 2>&1; then
+  echo "ERROR: node is required but not found in PATH" >&2
+  exit 1
+fi
+
 install_cli() {
   local temp_target
   mkdir -p "${LOCAL_BIN_TARGET}"
