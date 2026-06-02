@@ -99,6 +99,28 @@ After the run, report:
 - output root path
 - usecase-list.md path (if `--usecase-list` was used)
 
+## Expected Output Directory Structure
+
+The exporter generates monolithic files per Use Case rather than mirroring the raw multi-file source structure. The expected output structure in the compiled directory is:
+
+```text
+plans/{slug}-{date}/04_compiled/qc-kit/
+  qc-export-summary.json        <-- Export metadata summary (JSON)
+  docs/BA/
+    Common rule/
+      common-rules.md            <-- Exported common rule registry
+      message-list.md            <-- Exported common message list
+    UC-{usecase_slug}/
+      UC-{usecase_slug}.md       <-- Monolithic markdown file containing UC details,
+                                     inlined screen specs, ACs, and referenced rules
+      screens/
+        *.png                    <-- Supplementary PNG assets (if any)
+    usecase-list.md              <-- Optional UC list index (if --usecase-list is used)
+```
+
+**CRITICAL:** Under no circumstances does `qc-export` generate separate `usecases/`, `screens/`, or `userstories/` folders containing separate markdown files. Screens, user stories, and rules are always compiled and inlined into the single `UC-{usecase_slug}.md` file for that UC.
+
+
 ## Stop Conditions
 
 - Module root not found at `plans/{slug}-{date}/03_modules/{module_slug}/`
