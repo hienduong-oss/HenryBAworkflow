@@ -56,6 +56,58 @@ Rules:
 - Compiled HTML: `04_compiled/`
 - Delegation and collaboration: `delegation/`, `COLLAB-HOME.md`, `MODULE-HOME.md`
 
+## Context Budget Enforcement [NON-NEGOTIABLE]
+
+Every oversized tool output is cached in prompt context and re-loaded on EVERY subsequent turn. The guardrail hooks enforce these rules at two layers:
+
+- **PreToolUse (Read)**: Blocks Read calls on files >10kB without `offset`+`limit`. Warns on files >5kB. Detects re-reads of same file within session.
+- **PostToolUse (Bash|Read|Grep)**: Warns on outputs >5kB. Strong warning >8kB.
+- **Stop**: End-of-session audit reports total context waste from oversized outputs.
+
+### Tool Selection Rules
+
+| Instead of | Use | Reason |
+|---|---|---|
+| `find ... -type f` (Bash) | `Glob` with specific patterns | Glob returns file paths only, no noise |
+| `cat <file>` (Bash) | `Read <file>` | Read supports offset/limit for large files |
+| `grep -r <pattern>` (Bash) | `Grep` with `head_limit` | Grep tool is optimized, supports filtering |
+| `ls -R` or `tree` (Bash) | `Glob **/*` | Glob gives structured results |
+
+### Output Limiting Rules [HARD]
+
+1. **Read**: Always use `offset` + `limit` on files >200 lines. Read TOC/frontmatter first (~50 lines), then target specific line ranges. Files >10kB without limit will be BLOCKED by PreToolUse hook.
+2. **Grep**: Always use `head_limit` when `output_mode=content`. Default to `files_with_matches` first, then narrow to content.
+3. **Bash**: Pipe through `head -N` or `tail -N` when output size is uncertain. Never return raw `find`, `ls -R`, or `cat` output without limiting.
+4. **Prefer dedicated tools**: Use Glob over `find`/`ls`. Use Read over `cat`. Use Grep over `grep`/`rg`.
+5. **Full-file reads**: Only Read an entire file when it's <200 lines AND you need the full content. If any doubt, read in sections.
+
+### Re-Read Prevention [HARD]
+
+- Do NOT re-read a file you already read in this session. Reference prior read by line numbers instead.
+- If you need a different section, use `offset`+`limit` to target it specifically.
+- The PreToolUse hook tracks all reads and warns on re-reads.
+
+### Thresholds
+
+- **PreToolUse WARN**: >5kB file with no offset/limit — warning injected, read proceeds
+- **PreToolUse BLOCK**: >10kB file with no offset/limit — Read is BLOCKED, must retry with offset+limit
+- **PostToolUse WARN**: >5kB tool output (~1.2k tokens) — context warning injected
+- **PostToolUse CRITICAL**: >8kB tool output (~2k tokens) — strong warning with repeat counter
+
+### Bypass
+
+If full-file read is genuinely required and blocked by PreToolUse:
+```
+Read file_path with limit=0 to bypass the preflight guard.
+```
+
+### Escalation
+
+If a legitimately large read outside BA-kit context is necessary, emit:
+```
+READ_ESCALATION: {command} read {path} due to {reason}.
+```
+
 ## Delegation
 
 Use agent roles under `agents/` when delegation improves quality or throughput.
