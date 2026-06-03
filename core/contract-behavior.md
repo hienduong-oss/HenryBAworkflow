@@ -134,11 +134,13 @@ Before mutating `backbone`, `frd`, `stories`, `srs`, `package`, or any module ar
 
 ## Checkpoint Protocol
 
-Every step writes a `_checkpoint.md` at the project root before doing any work, and updates it when done.
+Every step in every BA-kit flow writes a `_checkpoint.md` before doing any work, and **deletes it on completion**. The sole purpose is interrupt recovery — a completed checkpoint has no recovery value and must not be retained.
 
-**Paths:**
+**Paths (all flows):**
 - `/ba-start` steps: `plans/{slug}-{date}/_checkpoint.md`
 - `/ba-presale` steps: `plans/{slug}-{date}/00_presale/_checkpoint.md`
+- `/ba-impact`, `/ba-next`, `/ba-collab`, `/ba-qc-export`, `/brainstorm`, and all other skills that mutate artifacts: `plans/{slug}-{date}/_checkpoint.md` (same root as `/ba-start`; use `00_presale/_checkpoint.md` when operating inside the presale tree)
+- Skills that operate outside a project set (e.g. `/ba-kit-update`): omit the checkpoint — no artifact mutation, no recovery needed.
 
 **Write on start** (before any artifact mutation):
 ```
@@ -157,28 +159,23 @@ resume_hint: ""
 - Set `last_write` to the artifact path just written
 - Set `resume_hint` to what comes next (e.g., "Continue from UC-04")
 
-**Update on complete:**
-```
-status: completed
-updated: <ISO timestamp>
-```
+**On complete: delete the checkpoint file.** Do not write a `status: completed` entry — delete the file entirely. A missing checkpoint means the last step finished cleanly.
 
 **Rules:**
 - Write the checkpoint file as the very first action of a step — before reading any artifact.
-- A `status: running` checkpoint that is older than the current session means the step was interrupted.
-- Never delete a checkpoint file. Overwrite it in place.
+- A `status: running` checkpoint means the step was interrupted. Report it to the user before doing anything else.
+- Delete the checkpoint on successful completion. Overwrite it (not delete) only when restarting an interrupted step.
 - `progress`, `last_write`, and `resume_hint` are optional but must be filled for steps using the Large Artifact Write Protocol.
 
 ## Context-Loss Recovery
 
 If exploration consumes context or the host truncates conversation history:
-1. **Read `_checkpoint.md` first.** If `status: running` exists, report the interrupted step to the user before doing anything else.
+1. **Check for `_checkpoint.md` first.** If the file exists (regardless of content), a step was interrupted. Report the interrupted step to the user before doing anything else.
 2. Reconstruct the active target from the resolved command, slug, date, optional module, and on-disk artifacts.
 3. If `resume_hint` is present in the checkpoint, use it to skip already-completed sub-steps.
 4. Continue from the next unresolved step when those values are still unambiguous.
 5. Do not ask the user to restate the original request merely because exploration consumed context.
-
-*Presale context-loss recovery: see `steps/bootstrap.md`.*
+6. A missing checkpoint means the previous step finished cleanly — no recovery needed.
 
 ## Routeable Backbone Re-entry
 
