@@ -2,11 +2,11 @@
 
 ## Purpose
 
-BA-kit can work with Codex as a repo-native BA operating guide. The [platform/codex/CODEX.md](../platform/codex/CODEX.md) gives Codex persistent instructions, while the `skills/`, `rules/`, and `templates/` folders provide detailed task guidance.
+BA-kit can work with Codex as a repo-native BA operating guide. The root [AGENTS.md](../AGENTS.md) gives Codex persistent instructions, while the `skills/`, `rules/`, and `templates/` folders provide detailed task guidance.
 
 ## What Codex Uses
 
-- [CODEX.md](../platform/codex/CODEX.md) as the persistent repo instruction file
+- [AGENTS.md](../AGENTS.md) as the persistent repo instruction file
 - `skills/` as reference playbooks for BA task types
 - `rules/` as BA quality and workflow constraints
 - `templates/` as deliverable structures
@@ -17,7 +17,7 @@ BA-kit can work with Codex as a repo-native BA operating guide. The [platform/co
 If you have the Codex-converted bundle for `ba-start`, install it from the repository root with:
 
 ```bash
-bash platform/codex/scripts/install-codex-ba-kit.sh
+bash scripts/install-codex-ba-kit.sh
 ```
 
 The installer expects the converted source tree under:
@@ -208,7 +208,7 @@ Keep the decision explicit before `/ba-start backbone --slug warehouse-rfp`.
 ### Change Impact Triage
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 I am midway through the SRS for slug warehouse-rfp and this new requirement arrived:
 "Every export must require explicit permission, write an audit log, and display a success or failure banner."
 Run the equivalent of `/ba-start impact --slug warehouse-rfp`.
@@ -253,7 +253,7 @@ Do not mutate any artifact.
 ### Package Only
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start package --slug warehouse-rfp`.
 If the wireframe state is `missing`, stop and tell me to rerun `wireframes`.
 If the wireframe state is `completed`, `skipped`, or `not-applicable`, continue to HTML packaging.
@@ -263,7 +263,7 @@ Keep the package scope narrow: regenerate final FRD and SRS HTML when those mark
 ### Status Check
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 Run the equivalent of `/ba-start status --slug warehouse-rfp`.
 Print artifact names, exists or missing status, last-modified dates, the persisted backbone, the explicit wireframe state, and any persisted wireframe input/map artifacts when present.
 Also print any delegation trackers under `plans/{slug}-{date}/delegation/`, including `running`, `blocked`, `needs-repartition`, or likely stalled slices.
@@ -292,7 +292,7 @@ Produce an intake form, requirements backbone, gated FRD/stories/SRS artifacts, 
 ### Formal Requirements Only
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 Draft an SRS from templates/srs-template.md.
 Include use cases, screen descriptions, and linked requirements.
 Make room for user-supplied wireframe references under each screen section instead of assuming BA-kit-generated mockups.
@@ -301,7 +301,7 @@ Make room for user-supplied wireframe references under each screen section inste
 ### Agile Story Breakdown
 
 ```text
-Use platform/codex/CODEX.md and skills/ba-start/SKILL.md.
+Use AGENTS.md and skills/ba-start/SKILL.md.
 Break this feature into epics, features, and stories.
 Use templates/user-story-template.md.
 Keep acceptance criteria testable and align any UI stories to the SRS screens.
@@ -312,7 +312,7 @@ Keep acceptance criteria testable and align any UI stories to the SRS screens.
 The `skills/` directory is written in Claude-style skill format. Codex should treat those files as instruction content to read and apply, not as an automatic native skill system.
 
 That means prompts should explicitly tell Codex which playbook to consult when the task is non-trivial.
-The `platform/codex/CODEX.md` carries the short non-negotiable defaults, but it does not replace the detailed routing and prerequisite logic in `skills/ba-start/SKILL.md`.
+The root `AGENTS.md` carries the short non-negotiable defaults, but it does not replace the detailed routing and prerequisite logic in `skills/ba-start/SKILL.md`.
 For delegated BA work, resolve the workflow once in the orchestrator, then pass only the minimal handoff packet to each registered agent instead of replaying the entire playbook and merged artifact set every time.
 
 ## ASCII Wireframes For Codex

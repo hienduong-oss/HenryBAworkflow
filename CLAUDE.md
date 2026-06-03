@@ -13,6 +13,8 @@ BA-kit là lifecycle engine cho solo IT BA. Nhận raw requirements → normaliz
 
 For lifecycle work, read `contract.yaml`, then shared behavior, then only the selected command behavior shard and step file.
 
+For non-trivial BA work, start from `skills/ba-start/SKILL.md` instead of improvising from the prompt alone.
+
 ## Language & Communication
 
 - BA deliverables viết bằng **Vietnamese** trừ khi user yêu cầu English.

@@ -986,12 +986,12 @@ run_installer() {
       (cd "${repo}" && ./install.sh)
       ;;
     codex)
-      [[ -x "${repo}/platform/codex/scripts/install-codex-ba-kit.sh" ]] || fail "Codex installer missing: ${repo}/platform/codex/scripts/install-codex-ba-kit.sh"
-      (cd "${repo}" && ./platform/codex/scripts/install-codex-ba-kit.sh)
+      [[ -x "${repo}/scripts/install-codex-ba-kit.sh" ]] || fail "Codex installer missing: ${repo}/scripts/install-codex-ba-kit.sh"
+      (cd "${repo}" && ./scripts/install-codex-ba-kit.sh)
       ;;
     antigravity)
-      [[ -f "${repo}/platform/gemini/scripts/install-antigravity-ba-kit.sh" ]] || fail "Antigravity installer missing: ${repo}/platform/gemini/scripts/install-antigravity-ba-kit.sh"
-      (cd "${repo}" && bash ./platform/gemini/scripts/install-antigravity-ba-kit.sh)
+      [[ -f "${repo}/scripts/install-antigravity-ba-kit.sh" ]] || fail "Antigravity installer missing: ${repo}/scripts/install-antigravity-ba-kit.sh"
+      (cd "${repo}" && bash ./scripts/install-antigravity-ba-kit.sh)
       ;;
     *)
       fail "Unsupported runtime in installation manifest: ${runtime}"
@@ -1211,7 +1211,7 @@ doctor_command() {
   if [[ -d "${HOME}/.gemini/antigravity/knowledge/ba-kit-workflow" ]]; then
     doctor_ok "BA-kit workflow KI installed for Antigravity"
   else
-    doctor_warn "BA-kit workflow KI not installed for Antigravity (run platform/gemini/scripts/install-antigravity-ba-kit.sh)"
+    doctor_warn "BA-kit workflow KI not installed for Antigravity (run scripts/install-antigravity-ba-kit.sh)"
     warnings=$((warnings + 1))
   fi
 

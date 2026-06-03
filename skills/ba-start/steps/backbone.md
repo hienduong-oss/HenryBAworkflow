@@ -121,3 +121,66 @@ Backbone rules:
 - keep `paths.backbone_index` as a navigator only: section names, trace IDs, module/feature hints, and short summaries; do not duplicate full requirement text
 - do not self-certify `paths.backbone_index` as `current`; only the validator may promote it from `unknown`
 - keep `project-memory.md` runtime-neutral so Claude Code, Codex, and Antigravity can all resume from the same accepted facts
+
+## Memory Architecture
+
+- `backbone.md` is the primary scope truth and mutating artifact source.
+- `project-memory.md` (compact/summary form) is the anti-drift support layer for simple projects.
+- `project-memory/` shard tree is the structured memory extension for complex projects.
+
+**Compact mode:** only `project-memory.md` exists; backward compatible.
+**Shard mode:** `project-memory.md` + `project-memory/` tree; use when index navigation benefit justifies the structure.
+
+`project-memory/index.md` routes agents to the right shards — it must not become a second monolith. Detail lives in hot/warm/cold shards, not in the index.
+
+`project-memory/cold/` is never loaded by default — only via explicit escalation with a stated reason.
+
+## Activation Contract
+
+Activation levels: `Base` (single BA, single module), `Modular` (two or more modules/owners), `Program` (cross-module dependencies or two or more concurrent delegation slices).
+
+- Use `activation.thresholds` from `core/contract.yaml` for all threshold comparisons.
+- Compute signals from `activation.signals`.
+- Auto-escalation is allowed. Auto-downgrade requires explicit refresh.
+- Persist activation state inside `paths.memory_index` when shard mode is active; record in `paths.project_memory` header when compact mode is active.
+- When runtime mismatch is detected between stored and computed activation level: freeze to `Base` and emit `ACTIVATION_FREEZE: computed level {X} conflicts with stored level {Y}; frozen to Base pending explicit refresh.`
+
+## Multi-BA Governance
+
+Memory ownership: `project-memory.md`, `index.md`, `hot/*.md` → Lead BA only. `warm/modules/{module_slug}.md` → Module BA (cross-module entries require Lead BA approval).
+
+Conflict escalation: module BA writing a global hot shard → `GOVERNANCE_CONFLICT: {actor} does not own {path}; escalate to Lead BA.`
+
+Promotion rules — canonical memory changes only after an approved rerun:
+1. Detect change affecting accepted terminology, decisions, or push-back triggers.
+2. Run `impact` to trace scope.
+3. Get explicit user approval of the impact and proposed rerun path.
+4. Execute the approved mutating rerun.
+5. Promote using `templates/project-memory-fileback-record-template.md`.
+6. Append traceable entry to `log.md` when shard mode is active.
+
+File-back approval: Lead BA approves global/cross-module changes; Module owner approves module-local warm shard; end-user approval required when content changes accepted business scope or policy.
+
+Every filed-back memory item must carry: `source_artifact`, `source_ids`, `promotion_target`, `approved_by`, `approved_role`, `approved_at`, `approval_basis`, `approval_trigger`, `impact_ref`, `supersedes`.
+
+## Delegation Contract (when delegating backbone sub-tasks)
+
+- Trackers live under `paths.delegation_root`. States must use `states.delegation`.
+- Heartbeat cadence: `states.heartbeat_minutes`. Stall detection: `states.stall_after_minutes`.
+- Packet rules: pass objective, exact target path, write scope, trace IDs, and targeted upstream excerpts only. Do not attach full merged artifacts.
+- If a packet grows beyond a concise brief plus targeted excerpts, repartition before delegating.
+- If a worker returns `NEEDS_REPARTITION`, rerun only the overloaded slice.
+
+## Memory Capture
+
+After backbone is approved by user, promote to project memory:
+
+| What to capture | Target shard | Trigger |
+|---|---|---|
+| Canonical vocabulary (actor names, portal IDs, module slugs, key terms) | `hot/canonical-vocabulary.md` | Every backbone run |
+| Scope lock decisions (in-scope / out-of-scope boundaries) | `hot/approved-decisions.md` (MEM-DEC) | Every backbone run |
+| Portal matrix + navigation schema decisions | `hot/approved-decisions.md` (MEM-DEC) | When portal matrix is locked |
+| Push-back triggers (scope items explicitly rejected, actors excluded) | `hot/pushback-triggers.md` | When user explicitly rejects a scope item |
+| Module-level feature map summary | `warm/modules/{module_slug}.md` | Per module, when feature map is locked |
+
+Use `templates/project-memory-fileback-record-template.md` for each promotion. Set `Confidence: high` for user-confirmed decisions, `medium` for backbone-inferred decisions.

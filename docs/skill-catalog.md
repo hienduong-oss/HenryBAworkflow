@@ -13,6 +13,7 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 | `ba-collab` | Module ownership, review packets, conflict checks, and approval-gated GitHub handoff | `collab-home-template.md`, `module-home-template.md`, `review-packet-template.md` | Lead BA / Module BA roles | Collab Home, Module Home, review packet, optional approved PR handoff |
 | `qc-uc-review` | Module-level QC audit after `ba-start srs` or when a BA explicitly asks for readiness review | QC report template + backlog conventions under `skills/qc-uc-review/` | QA/Test Lead | Module-scoped QC report, verdict, blockers, question backlog |
 | `ba-kit-update` | Update the installed BA-kit runtime assets from the registered source repo | None | None | One-command fast-forward update and reinstall |
+| `ba-notion` | Publish an exact BA markdown artifact into Notion via MCP | None | None | Notion page created or updated from BA source content |
 | `ba-figma-sync` | Downstream Figma canvas sync from approved screen canon, shared shell contract, and `DESIGN.md` | `figma-sync-report-template.md`, `figma-mismatch-report-template.md` | ui-ux-designer | Figma frames, sync report, mismatch report. Must not mutate BA canon. |
 
 ## Workflow

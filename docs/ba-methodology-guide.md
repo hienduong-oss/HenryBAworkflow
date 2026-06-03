@@ -111,12 +111,6 @@ Start with `/ba-start` with regulatory context. The SRS captures compliance cons
 ## Quality Rules
 
 - SMART for requirements
-- INVEST (Bill Wake, 2003) for user stories — all 6 criteria required per story
-- Gherkin / BDD (Dan North, 2006) for acceptance criteria — Given-When-Then, min 3 AC per story (happy / edge / negative)
-- Wiegers/IIBA 13-field template for Use Case Specifications
-- Cockburn goal-level classification (sea/kite/fish) + coffee-break test for UC scoping
-- MoSCoW (DSDM Consortium) for feature and story prioritization
+- INVEST for user stories
 - One owner for each approval gate
 - Every recommendation links to a business outcome, risk reduction, or cost effect
-
-See `METHODOLOGY.md` at the repo root for the full methodology reference with step-level mapping and source citations.

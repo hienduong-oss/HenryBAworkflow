@@ -38,6 +38,13 @@ def _run_guard(output_root: Path) -> None:
         detail = "\n".join(filter(None, [result.stdout.strip(), result.stderr.strip()]))
         sys.exit(f"qc-export write-scope blocked: {output_root} outside allowed scope\n{detail}")
 
+
+def _guard_path(path: Path, repo_root: Path) -> None:
+    """Validate path against write-scope rules if it is inside the repo."""
+    if path.is_relative_to(repo_root):
+        _run_guard(path)
+
+
 # ---------------------------------------------------------------------------
 # YAML frontmatter (conservative subset — enough for BA-kit canon files)
 # ---------------------------------------------------------------------------
@@ -670,10 +677,8 @@ def run_export(args: argparse.Namespace) -> int:
     output_root = repo / render_path(paths["qc_export_root"], slug=slug, date=date_token)
     if args.external_output:
         output_root = Path(args.external_output).resolve()
-        # Write-scope guard for direct invocations (wrapper also runs this).
-        # Only outside-repo paths bypass; inside-repo must pass the guard.
-        if output_root.is_relative_to(repo):
-            _run_guard(output_root)
+    _guard_path(output_root, repo)
+
 
     # Validate inputs
     if not module_root.exists():
@@ -707,7 +712,7 @@ def run_export(args: argparse.Namespace) -> int:
     common_dir.mkdir(parents=True, exist_ok=True)
 
     # Write common rules and message list
-    export_common_rules(common_dir, rule_registry, message_registry)
+    export_common_rules(common_dir, rule_registry, message_registry, repo)
 
     summary: dict[str, Any] = {
         "slug": slug,
@@ -741,11 +746,14 @@ def run_export(args: argparse.Namespace) -> int:
 
     # Write summary
     summary_path = output_root / "qc-export-summary.json"
+    _guard_path(summary_path, repo)
     summary_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
 
     # Optional usecase list
     if args.usecase_list:
-        write_usecase_list(docs_ba, summary, uc_files)
+        write_usecase_list(docs_ba, summary, uc_files, repo)
+
 
     # Print summary
     resolved = sum(1 for u in summary["usecases"] if not u.get("unresolved_refs"))
@@ -868,14 +876,18 @@ def process_use_case(*, uc_path: Path, docs_ba: Path, output_root: Path,
             print(f"  VALIDATION: {err}", file=sys.stderr)
         generated_path = "(not written — validation failed)"
     else:
+        _guard_path(out_path, repo_root)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(full_doc + "\n", encoding="utf-8")
 
         # Copy PNGs
         screens_out = out_path.parent / "screens"
         for png_src in png_paths:
+            png_dest = screens_out / Path(png_src).name
+            _guard_path(png_dest, repo_root)
             screens_out.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(png_src, screens_out / Path(png_src).name)
+            shutil.copy2(png_src, png_dest)
+
 
     return {
         "uc_slug": uc_slug,
@@ -911,7 +923,7 @@ def render_header(uc_fm: dict[str, Any], uc_slug: str) -> str:
 
 
 def export_common_rules(common_dir: Path, rule_registry: dict[str, str],
-                        message_registry: dict[str, str]) -> None:
+                        message_registry: dict[str, str], repo_root: Path) -> None:
     """Write common-rules.md and message-list.md in QC format."""
     # Common rules
     cr_lines = [
@@ -925,7 +937,9 @@ def export_common_rules(common_dir: Path, rule_registry: dict[str, str],
     for code in sorted(rule_registry):
         cr_lines.append(f"| {code} | {rule_registry[code]} |")
     cr_lines.append("")
-    (common_dir / "common-rules.md").write_text("\n".join(cr_lines), encoding="utf-8")
+    cr_path = common_dir / "common-rules.md"
+    _guard_path(cr_path, repo_root)
+    cr_path.write_text("\n".join(cr_lines), encoding="utf-8")
 
     # Message list
     ml_lines = [
@@ -939,10 +953,13 @@ def export_common_rules(common_dir: Path, rule_registry: dict[str, str],
     for code in sorted(message_registry):
         ml_lines.append(f"| {code} | {message_registry[code]} |")
     ml_lines.append("")
-    (common_dir / "message-list.md").write_text("\n".join(ml_lines), encoding="utf-8")
+    ml_path = common_dir / "message-list.md"
+    _guard_path(ml_path, repo_root)
+    ml_path.write_text("\n".join(ml_lines), encoding="utf-8")
 
 
-def write_usecase_list(docs_ba: Path, summary: dict[str, Any], uc_files: list[Path]) -> None:
+
+def write_usecase_list(docs_ba: Path, summary: dict[str, Any], uc_files: list[Path], repo_root: Path) -> None:
     lines = [
         "# Use Case List",
         "",
@@ -957,7 +974,10 @@ def write_usecase_list(docs_ba: Path, summary: dict[str, Any], uc_files: list[Pa
         refs = ", ".join(u.get("unresolved_refs", [])) or "—"
         lines.append(f"| {slug} | {resolved} | {refs} |")
     lines.append("")
-    (docs_ba / "usecase-list.md").write_text("\n".join(lines), encoding="utf-8")
+    list_path = docs_ba / "usecase-list.md"
+    _guard_path(list_path, repo_root)
+    list_path.write_text("\n".join(lines), encoding="utf-8")
+
 
 
 # ---------------------------------------------------------------------------
