@@ -15,7 +15,6 @@ resume_hint: ""
 ```
 After each incremental section write, update `progress` (e.g., "Epic 2/5 done"), `last_write` (artifact path), and `resume_hint` (e.g., "Continue from Epic 3").
 On complete, update `status: completed` and `updated`.
-
 This step requires:
 
 - `core/contract.yaml`

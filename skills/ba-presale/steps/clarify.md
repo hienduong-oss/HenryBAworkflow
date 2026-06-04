@@ -13,7 +13,6 @@ started: <ISO timestamp>
 updated: <ISO timestamp>
 ```
 On complete, update `status: completed` and `updated`.
-
 Triggered by user command `/ba-presale clarify` (never auto-advances from domain-study).
 
 This step requires:

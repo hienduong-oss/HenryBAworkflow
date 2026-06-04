@@ -15,6 +15,10 @@ For lifecycle work, read `contract.yaml`, then shared behavior, then only the se
 
 For non-trivial BA work, start from `skills/ba-start/SKILL.md` instead of improvising from the prompt alone.
 
+## Tool Use Rules
+
+**Read-before-Edit (mandatory):** Before calling the Edit tool on any file, Read that file first in the same conversation — even if the file was just created with Write in the same session. Write does not count as Read. This applies to every file without exception.
+
 ## Language & Communication
 
 - BA deliverables viết bằng **Vietnamese** trừ khi user yêu cầu English.

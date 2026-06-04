@@ -15,7 +15,6 @@ resume_hint: ""
 ```
 After each incremental epic/story group write, update `progress` (e.g., "Epic 2/4 done"), `last_write`, and `resume_hint`.
 On complete, update `status: completed` and `updated`.
-
 This step requires:
 
 - `core/contract.yaml`

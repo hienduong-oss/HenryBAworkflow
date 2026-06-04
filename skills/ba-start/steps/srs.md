@@ -11,7 +11,6 @@ started: <ISO timestamp>
 updated: <ISO timestamp>
 ```
 On complete, update `status: completed` and `updated`.
-
 This step requires:
 
 - `core/contract.yaml`

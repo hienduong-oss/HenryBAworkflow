@@ -18,7 +18,6 @@ resume_hint: ""
 After each sub-agent completes (wbs-builder, proposal-writer), update `progress` (e.g., "WBS done, Proposal running") and `last_write`.
 After sync-check and render, update `progress: "sync-check done, rendering"`.
 On complete, update `status: completed` and `updated`.
-
 Triggered by user command `/ba-presale build`. Never auto-advances from `clarify`.
 
 This step requires:

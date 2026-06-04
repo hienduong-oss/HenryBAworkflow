@@ -17,7 +17,6 @@ resume_hint: ""
 ```
 After dispatching ba-researcher and after writing domain primer, update `progress` and `last_write`.
 On complete, update `status: completed` and `updated`.
-
 This step requires:
 - Bootstrap completed (`00_inputs/` populated or `_initial-prompt.md` captured)
 - `templates/domain-primer-template.md`

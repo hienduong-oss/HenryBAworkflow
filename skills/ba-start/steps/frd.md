@@ -15,7 +15,6 @@ resume_hint: ""
 ```
 After each incremental use-case write, update `progress` (e.g., "UC-03/7 done"), `last_write`, and `resume_hint` (e.g., "Continue from UC-04").
 On complete, update `status: completed` and `updated`.
-
 This step requires:
 
 - `core/contract.yaml`

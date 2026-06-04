@@ -13,7 +13,6 @@ started: <ISO timestamp>
 updated: <ISO timestamp>
 ```
 On complete, update `status: completed` and `updated`.
-
 **Orchestration note:** Bootstrap is 100% mechanical (file ops, classification by filename pattern). The auto-chain to domain-study is deterministic — no branching, no evaluation needed. This entire step runs at Sonnet cost level per `presale.models.bootstrap`.
 
 This step requires:

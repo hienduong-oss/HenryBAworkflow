@@ -15,7 +15,6 @@ resume_hint: ""
 ```
 After each incremental screen write, update `progress`, `last_write`, and `resume_hint`.
 On complete, update `status: completed` and `updated`.
-
 This step requires:
 
 - `core/contract.yaml`

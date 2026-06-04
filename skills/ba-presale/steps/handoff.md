@@ -17,7 +17,6 @@ resume_hint: ""
 ```
 After composing `intake.md` and after continuity check, update `progress` and `last_write`.
 On complete, update `status: completed` and `updated`.
-
 **Orchestration note:** Handoff is ~80% mechanical (file ops, template-fill, string matching). Only intake.md composition requires LLM synthesis. Use Bash for file operations, Sonnet-level effort for composition, and reserve Opus only if conflict resolution is needed during continuity check. See `presale.orchestration_mode` in `contract.yaml`.
 
 This step requires:
