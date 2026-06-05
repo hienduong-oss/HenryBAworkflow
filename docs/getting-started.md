@@ -30,7 +30,7 @@ Run:
 What this installs:
 - skills to `~/.claude/skills/`
 - agents to `~/.claude/agents/`
-- rules to `~/.claude/rules/ba-kit/`
+- rules to `~/.claude/ba-kit/rules/`
 - templates to `~/.claude/templates/`
 - shared BA workflows and references to `~/.claude/ba-kit/`
 - the shared update command to `~/.local/bin/ba-kit`

@@ -38,7 +38,7 @@ for skill_dir in "${ROOT_DIR}"/skills/*; do
     sync_tree "${skill_dir}" "${TARGET_HOME}/skills/$(basename "${skill_dir}")"
   fi
 done
-sync_tree "${ROOT_DIR}/rules" "${TARGET_HOME}/rules/ba-kit"
+sync_tree "${ROOT_DIR}/rules" "${TARGET_HOME}/ba-kit/rules"
 sync_tree "${ROOT_DIR}/agents" "${TARGET_HOME}/agents"
 sync_tree "${ROOT_DIR}/templates" "${TARGET_HOME}/templates"
 sync_tree "${ROOT_DIR}/core" "${TARGET_HOME}/core"

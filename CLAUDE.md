@@ -122,7 +122,7 @@ The checklist has 5 checks:
 2. **Artifact Traceability** — does the change preserve frontmatter, `[src:...]` refs, and `[ ]` OQ markers?
 3. **Quality Gate Impact** — does the change affect UC/story/screen artifacts? Verify `qc-uc-review` gate still fires.
 4. **Reverse Mode Boundary** — does the change touch reverse commands? Verify Snapshot Truth and As-Built Separation.
-5. **Local Customization Preservation** — does the change risk overwriting local-only sections (Memory Governance, `presale_detection`, `.claude/rules/ba-kit/`)?
+5. **Local Customization Preservation** — does the change risk overwriting local-only sections (Memory Governance, `presale_detection`, `.claude/ba-kit/rules/`)?
 
 **If any check fails or is uncertain → surface to user before proceeding.**
 

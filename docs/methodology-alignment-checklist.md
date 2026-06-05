@@ -17,7 +17,7 @@ Identify which category the change falls into:
 | **C — New runtime behavior** | New guardrail, new gate, new validation script, new index type |
 | **D — Structural refactor** | Shard architecture, file reorganization, contract.yaml changes |
 | **E — Upstream merge** | PR from `anhdam2/bakit` or other upstream |
-| **F — Rule/convention update** | Changes to `core/contract-behavior.md`, `core/contract.yaml`, `.claude/rules/` |
+| **F — Rule/convention update** | Changes to `core/contract-behavior.md`, `core/contract.yaml`, `.claude/ba-kit/rules/` |
 | **G — Documentation only** | Changes to `docs/`, `METHODOLOGY.md`, `CLAUDE.md`, `README.md` |
 
 ---
@@ -72,7 +72,7 @@ Local-only sections that must never be silently overwritten:
 - `core/contract-behavior.md`: Memory Governance sections (Project Memory Contract, Memory Architecture Contract, Activation Contract, Multi-BA Governance Contract)
 - `core/contract-behavior.md`: Delegation Loop Bounds
 - `core/contract.yaml`: `presale_detection` block
-- `.claude/rules/ba-kit/`: all rule files
+- `.claude/ba-kit/rules/`: all rule files
 - `CLAUDE.md` (bakit): Vietnamese instructions, presale flow, checkpoint logic
 
 - **Change touches any of the above** → explicitly confirm local content is preserved before applying.
@@ -133,4 +133,4 @@ methodology-check: pass (new section added)
 
 Full methodology with step-level mapping and source citations: `METHODOLOGY.md`
 Quality standards detail: `docs/ba-methodology-guide.md`
-BA conventions and rules: `.claude/rules/ba-kit/`
+BA conventions and rules: `.claude/ba-kit/rules/`
