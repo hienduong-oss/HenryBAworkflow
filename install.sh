@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TARGET_HOME="${HOME}/.claude"
 SKILLS_TARGET="${TARGET_HOME}/skills"
-RULES_TARGET="${TARGET_HOME}/ba-kit/rules"
+RULES_TARGET="${TARGET_HOME}/rules/ba-kit"
 AGENTS_TARGET="${TARGET_HOME}/agents"
 TEMPLATES_TARGET="${TARGET_HOME}/templates"
 CORE_SOURCE="${ROOT_DIR}/core"
@@ -164,3 +164,4 @@ else
   echo ""
   echo "BA-kit installation complete."
 fi
+
