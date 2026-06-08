@@ -18,9 +18,9 @@ Use this skill when the user asks to create, update, or synchronize Figma wirefr
 
 ## Required Read Order
 
-1. Read `core/contract.yaml`.
-2. Read `core/contract-behavior.md`.
-3. Read `core/behavior/figma-sync.md`.
+1. Read `~/.claude/core/contract.yaml`. If missing, fall back to `core/contract.yaml` from the BA-kit repo root.
+2. Read `~/.claude/core/contract-behavior.md`. If missing, fall back.
+3. Read `~/.claude/core/behavior/figma-sync.md`. If missing, fall back to `core/behavior/figma-sync.md` from the BA-kit repo root.
 4. Resolve slug, date, and module exactly.
 5. Run or follow the equivalent of:
    - `ba-kit check-prereq figma-sync --slug <slug> --module <module_slug>`

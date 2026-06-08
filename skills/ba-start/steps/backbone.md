@@ -54,7 +54,7 @@ Run Step 5 only.
 
 ## Step 5 - Build the requirements backbone
 
-Create the persisted source-of-truth artifact using [../../../templates/requirements-backbone-template.md](../../../templates/requirements-backbone-template.md).
+Create the persisted source-of-truth artifact using `~/.claude/templates/requirements-backbone-template.md` (fallback: [../../../templates/requirements-backbone-template.md](../../../templates/requirements-backbone-template.md)).
 
 The backbone must contain:
 
@@ -69,8 +69,8 @@ The backbone must contain:
 - artifact emission gates
 - assumptions, risks, and open questions
 
-After writing the backbone, initialize or refresh `paths.project_memory` using [../../../templates/project-memory-template.md](../../../templates/project-memory-template.md).
-Also create or refresh `paths.backbone_index` using [../../../templates/backbone-index-template.md](../../../templates/backbone-index-template.md).
+After writing the backbone, initialize or refresh `paths.project_memory` using `~/.claude/templates/project-memory-template.md` (fallback: [../../../templates/project-memory-template.md](../../../templates/project-memory-template.md)).
+Also create or refresh `paths.backbone_index` using `~/.claude/templates/backbone-index-template.md` (fallback: [../../../templates/backbone-index-template.md](../../../templates/backbone-index-template.md)).
 Generate the index with `stale_status: unknown`, leave `validated_at` and `validated_by` blank, then run:
 
 ```bash
@@ -79,7 +79,7 @@ ba-kit validate-index --index-key backbone_index --slug <slug> --date <date> --w
 
 before any downstream action treats the index as `current`.
 
-Also refresh `paths.project_home` using [../../../templates/project-home-template.md](../../../templates/project-home-template.md) so non-technical BAs can resume without understanding slug/date/module internals.
+Also refresh `paths.project_home` using `~/.claude/templates/project-home-template.md` (fallback: [../../../templates/project-home-template.md](../../../templates/project-home-template.md)) so non-technical BAs can resume without understanding slug/date/module internals.
 
 Project Home refresh must summarize phạm vi đã chốt, điều kiện tiến hành từng tài liệu, bước tiếp theo an toàn, and runtime quick prompts. Apply the wording-layer policy from `core/contract-behavior.md`: replace internal terms (`source of truth`, `decision ledger`, `artifact gate`, `canon`, `compile receipt`, `index`) with the approved Vietnamese labels. It is a dashboard only; do not duplicate full requirements or replace `backbone.md`.
 

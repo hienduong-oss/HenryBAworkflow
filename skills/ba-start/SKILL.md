@@ -10,8 +10,8 @@ Use this skill when the BA lifecycle step is explicit. Treat `ba-do` as the free
 
 ## Required Read Order
 
-1. Read [../../core/contract.yaml](../../core/contract.yaml) for exact paths, prerequisites, defaults, states, command metadata, and `behavior_shards`.
-2. Read [../../core/contract-behavior.md](../../core/contract-behavior.md) for shared runtime-neutral policy.
+1. Read `~/.claude/core/contract.yaml` for exact paths, prerequisites, defaults, states, command metadata, and `behavior_shards`. If missing, fall back to `../../core/contract.yaml` from the BA-kit repo root.
+2. Read `~/.claude/core/contract-behavior.md` for shared runtime-neutral policy. If missing, fall back to `../../core/contract-behavior.md` from the BA-kit repo root.
 3. Parse arguments and resolve the selected subcommand.
 4. For guarded commands (`frd`, `stories`, `srs`, `package`, `status`, `next`): run `ba-kit guardrail --command <cmd> --slug <slug> --date <date> [--module <module>]`. If `status=block`, surface the block message and stop. Otherwise use `ALLOW_READS` for file discovery.
 5. Read only the behavior shard(s) listed in `behavior_shards.<command>`.
@@ -54,7 +54,7 @@ Figma MCP sync is intentionally outside `ba-start`. Use `ba-figma-sync` only aft
 | `wireframes` | `steps/wireframes.md` | Deprecated compatibility validation; ASCII belongs in `ascii-screen/*.md` |
 | `package` | `steps/package.md` | Step 12 |
 | `status` | `steps/status.md` | inspection only |
-| `next` | `../../core/workflows/next.md` | next-step recommendation; no mutation |
+| `next` | `~/.claude/core/workflows/next.md` (fallback: `../../core/workflows/next.md`) | next-step recommendation; no mutation |
 | `reverse` | `steps/reverse.md` | scan/lock; refresh; promote |
 | `reverse status` | `steps/reverse-status.md` | progress; no mutation |
 | `reverse impact` | `steps/reverse-impact.md` | classify evidence |
@@ -63,7 +63,7 @@ Figma MCP sync is intentionally outside `ba-start`. Use `ba-figma-sync` only aft
 
 1. Parse arguments before doing any work.
 2. Resolve the command and target scope with exact matching only.
-3. Enforce prerequisites from `core/contract.yaml`.
+3. Enforce prerequisites from the already-read `~/.claude/core/contract.yaml` (or repo root fallback).
 4. Stop on ambiguity instead of guessing.
 5. Ask before overwriting any mutable target.
 6. Keep the accepted rerun step locked once the user approves it.
@@ -78,5 +78,5 @@ Figma MCP sync is intentionally outside `ba-start`. Use `ba-figma-sync` only aft
 
 ## Shared References
 
-- [../../templates/manifest.json](../../templates/manifest.json)
-- [../../templates/sub-agent-handoff-template.md](../../templates/sub-agent-handoff-template.md)
+- [~/.claude/templates/manifest.json](~/.claude/templates/manifest.json) (fallback: [../../templates/manifest.json](../../templates/manifest.json))
+- [~/.claude/templates/sub-agent-handoff-template.md](~/.claude/templates/sub-agent-handoff-template.md) (fallback: [../../templates/sub-agent-handoff-template.md](../../templates/sub-agent-handoff-template.md))

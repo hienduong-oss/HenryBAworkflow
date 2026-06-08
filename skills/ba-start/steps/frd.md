@@ -45,7 +45,7 @@ Run Step 6 only.
 
 ## Step 6 - Produce FRD
 
-Produce the FRD from the backbone using [../../../templates/frd-template.md](../../../templates/frd-template.md):
+Produce the FRD from the backbone using `~/.claude/templates/frd-template.md` (fallback: [../../../templates/frd-template.md](../../../templates/frd-template.md)):
 
 - Functional overview
 - User personas
