@@ -20,9 +20,9 @@ Use this skill when the user asks to export BA artifacts for QC-kit handoff, pre
 
 ## Required Read Order
 
-1. Read `core/contract.yaml`.
-2. Read `core/contract-behavior.md`.
-3. Read `docs/ba-qc-export-bridge-note.md` for design context.
+1. Read `~/.claude/core/contract.yaml`. If missing, fall back to `core/contract.yaml` from the BA-kit repo root.
+2. Read `~/.claude/core/contract-behavior.md`. If missing, fall back.
+3. Read `~/.claude/ba-kit/docs/ba-qc-export-bridge-note.md` for design context. If missing, read `docs/ba-qc-export-bridge-note.md` from the BA-kit repo root.
 4. Resolve slug, date, and module from PROJECT-HOME.md, MODULE-HOME.md, or explicit arguments.
 5. If slug/date not provided, read `PROJECT-HOME.md` in the current plan root to auto-resolve.
 

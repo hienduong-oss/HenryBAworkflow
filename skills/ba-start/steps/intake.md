@@ -113,7 +113,7 @@ Source selection depends on the branch detected in Step 0:
 - **Branch C** (partial presale): compose `intake.md` from `00_inputs/` + `00_presale/00-domain-primer.md` + Answered rows in `05-clarifications.md`. Missing sections filled via Step 3/4.
 - **Branch D** (no presale): read the raw source material directly.
 
-Read the source material and extract content into [../../../templates/intake-form-template.md](../../../templates/intake-form-template.md):
+Read the source material and extract content into `~/.claude/templates/intake-form-template.md` (fallback: [../../../templates/intake-form-template.md](../../../templates/intake-form-template.md)):
 
 - Project name, date, requester
 - Business context (problem, goals, stakeholders mentioned)
@@ -191,7 +191,7 @@ Write `paths.plan` as a decision ledger skeleton with:
 - recommendation summary, including whether optioning is merely recommended or strongly recommended
 - expected next command: `backbone` when status is `not-needed`, otherwise `options`
 
-Also create or refresh `paths.project_home` using [../../../templates/project-home-template.md](../../../templates/project-home-template.md).
+Also create or refresh `paths.project_home` using `~/.claude/templates/project-home-template.md` (fallback: [../../../templates/project-home-template.md](../../../templates/project-home-template.md)).
 
 Project Home rules:
 

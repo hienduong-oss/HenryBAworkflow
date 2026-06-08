@@ -25,7 +25,8 @@ Use this command when a BA describes teamwork, module ownership, review, PR, com
 ```
 
 <execution_context>
-Read `core/workflows/collab.md`, `core/contract.yaml`, and `core/contract-behavior.md` from the repo root.
+Read `~/.claude/core/workflows/collab.md`, `~/.claude/core/contract.yaml`, and `~/.claude/core/contract-behavior.md`.
+If missing, fall back to reading from the BA-kit repo root at `core/workflows/collab.md`, etc.
 </execution_context>
 
 <context>
