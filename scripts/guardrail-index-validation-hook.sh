@@ -123,8 +123,7 @@ if [[ ! -f "${VALIDATOR_SCRIPT}" ]]; then
   exit 0
 fi
 
-# Build arguments — --repo points to project dir (plans root).
-# Contract is loaded from ~/.claude/core/contract.yaml (see load_contract in guardrail_common.py).
+# Build arguments
 ARGS=(--repo . --index-key "${INDEX_KEY}" --slug "${SLUG}" --date "${DATE_TOKEN}")
 if [[ -n "${MODULE_SLUG}" ]]; then
   ARGS+=(--module "${MODULE_SLUG}")
