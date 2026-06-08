@@ -20,7 +20,8 @@ Use this command when you want BA-kit to inspect the current project set and tel
 ```
 
 <execution_context>
-Read `core/workflows/next.md`, `core/contract.yaml`, `core/contract-behavior.md` from the repo root.
+Read `~/.claude/core/workflows/next.md`, `~/.claude/core/contract.yaml`, `~/.claude/core/contract-behavior.md`.
+If missing, fall back to reading from the BA-kit repo root at `core/workflows/next.md`, etc.
 </execution_context>
 
 <context>

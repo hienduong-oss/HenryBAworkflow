@@ -35,8 +35,8 @@ Map the user text using the first matching intent:
 
 | BA says | Internal action |
 | --- | --- |
-| create collaboration workspace / chia module / setup teamwork | initialize `COLLAB-HOME.md` and module homes |
-| tôi nhận module X / assign module X cho Y | claim or assign module |
+| create collaboration workspace / chia module / setup teamwork | initialize `COLLAB-HOME.md` with module inventory only. Do NOT create module directories or MODULE-HOME.md yet |
+| tôi nhận module X / assign module X cho Y | claim module X. Create `03_modules/X/` directory with subdirs (screens/, usecases/, data/) + `MODULE-HOME.md` for X only. Do NOT create directories for other unclaimed modules |
 | kiểm tra module X trước review / có conflict không | pre-review check |
 | làm xong module X / gửi Lead BA review | create review packet; optional PR only after approval |
 | cập nhật theo feedback / changes requested | mark changes-requested or in-progress |
@@ -47,8 +47,9 @@ Map the user text using the first matching intent:
 
 <step name="safe_execution">
 Allowed local mutations:
-- create or refresh `paths.collab_home` from `templates/collab-home-template.md`
-- create or refresh `paths.module_home` from `templates/module-home-template.md`
+- create or refresh `paths.collab_home` from `templates/collab-home-template.md` (setup teamwork only)
+- create or refresh `paths.module_home` from `templates/module-home-template.md` ONLY when a specific module is claimed. Do NOT batch-create module homes during setup
+- create `03_modules/{slug}/` directory with subdirs ONLY on claim, never during setup
 - create or refresh `paths.review_packet` from `templates/review-packet-template.md`
 - update module status only as: unassigned, assigned, in-progress, ready-for-review, changes-requested, approved, integrated, blocked
 - update review status only as: none, local-packet, draft-pr, review-requested, changes-requested, approved, merged, conflict

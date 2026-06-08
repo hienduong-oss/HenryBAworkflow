@@ -27,7 +27,8 @@ Use this command when you know what you want to do in a BA workflow but do not k
 ```
 
 <execution_context>
-Read `core/workflows/do.md`, `core/contract.yaml`, `core/contract-behavior.md` from the repo root.
+Read `~/.claude/core/workflows/do.md`, `~/.claude/core/contract.yaml`, `~/.claude/core/contract-behavior.md`.
+If missing, fall back to reading from the BA-kit repo root at `core/workflows/do.md`, etc.
 </execution_context>
 
 <context>

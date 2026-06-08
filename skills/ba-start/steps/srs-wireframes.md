@@ -15,7 +15,7 @@ Before BA-kit writes screen canon for UI-backed screens or generates mandatory A
 
 Decision intake must cover reference direction, visual tone/density, color and contrast, typography, component feel, layout priority, portal navigation schema, active-menu rule, breadcrumb/back behavior, hidden navigation exceptions, hard constraints, and anti-patterns.
 
-If `paths.design_doc` already exists, ask whether to reuse it, refresh it, or stop. If no file exists or refresh is approved, synthesize it from approved decisions using [../../../templates/design-md-template.md](../../../templates/design-md-template.md). Stop if design decisions remain unresolved.
+If `paths.design_doc` already exists, ask whether to reuse it, refresh it, or stop. If no file exists or refresh is approved, synthesize it from approved decisions using `~/.claude/templates/design-md-template.md` (fallback: [../../../templates/design-md-template.md](../../../templates/design-md-template.md)). Stop if design decisions remain unresolved.
 Treat `paths.design_doc` as the visual-direction artifact. Shared portal/navigation ownership lives in `paths.shared_shell_contract` and `paths.shared_shell_index`.
 
 ## Source: srs/flows.md

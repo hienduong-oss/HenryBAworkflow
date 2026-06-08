@@ -203,7 +203,7 @@ Existing features: !`ls -d docs/*/ 2>/dev/null | xargs -I{} basename {} | grep -
        Mode: deep | Sections: 13 | OQs: {N} | Quality gate: {pass|partial}
     ```
 
-13. **Phase E — Resolve Open Questions (PRIORITY gate trước downstream)** — per @../../rules/resolve-oqs.md. Brainstorm là gốc → chỉ có own OQs (Mục 12), không inherit. Collect → prompt Y/skip/ids → loop 1-by-1 → side-effect L2 diff cho Assumptions/Risks/Capabilities nếu OQ tác động → changelog.
+13. **Phase E — Resolve Open Questions (PRIORITY gate trước downstream)** — per `~/.claude/rules/ba-kit/brainstorm-resolve-oqs.md` (fallback: @../../rules/brainstorm-resolve-oqs.md). Brainstorm là gốc → chỉ có own OQs (Mục 12), không inherit. Collect → prompt Y/skip/ids → loop 1-by-1 → side-effect L2 diff cho Assumptions/Risks/Capabilities nếu OQ tác động → changelog.
 
 14. **Output report (final, sau Phase E)**:
     ```
@@ -250,11 +250,11 @@ Skip Phase B (multi-section). Ask 6-question single batch (như version cũ). Sk
 
 ## References
 
-- @../../rules/brainstorm-conventions.md
-- @../../rules/brainstorm-approval-gate.md
-- @../../rules/brainstorm-naming-conventions.md
-- @../../rules/brainstorm-keyword-detection.md
-- @../../rules/brainstorm-resolve-oqs.md
-- @../../rules/brainstorm-changelog.md
-- @../../templates/brainstorm-template.md
+- @~/.claude/rules/ba-kit/brainstorm-conventions.md (fallback: @../../rules/brainstorm-conventions.md)
+- @~/.claude/rules/ba-kit/brainstorm-approval-gate.md (fallback: @../../rules/brainstorm-approval-gate.md)
+- @~/.claude/rules/ba-kit/brainstorm-naming-conventions.md (fallback: @../../rules/brainstorm-naming-conventions.md)
+- @~/.claude/rules/ba-kit/brainstorm-keyword-detection.md (fallback: @../../rules/brainstorm-keyword-detection.md)
+- @~/.claude/rules/ba-kit/brainstorm-resolve-oqs.md (fallback: @../../rules/brainstorm-resolve-oqs.md)
+- @~/.claude/rules/ba-kit/brainstorm-changelog.md (fallback: @../../rules/brainstorm-changelog.md)
+- @~/.claude/templates/brainstorm-template.md (fallback: @../../templates/brainstorm-template.md)
 - @./references/example-brainstorm.md

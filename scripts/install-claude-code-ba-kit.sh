@@ -79,6 +79,9 @@ install_guardrail_docs() {
   if [[ -f "${ROOT_DIR}/core/token-budget.md" ]]; then
     cp "${ROOT_DIR}/core/token-budget.md" "${TARGET_DOCS}/token-budget.md"
   fi
+  if [[ -f "${ROOT_DIR}/docs/ba-qc-export-bridge-note.md" ]]; then
+    cp "${ROOT_DIR}/docs/ba-qc-export-bridge-note.md" "${TARGET_DOCS}/ba-qc-export-bridge-note.md"
+  fi
 }
 
 # ── hook script generation ───────────────────────────────────────────

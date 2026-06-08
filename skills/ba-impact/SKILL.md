@@ -21,7 +21,8 @@ Use this command when a requirement, rule, actor, scope item, or screen behavior
 ```
 
 <execution_context>
-Read `core/workflows/impact.md`, `core/contract.yaml`, `core/contract-behavior.md` from the repo root.
+Read `~/.claude/core/workflows/impact.md`, `~/.claude/core/contract.yaml`, `~/.claude/core/contract-behavior.md`.
+If missing, fall back to reading from the BA-kit repo root at `core/workflows/impact.md`, etc.
 </execution_context>
 
 <context>
