@@ -46,6 +46,22 @@ load_guardrail_scripts() {
   done < "${ROOT_DIR}/scripts/guardrail-scripts-list.txt"
 }
 
+install_core_assets() {
+  # Core files for scripts (REPO_ROOT = ~/.claude/ba-kit/)
+  local target_ba_kit="${TARGET_HOME}/ba-kit"
+  ensure_dir "${target_ba_kit}/core/behavior"
+  cp "${ROOT_DIR}/core/contract.yaml" "${target_ba_kit}/core/contract.yaml"
+  cp "${ROOT_DIR}/core/contract-behavior.md" "${target_ba_kit}/core/contract-behavior.md"
+  cp "${ROOT_DIR}/core/behavior/"*.md "${target_ba_kit}/core/behavior/"
+  ensure_dir "${target_ba_kit}/templates"
+  cp -r "${ROOT_DIR}/templates/"* "${target_ba_kit}/templates/"
+  ensure_dir "${target_ba_kit}/skills"
+  cp -r "${ROOT_DIR}/skills/"* "${target_ba_kit}/skills/"
+  # Also for load_contract() home-first check
+  ensure_dir "${TARGET_HOME}/core"
+  cp "${ROOT_DIR}/core/contract.yaml" "${TARGET_HOME}/core/contract.yaml"
+}
+
 install_cli() {
   local temp_target
   mkdir -p "${LOCAL_BIN_TARGET}"
@@ -261,9 +277,11 @@ done
 
 install_cli
 write_manifest
+install_core_assets
 
 echo "Created BA-kit KI in active Antigravity runtimes"
 echo "Installed guardrail assets (${#GUARDRAIL_SCRIPTS[@]} scripts + docs)"
+echo "Installed core assets to core/ + templates/ + skills/"
 echo "Installed update CLI to ${LOCAL_BIN_TARGET}/ba-kit"
 echo "BA-kit Antigravity installation complete."
 echo ""

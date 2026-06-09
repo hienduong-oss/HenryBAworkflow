@@ -85,6 +85,30 @@ install_guardrail_docs() {
   fi
 }
 
+# ── core assets installation ──────────────────────────────────────────
+
+install_core_assets() {
+  # Core files for scripts (REPO_ROOT = ~/.claude/ba-kit/)
+  ensure_dir "${TARGET_BA_KIT}/core/behavior"
+  cp "${ROOT_DIR}/core/contract.yaml" "${TARGET_BA_KIT}/core/contract.yaml"
+  cp "${ROOT_DIR}/core/contract-behavior.md" "${TARGET_BA_KIT}/core/contract-behavior.md"
+  cp "${ROOT_DIR}/core/behavior/"*.md "${TARGET_BA_KIT}/core/behavior/"
+
+  # Templates
+  ensure_dir "${TARGET_BA_KIT}/templates"
+  cp -r "${ROOT_DIR}/templates/"* "${TARGET_BA_KIT}/templates/"
+
+  # Skills (step files)
+  ensure_dir "${TARGET_BA_KIT}/skills"
+  cp -r "${ROOT_DIR}/skills/"* "${TARGET_BA_KIT}/skills/"
+
+  # Also copy contract.yaml to home for load_contract() home-first check
+  ensure_dir "${TARGET_HOME}/core"
+  cp "${ROOT_DIR}/core/contract.yaml" "${TARGET_HOME}/core/contract.yaml"
+
+  echo "Installed core assets to ${TARGET_BA_KIT}/core/ and templates/"
+}
+
 # ── hook script generation ───────────────────────────────────────────
 
 write_preflight_hook() {
@@ -965,6 +989,8 @@ echo "Installed guardrail scripts to ${TARGET_SCRIPTS}"
 install_guardrail_docs
 echo "Installed guardrail docs to ${TARGET_DOCS}"
 
+install_core_assets
+
 write_preflight_hook
 write_audit_hook
 write_write_scope_hook
@@ -991,6 +1017,7 @@ echo "Installed:"
 echo "  - ${#GUARDRAIL_SCRIPTS[@]} guardrail Python scripts → ${TARGET_SCRIPTS}"
 echo "  - 7 hook scripts → ${TARGET_HOOKS}"
 echo "  - Guardrail docs → ${TARGET_DOCS}"
+echo "  - Core assets → ${TARGET_HOME}/core/ + templates/ + skills/"
 echo "  - CLI → ${LOCAL_BIN_TARGET}/ba-kit"
 echo "  - Hooks registered in ${SETTINGS_FILE}"
 echo ""
