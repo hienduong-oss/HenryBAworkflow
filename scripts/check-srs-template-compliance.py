@@ -142,20 +142,27 @@ def main() -> int:
             })
 
     # Check required tables exist within their sections
+    checked_sections = set()
     for section_slug, table_marker in REQUIRED_TABLE_MARKERS:
+        if section_slug in checked_sections:
+            continue  # Already passed with a previous marker
         start, end, _ = find_section(srs_lines, section_slug)
         if start < 0:
             continue
         found = False
+        # Collect ALL markers for this section
+        markers = [m for s, m in REQUIRED_TABLE_MARKERS if s == section_slug]
         for i in range(start, end):
-            if table_marker in srs_lines[i]:
+            if any(m in srs_lines[i] for m in markers):
                 found = True
+                checked_sections.add(section_slug)
                 break
         if not found:
             result["issues"].append({
                 "severity": "error",
                 "code": "missing_required_table",
                 "section": section_slug,
+                "expected_marker": markers[0],
                 "expected_marker": table_marker,
             })
 
