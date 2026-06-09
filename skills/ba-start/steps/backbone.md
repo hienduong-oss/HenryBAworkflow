@@ -50,6 +50,9 @@ Run Step 5 only.
 - `paths.project_home`
 - `paths.backbone`
 - `paths.backbone_index`
+- `paths.common_rules` — always; system-level shared rule registry
+- `paths.message_list` — always; system-level shared message registry
+- `paths.shared_rule_message_index` — always; compiled CR/MSG cross-reference index
 - `paths.project_memory`
 - `paths.control_type_library` — when UI-backed scope exists
 - `paths.design_doc` — when UI-backed scope exists
@@ -75,6 +78,21 @@ The backbone must contain:
 After writing the backbone, initialize or refresh `paths.project_memory` using `~/.claude/templates/project-memory-template.md` (fallback: [../../../templates/project-memory-template.md](../../../templates/project-memory-template.md)).
 Also create or refresh `paths.backbone_index` using `~/.claude/templates/backbone-index-template.md` (fallback: [../../../templates/backbone-index-template.md](../../../templates/backbone-index-template.md)).
 Generate the index with `stale_status: unknown`, leave `validated_at` and `validated_by` blank.
+
+**Create shared registries.** These are system-level artifacts that module artifacts reference by code:
+
+1. **`paths.common_rules`** using `~/.claude/templates/common-rules-template.md` (fallback: [../../../templates/common-rules-template.md](../../../templates/common-rules-template.md)).
+   - Populate initial CR-* codes derived from backbone scope: CR-VAL-* for common validations (email, password, required), CR-DIS-* for display rules (pagination threshold), CR-BEH-* for behaviour rules (button disabled conditions).
+   - Each rule must include `applies_to` pattern and `edge_cases` column.
+
+2. **`paths.message_list`** using `~/.claude/templates/message-list-template.md` (fallback: [../../../templates/message-list-template.md](../../../templates/message-list-template.md)).
+   - Populate initial MSG-* codes: MSG-ERR-* for common errors, MSG-SUC-* for success toasts, MSG-WRN-* for warnings, MSG-INF-* for info messages.
+   - Each message must include `surface` (inline/toast/banner/modal) and `canonical_text`.
+
+3. **`paths.shared_rule_message_index`** — after writing both registries, generate the compiled index by running:
+   ```bash
+   ba-kit validate-shared-rule-message-registry --write-index --slug <slug> --date <date>
+   ```
 
 **[BẮT BUỘC — KHÔNG ĐƯỢC BỎ QUA]** Ngay sau khi write `backbone-index.md`, PHẢI chạy:
 

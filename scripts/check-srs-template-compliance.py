@@ -21,25 +21,22 @@ REQUIRED_HEADING_SLUGS = [
     "dac-ta-yeu-cau-phan-mem",
     "muc-dich-va-pham-vi",
     "yeu-cau-chuc-nang",
+    "user-stories",
     "dac-ta-use-case",
-    "hop-dong-man-hinh-tien-wireframe",
-    "danh-muc-man-hinh",
     "mo-ta-man-hinh",
     "yeu-cau-phi-chuc-nang",
-    "ascii-wireframes",
 ]
 
 OPTIONAL_HEADING_SLUGS = [
     "so-do-luong-du-lieu",
     "so-do-thuc-the-quan-he",
-    "dac-ta-api",
+    "tham-chieu-quy-tac-thong-diep-dung-chung",
 ]
 
 REQUIRED_TABLE_MARKERS = [
     ("yeu-cau-chuc-nang", "| Mã (ID) | Yêu cầu"),
+    ("user-stories", "| Mã US"),
     ("dac-ta-use-case", "| Mã UC"),
-    ("hop-dong-man-hinh-tien-wireframe", "| Mã (Screen ID)"),
-    ("danh-muc-man-hinh", "| Mã (Screen/Frame ID)"),
     ("yeu-cau-phi-chuc-nang", "| Mã (ID) | Danh mục"),
 ]
 

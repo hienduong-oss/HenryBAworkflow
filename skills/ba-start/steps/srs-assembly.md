@@ -72,7 +72,7 @@ Before running the deterministic compile script, scan all canon source files for
 Run the deterministic compile script to assemble `paths.srs` from canon sources:
 
 ```bash
-python3 scripts/compile-srs.py --repo . --slug {slug} --date {date} --module {module}
+python3 scripts/compile-srs.py --module-root plans/{slug}-{date}/03_modules/{module}
 ```
 
 Or with direct path:
