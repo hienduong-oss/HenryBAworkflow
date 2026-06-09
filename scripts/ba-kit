@@ -1556,6 +1556,49 @@ check_freshness_command() {
   python_guardrail_command "check-freshness.py" "$@"
 }
 
+init_control_library_command() {
+  local target_dir="${1:-.}"
+  local repo
+  repo="$(resolve_registered_repo)"
+
+  local template="${repo}/templates/control-type-library-template.md"
+  if [[ ! -f "${template}" ]]; then
+    fail "Template not found: ${template}"
+  fi
+
+  # Detect plan root from target_dir
+  local plan_root="${target_dir}"
+  if [[ -d "${target_dir}/03_modules" ]]; then
+    plan_root="${target_dir}"
+  elif [[ "${target_dir}" =~ (plans/[^/]+-[0-9]{6}-[0-9]{4}) ]]; then
+    plan_root="${BASH_REMATCH[1]}"
+  else
+    # Scan for plan dirs
+    local matches
+    matches="$(find "${target_dir}" -maxdepth 3 -type d -name "02_backbone" 2>/dev/null | head -1)"
+    if [[ -n "${matches}" ]]; then
+      plan_root="$(dirname "${matches}")"
+    else
+      fail "Cannot find plan root. Run from plan directory or specify path."
+    fi
+  fi
+
+  local backbone_dir="${plan_root}/02_backbone"
+  mkdir -p "${backbone_dir}"
+
+  local dest="${backbone_dir}/control-type-library.md"
+  if [[ -f "${dest}" ]]; then
+    echo "Control Type Library already exists: ${dest}"
+    echo "Remove it first or use a different plan root."
+    exit 1
+  fi
+
+  cp "${template}" "${dest}"
+  echo "Created: ${dest}"
+  echo "Next: edit screen files to add Control Type column, then run:"
+  echo "  ba-kit check-control-type-compliance 03_modules/<module>/ascii-screen/ --migrate"
+}
+
 guardrail_command() {
   local command_name="" slug="" date_token="" module_slug="" repo
 
@@ -2235,6 +2278,9 @@ main() {
       ;;
     check-freshness)
       check_freshness_command "$@"
+      ;;
+    init-control-library)
+      init_control_library_command "$@"
       ;;
     check-write-scope)
       check_write_scope_command "$@"

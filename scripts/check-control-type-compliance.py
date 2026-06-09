@@ -186,8 +186,8 @@ def check_file(path: Path, library: dict[str, dict[str, Any]]) -> dict[str, Any]
                 "field": field_name, "line": line_num,
             })
 
-        # Check 4: Field ID format
-        if field_id and not re.match(r"^SCR-\d{2}-F\d{2}$", field_id):
+        # Check 4: Field ID format (flexible: supports SCR-LRN-01-F01, SCR-01-F01, etc.)
+        if field_id and not re.match(r"^SCR-[A-Z0-9]+(?:-[A-Z0-9]+)*-F\d{2}$", field_id):
             issues.append({
                 "severity": "WARN", "code": "field_id_format",
                 "message": f"Field ID '{field_id}' does not match expected format SCR-NN-FNN.",
@@ -311,12 +311,244 @@ def emit_report(results: list[dict[str, Any]], files_checked: int, as_json: bool
     print(f"\n{f'BLOCK: {block_count}, ' if block_count else ''}WARN: {warn_count} — {len(failing)}/{files_checked} files with issues")
 
 
+def migrate_file(path: Path, dry_run: bool = False) -> bool:
+    """Migrate old 4-column Fields table to new 6-column format.
+
+    Old: | Field Name | Display Rules | Behaviour Rules | Validation Rules |
+    New: | Field ID | Field Name | Control Type | Display Rules | Behaviour Rules | Validation Rules |
+
+    Auto-generates Field IDs from screen_id in frontmatter (SCR-NN-FNN format).
+    Backups original file as .bak.
+    Returns True if migration was applied.
+    """
+    text = path.read_text(encoding="utf-8")
+    if "| Field ID |" in text and "| Control Type |" in text:
+        return False  # Already migrated
+
+    # Extract screen_id from frontmatter for Field ID generation
+    screen_id = "SCR-00"
+    fm_match = re.match(r"^---\s*\n(.*?)\n---", text, re.DOTALL)
+    if fm_match:
+        for line in fm_match.group(1).splitlines():
+            if "screen_id:" in line:
+                screen_id = line.split(":", 1)[1].strip().strip('"').strip("'")
+                break
+
+    lines = text.splitlines()
+    new_lines = []
+    in_fields = False
+    field_count = 0
+    migrated = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        # Detect old Fields section
+        if stripped == "## Fields":
+            in_fields = True
+            new_lines.append(line)
+            continue
+        if in_fields and stripped.startswith("#") and not stripped.startswith("###"):
+            in_fields = False
+
+        if not in_fields or not stripped.startswith("|") or is_separator(stripped):
+            new_lines.append(line)
+            continue
+
+        cells = split_row(stripped)
+        cell_count = len(cells)
+
+        # Detect old vs new format (4 or 5 column variants)
+        old_format = False
+        if cell_count in {4, 5} and "Field ID" not in cells and "Control Type" not in cells:
+            old_format = True
+        elif cell_count == 5 and "Type" in cells and "Control Type" not in cells:
+            old_format = True
+
+        if old_format:
+            has_type_col = len(cells) == 5 and "Type" in cells
+            if has_type_col:
+                # 5-column: | Field | Type | Display Rules | Behaviour Rules | Validation Rules |
+                old_name = cells[0].strip() if len(cells) > 0 else ""
+                old_display = cells[2].strip() if len(cells) > 2 else ""
+                old_behaviour = cells[3].strip() if len(cells) > 3 else ""
+                old_validation = cells[4].strip() if len(cells) > 4 else ""
+            else:
+                # 4-column: | Field Name | Display Rules | Behaviour Rules | Validation Rules |
+                old_name = cells[0].strip() if len(cells) > 0 else ""
+                old_display = cells[1].strip() if len(cells) > 1 else ""
+                old_behaviour = cells[2].strip() if len(cells) > 2 else ""
+                old_validation = cells[3].strip() if len(cells) > 3 else ""
+
+            if old_name in {"Field Name", "Tên trường", "Trường", "Field"}:
+                new_lines.append("| Field ID | Field Name | Control Type | Display Rules | Behaviour Rules | Validation Rules |")
+                new_lines.append("| --- | --- | --- | --- | --- | --- |")
+                migrated = True
+                continue
+
+            # Skip old separator rows — header already emitted above
+            if all(re.fullmatch(r":?-{2,}:?", c) for c in cells if c):
+                continue
+
+            # Data row — add Field ID + empty Control Type (BA fills later)
+            field_count += 1
+            field_id = f"{screen_id}-F{field_count:02d}"
+            new_lines.append(f"| {field_id} | {old_name} | _ | {old_display} | {old_behaviour} | {old_validation} |")
+            migrated = True
+        else:
+            new_lines.append(line)
+
+    if not migrated:
+        return False
+
+    new_text = "\n".join(new_lines) + "\n"
+
+    if dry_run:
+        print(f"[DRY-RUN] Would migrate: {path} ({field_count} fields, screen_id={screen_id})")
+        return True
+
+    # Backup
+    backup = path.with_suffix(".bak")
+    backup.write_text(text, encoding="utf-8")
+    path.write_text(new_text, encoding="utf-8")
+    print(f"Migrated: {path} ({field_count} fields, screen_id={screen_id}) → .bak saved")
+    return True
+
+
+def auto_fill_file(path: Path, dry_run: bool = False, force_default: bool = False) -> int:
+    """Auto-fill missing sections and Behaviour Rules in a migrated screen file.
+
+    Adds:
+    - ## User Actions if missing (with placeholder)
+    - ## States if missing (with placeholder)
+    - Fills empty Behaviour Rules with (default)
+    - Adds ## Message Placement stub if MSG-* codes are referenced
+    - Adds ## Control States stub if interactive controls present
+
+    Returns number of fixes applied.
+    """
+    text = path.read_text(encoding="utf-8")
+    fixes = 0
+    new_text = text
+
+    # Fix 1: Add missing ## User Actions before ## States / ## Validation Rules / ## ASCII Wireframe
+    if "## User Actions" not in new_text and "## Actions" not in new_text:
+        insert_after = next(
+            (h for h in ["## Validation Rules", "## States", "## ASCII Wireframe", "## Overlay Context"]
+             if h in new_text), None
+        )
+        if insert_after:
+            screen_id_match = re.search(r"screen_id:\s*\"?([A-Z0-9-]+)\"?", text)
+            sid = screen_id_match.group(1) if screen_id_match else "SCR-NN"
+            actions_block = f"""\n## User Actions
+
+| Action ID | Label | Control | Trigger | Outcome |
+|---|---|---|---|---|
+| ACT-{sid.split('-')[-1]}-01 | [Tên hành động] | [button/link] | [cử chỉ] | [kết quả] |
+
+"""
+            new_text = new_text.replace(f"\n{insert_after}", f"{actions_block}\n{insert_after}")
+            fixes += 1
+
+    # Fix 2: Add missing ## States before ASCII Wireframe
+    if "## States" not in new_text:
+        screen_id_match = re.search(r"screen_id:\s*\"?([A-Z0-9-]+)\"?", text)
+        sid = screen_id_match.group(1) if screen_id_match else "SCR-NN"
+        states_block = f"""\n## States
+
+| State ID | Name | Description |
+|---|---|---|
+| {sid}-DEFAULT | Default | [mô tả trạng thái mặc định] |
+| {sid}-EMPTY | Empty | [mô tả trạng thái rỗng] |
+| {sid}-ERROR | Error | [mô tả trạng thái lỗi] |
+
+"""
+        insert_before = next(
+            (h for h in ["## ASCII Wireframe", "## Overlay Context"] if h in new_text), None
+        )
+        if insert_before:
+            new_text = new_text.replace(f"\n{insert_before}", f"{states_block}\n{insert_before}")
+            fixes += 1
+
+    # Fix 3: Fill Behaviour Rules with (default)
+    lines = new_text.splitlines()
+    new_lines = []
+    in_fields = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped == "## Fields":
+            in_fields = True
+            new_lines.append(line)
+            continue
+        if in_fields and stripped.startswith("#") and not stripped.startswith("###"):
+            in_fields = False
+            new_lines.append(line)
+            continue
+        if not in_fields or not stripped.startswith("|") or is_separator(stripped):
+            new_lines.append(line)
+            continue
+        cells = split_row(stripped)
+        if len(cells) >= 6:
+            # Skip header rows
+            if cells[0].strip() in {"Field ID", "Field Name", "Trường"}:
+                new_lines.append(line)
+                continue
+            behaviour = cells[5].strip()
+            if not behaviour or behaviour in {"-", "—"}:
+                cells[5] = " (default)"
+                new_lines.append("| " + " | ".join(cells) + " |")
+                fixes += 1
+                continue
+            elif force_default and behaviour != "(default)":
+                cells[5] = " (default)"
+                new_lines.append("| " + " | ".join(cells) + " |")
+                fixes += 1
+                continue
+        new_lines.append(line)
+    new_text = "\n".join(new_lines) + "\n"
+
+    # Fix 4: Add ## Control States stub if interactive controls exist
+    if "## Control States" not in new_text and ("button" in new_text or "checkbox" in new_text or "dropdown" in new_text):
+        cs_block = """\n## Control States
+
+| Control | State | Condition |
+|---|---|---|
+| [Tên nút/field] | disabled | [khi nào] |
+| [Tên nút/field] | active | [khi nào] |
+| [Tên nút/field] | loading | [khi nào] |
+
+"""
+        insert_before = next(
+            (h for h in ["## ASCII Wireframe", "## Overlay Context"] if h in new_text), None
+        )
+        if insert_before:
+            new_text = new_text.replace(f"\n{insert_before}", f"{cs_block}\n{insert_before}")
+            fixes += 1
+
+    if fixes == 0:
+        return 0
+
+    if dry_run:
+        print(f"[DRY-RUN] Would auto-fill {fixes} items in: {path}")
+        return fixes
+
+    backup = path.with_suffix(".bak2")
+    backup.write_text(text, encoding="utf-8")
+    path.write_text(new_text, encoding="utf-8")
+    print(f"Auto-filled {fixes} items in: {path} → .bak2 saved")
+    return fixes
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate screen Control Type usage")
     parser.add_argument("path", nargs="+", help="Screen canon file(s) or directory")
     parser.add_argument("--library", type=Path, help="Path to control-type-library.md")
     parser.add_argument("--json", action="store_true", help="Machine-readable JSON output")
     parser.add_argument("--repo", type=Path, default=REPO_ROOT, help="Repo root for template resolution")
+    parser.add_argument("--migrate", action="store_true", help="Auto-migrate old 4-column Fields table to new 6-column format")
+    parser.add_argument("--auto-fill", action="store_true", help="Auto-fill missing sections + default Behaviour Rules after migrate")
+    parser.add_argument("--force-default", action="store_true", help="Replace ALL Behaviour Rules with (default), not just empty ones")
+    parser.add_argument("--dry-run", action="store_true", help="Preview migration/fill without writing")
     args = parser.parse_args()
 
     library_path = args.library
@@ -335,6 +567,21 @@ def main() -> int:
     if not files:
         print("No screen files found", file=sys.stderr)
         return 2
+
+    if args.migrate or args.auto_fill:
+        migrated = 0
+        filled = 0
+        for f in files:
+            if args.migrate and migrate_file(f, dry_run=args.dry_run):
+                migrated += 1
+            if args.auto_fill:
+                n = auto_fill_file(f, dry_run=args.dry_run, force_default=args.force_default)
+                filled += n
+        if args.migrate:
+            print(f"Migrated {migrated}/{len(files)} screen files" + (" (dry-run)" if args.dry_run else ""))
+        if args.auto_fill:
+            print(f"Auto-filled {filled} items in {len(files)} screen files" + (" (dry-run)" if args.dry_run else ""))
+        return 0
 
     results = [check_file(f, library) for f in files]
     emit_report(results, len(files), args.json)
