@@ -34,9 +34,11 @@ OPTIONAL_HEADING_SLUGS = [
 ]
 
 REQUIRED_TABLE_MARKERS = [
+    ("yeu-cau-chuc-nang", "| FR ID | Yêu cầu"),
     ("yeu-cau-chuc-nang", "| Mã (ID) | Yêu cầu"),
     ("user-stories", "| Mã US"),
     ("dac-ta-use-case", "| Mã UC"),
+    ("yeu-cau-phi-chuc-nang", "| NFR ID | Danh mục"),
     ("yeu-cau-phi-chuc-nang", "| Mã (ID) | Danh mục"),
 ]
 
@@ -96,7 +98,10 @@ def main() -> int:
     args = parser.parse_args()
 
     repo = Path(args.repo).resolve()
-    template_path = repo / "templates" / "srs-template.md"
+    # Check global templates first
+    template_path = Path.home() / ".claude" / "ba-kit" / "templates" / "srs-template.md"
+    if not template_path.exists():
+        template_path = repo / "templates" / "srs-template.md"
 
     if not template_path.exists():
         print(f"ERROR: template not found: {template_path}", file=sys.stderr)
