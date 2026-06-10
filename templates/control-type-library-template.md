@@ -3,6 +3,11 @@
 > Single source of truth cho mọi UI control type + default behaviour.
 > Mỗi screen canon kế thừa default behaviour từ đây. Chỉ mô tả thêm khi KHÁC default.
 > File này nằm trong `02_backbone/`, do Lead BA sở hữu.
+>
+> **Hai chế độ hoạt động:** xem mục [Baseline](#baseline).
+> - Baseline = `none`: file này là **source of truth đầy đủ**.
+> - Baseline = tên thư viện: file này là **deviation log**, chỉ ghi behaviour khác library default.
+> - Lead BA chốt baseline trong backbone Step 5.1, sau khi DESIGN.md đã có library. Module BA không sửa file này.
 
 ## Cách sử dụng
 
@@ -13,6 +18,38 @@ Trong screen canon (`ascii-screen/*.md`), cột Behaviour Rules:
 | `(default)` | Kế thừa toàn bộ behaviour từ file này |
 | `(default), thêm: {mô tả}` | Kế thừa + bổ sung edge case |
 | `**Khác default:** {mô tả}` | Override hoàn toàn |
+
+---
+
+## Baseline
+
+Trong backbone Step 5.1, sau khi `DESIGN.md` đã chốt thư viện UI, Lead BA điền bảng dưới:
+
+| Trường | Giá trị |
+|--------|---------|
+| Thư viện UI | `none` |
+| Phiên bản | — |
+| Docs tham chiếu | — |
+
+**Quy tắc theo baseline:**
+
+| Baseline | Ý nghĩa | Cách dùng file này |
+|----------|---------|-------------------|
+| `none` | Không dùng thư viện UI. | 20 control type bên dưới là **source of truth đầy đủ**. Mọi behaviour mặc định mô tả tại đây. |
+| `{tên thư viện}` (vd: Shadcn UI) | Có dùng thư viện UI. | 20 control type bên dưới CHỈ ghi **deviation** (khác biệt so với library default). Behaviour không có trong file này → ngầm hiểu theo library docs. |
+
+**Đối với Lead BA, trong backbone Step 5.1:**
+
+1. Đọc `DESIGN.md` → xác định thư viện UI (nếu có).
+2. Cập nhật bảng Baseline ở trên: điền tên thư viện, phiên bản, link docs.
+3. Nếu baseline là thư viện:
+   - Xóa các behaviour trùng với library default khỏi từng control type (giữ lại cấu trúc section, chỉ xóa dòng behaviour).
+   - Chỉ giữ lại các behaviour **khác** library default.
+   - Ví dụ: nếu Shadcn button đã có `disabled` state → không cần mô tả lại trong file này.
+4. Nếu baseline là `none`:
+   - Giữ nguyên toàn bộ 20 control type.
+   - Điều chỉnh behaviour theo đặc thù dự án nếu cần.
+5. Khi thư viện nâng cấp (version bump): review từng deviation, cập nhật nếu library đã thay đổi.
 
 ---
 
