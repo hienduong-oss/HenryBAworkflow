@@ -30,7 +30,9 @@ Run Step 5 only.
 
 ## Prerequisites
 
-- Resolve slug and date using the shared contract.
+- Resolve slug and date using `ba-kit resolve --slug <slug>`.
+  The CLI uses `find -type d` internally for correct directory discovery.
+  Do not use `Glob` — it only matches files, not directories.
 - Require `paths.intake`.
 - If intake is missing, print the exact missing path and stop.
 - Read `paths.plan` when it exists.
