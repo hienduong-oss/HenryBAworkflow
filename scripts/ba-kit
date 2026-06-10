@@ -1588,6 +1588,66 @@ init_control_library_command() {
   local backbone_dir="${plan_root}/02_backbone"
   mkdir -p "${backbone_dir}"
 
+  # ── Gate 5.1a: UI Library Selection check ──────────────────────
+  # Extract slug from plan_root path: plans/{slug}-{date}
+  local slug
+  slug="$(echo "${plan_root}" | sed -n 's|.*/plans/\([^/]\+\)-[0-9]\{6\}-[0-9]\{4\}$|\1|p')"
+  if [[ -z "${slug}" ]]; then
+    fail "Cannot extract slug from plan root: ${plan_root}"
+  fi
+
+  # Resolve project root: go up 2 levels from plans/{slug}-{date}
+  local project_root
+  project_root="$(cd "$(dirname "$(dirname "${plan_root}")")" 2>/dev/null && pwd || true)"
+  if [[ -z "${project_root}" ]]; then
+    fail "Cannot resolve project root from plan root: ${plan_root}"
+  fi
+
+  local design_md="${project_root}/designs/${slug}/DESIGN.md"
+  if [[ ! -f "${design_md}" ]]; then
+    cat >&2 <<GATEMSG
+⏸️  DESIGN.md chưa tồn tại: ${design_md}
+
+DESIGN.md phải được tạo và có thư viện UI đã chốt trước khi tạo control-type-library.
+Chạy backbone trước: ba-start backbone --slug ${slug}
+GATEMSG
+    exit 1
+  fi
+
+  # Parse "Thư viện UI" from DESIGN.md section 10 table
+  # Table format: | Thư viện UI | \`value\` |
+  local library_value
+  library_value="$(awk -F '|' '
+    /Thư viện UI/ {
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", $3)
+      # Strip backticks
+      gsub(/`/, "", $3)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", $3)
+      print $3
+      exit
+    }
+  ' "${design_md}" 2>/dev/null || echo "")"
+
+  if [[ -z "${library_value}" ]] || [[ "${library_value}" == "TBD" ]]; then
+    cat >&2 <<GATEMSG
+⏸️  DESIGN.md chưa chốt thư viện UI.
+
+File: ${design_md}
+Thư viện UI hiện tại: ${library_value:-<trống>}
+
+Chọn thư viện UI trước khi tạo control-type-library:
+- Gợi ý: Shadcn UI, MUI, Ant Design, Chakra UI, Tailwind UI, Flowbite...
+- Hoặc chọn "none" nếu không dùng thư viện nào.
+
+Khi đã chốt:
+- Cách 1: Chạy lại backbone, trả lời prompt chọn library (single-run, khuyên dùng).
+- Cách 2: Điền Section 10 trong DESIGN.md rồi chạy lại lệnh này.
+GATEMSG
+    exit 1
+  fi
+
+  echo "Gate 5.1a passed: UI Library = '${library_value}' (from ${design_md})"
+
   local dest="${backbone_dir}/control-type-library.md"
   if [[ -f "${dest}" ]]; then
     echo "Control Type Library already exists: ${dest}"

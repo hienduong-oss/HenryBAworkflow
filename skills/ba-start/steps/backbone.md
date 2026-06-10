@@ -132,27 +132,60 @@ When the backbone Portal Matrix defines at least one portal (UI-backed scope exi
 
 **`control_type_library` MUST NOT be created until this gate is satisfied.**
 
-Sau khi DESIGN.md đã được tạo và user đã duyệt design direction ở Step 5.1, backbone PHẢI dừng và chờ user chốt thư viện UI cụ thể. Đây là khoảng nghỉ có chủ đích — user cần thời gian research, so sánh library, hoặc consult team trước khi quyết định.
+Sau khi DESIGN.md đã được tạo và user đã duyệt design direction ở Step 5.1, backbone PHẢI hỏi user chọn thư viện UI trước khi tiếp tục. Gate này hỗ trợ hai đường:
+
+- **Đường nhanh (single-run):** user chọn library ngay trong prompt → backbone ghi vào DESIGN.md và tiếp tục tạo control-type-library luôn.
+- **Đường nghiên cứu (two-run):** user cần thời gian research → backbone dừng, user tự điền DESIGN.md, chạy lại backbone sau.
 
 Gate logic:
-- Đọc `paths.design_doc`, kiểm tra section "UI Library" hoặc "Thư viện UI".
-- Nếu DESIGN.md chưa có library selection (field trống, ghi `TBD`, hoặc chỉ có proposal chưa chốt) → **DỪNG**. In message:
 
-  ```
-  ⏸️  DESIGN.md đã có design direction nhưng chưa chốt thư viện UI.
+1. Đọc `paths.design_doc`, kiểm tra section "UI Library" hoặc "Thư viện UI".
+2. Nếu DESIGN.md ĐÃ CÓ library selection (tên library + version cụ thể, không phải `TBD`) → gate passed. Tiếp tục Step 5.2.
+3. Nếu library = `none` → gate passed. Tiếp tục Step 5.2 với baseline = `none`.
+4. Nếu library = `TBD`, trống, hoặc chỉ có proposal chưa chốt → **HỎI user bằng `AskUserQuestion`**:
 
-  Chọn thư viện UI trước khi tạo control-type-library:
-  - Gợi ý: Shadcn UI, MUI, Ant Design, Chakra UI, Tailwind UI, Flowbite...
-  - Hoặc chọn "none" nếu không dùng thư viện nào.
+   ```
+   Hỏi: "DESIGN.md đã có design direction nhưng chưa chốt thư viện UI. Bạn muốn chọn thư viện nào?"
 
-  Khi đã chốt: chạy lại backbone để tiếp tục tạo control-type-library.
-  ```
+   Các lựa chọn:
+   - "Shadcn UI" — component library phổ biến, Tailwind-based
+   - "Ant Design 5.x" — design system đầy đủ, phù hợp enterprise
+   - "MUI (Material UI)" — Material Design, hệ sinh thái React lớn
+   - "Chakra UI" — accessible, composable
+   - "Tailwind UI" — utility-first, không opinionated
+   - "Flowbite" — Tailwind component library
+   - "none" — không dùng thư viện UI nào
+   - "Tôi cần thời gian research" — dừng backbone, điền DESIGN.md sau rồi chạy lại
+   ```
 
-- Nếu DESIGN.md đã có library selection (tên library + version cụ thể, không phải `TBD`) → gate passed. Tiếp tục Step 5.2.
-- Nếu library = `none` → gate passed. Tiếp tục Step 5.2 với baseline = `none`.
+5. **Nếu user chọn một library cụ thể:**
+   - Ghi tên library + version (hỏi thêm version nếu user chưa cung cấp) + docs link vào DESIGN.md Section 10.
+   - Đánh dấu "Đã chốt" trong DESIGN.md.
+   - Gate passed → tiếp tục Step 5.2 ngay trong cùng run.
+
+6. **Nếu user chọn "none":**
+   - Ghi `none` vào DESIGN.md Section 10.
+   - Đánh dấu "Đã chốt".
+   - Gate passed → tiếp tục Step 5.2 với baseline = `none`.
+
+7. **Nếu user chọn "Tôi cần thời gian research":**
+   - In message:
+
+     ```
+     ⏸️  Đã dừng ở gate 5.1a. DESIGN.md đã được tạo với library = TBD.
+
+     Khi đã chốt thư viện UI:
+     - Cách 1: Mở DESIGN.md → điền Section 10 "Thư viện UI" → chạy lại backbone.
+     - Cách 2: Chạy lại backbone, em sẽ hỏi lại câu này.
+
+     Gợi ý: Shadcn UI, MUI, Ant Design, Chakra UI, Tailwind UI, Flowbite...
+     Hoặc chọn "none" nếu không dùng thư viện nào.
+     ```
+
+   - DỪNG. Không tạo control-type-library.
 
 Sau khi user chốt library và chạy lại backbone:
-- Backbone đọc lại DESIGN.md, phát hiện library đã được điền → skip Step 5.1 (files đã tồn tại), qua gate 5.1a, vào Step 5.2.
+- Backbone đọc lại DESIGN.md, phát hiện library đã được điền → skip Step 5.1 (files đã tồn tại), hỏi lại gate 5.1a nếu vẫn TBD, hoặc qua gate 5.1a vào Step 5.2 nếu đã chốt.
 
 ### Step 5.2 — Persist Control Type Library [BẮT BUỘC khi có UI, sau Gate 5.1a]
 

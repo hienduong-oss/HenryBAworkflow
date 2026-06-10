@@ -37,10 +37,15 @@ Stop when the requested option file does not exist, multiple options exist witho
   - Module BAs are PROHIBITED from creating new portals, new nav schemas, new shell variants, or new shared components in these files.
   - Module BAs MAY add menu items to an existing nav schema with explicit user confirmation, then flag in review packet.
   - If a module needs a portal not yet in DESIGN.md or shared-shell-contract.md, escalate to Lead BA via `impact`.
-- **UI Library Selection Gate:** `paths.control_type_library` MUST NOT be created in the same backbone run as DESIGN.md. After DESIGN.md is persisted and design direction approved, backbone MUST stop and prompt user to select a concrete UI library (name + version). Only on the next backbone run, after the library selection is confirmed in DESIGN.md, may `paths.control_type_library` be created with the correct baseline.
-  - If DESIGN.md has no library selection (TBD or empty) → stop with prompt to choose library.
-  - If DESIGN.md has library = `none` → gate passed, create control_type_library with baseline = `none`.
-  - If DESIGN.md has concrete library name + version → gate passed, create control_type_library with that baseline.
+- **UI Library Selection Gate:** After DESIGN.md is persisted and design direction approved, backbone MUST prompt user to select a concrete UI library (name + version) before creating `paths.control_type_library`. Supports two paths:
+  - **Single-run (interactive):** User selects library via prompt → backbone writes selection into DESIGN.md and continues to create `paths.control_type_library` in the same run.
+  - **Two-run (research):** User defers selection → backbone stops, user fills DESIGN.md manually, reruns backbone later.
+  - If DESIGN.md has no library selection (TBD or empty) → prompt user via `AskUserQuestion` with library suggestions + `none` + "Tôi cần thời gian research".
+  - If user picks a library → write it into DESIGN.md Section 10, gate passed, create control_type_library with that baseline.
+  - If user picks "none" → write `none` into DESIGN.md, gate passed, create control_type_library with baseline = `none`.
+  - If user defers → stop with instructions to fill DESIGN.md manually or rerun backbone.
+  - If DESIGN.md already has library = `none` → gate passed, create control_type_library with baseline = `none`.
+  - If DESIGN.md already has concrete library name + version → gate passed, create control_type_library with that baseline.
 - Initialize or refresh project memory from accepted intake/backbone decisions.
 - Compact memory (`paths.project_memory`) stores stable vocabulary, approved decisions, accepted assumptions, rejected assumptions, corrections, and push-back triggers.
 - Shard memory is optional. If present, `paths.memory_index` is a bounded navigator and must not become a second monolith.
