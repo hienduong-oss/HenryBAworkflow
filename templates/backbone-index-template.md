@@ -58,3 +58,17 @@ Khi tạo backbone-index.md, PHẢI tuân thủ các quy tắc sau:
 ```bash
 ba-kit validate-index --index-key backbone_index --slug {slug} --date {date} --writeback
 ```
+
+### 6. Pre-Validation Self-Audit (BẮT BUỘC trước khi chạy validator)
+
+Trước khi chạy `ba-kit validate-index`, PHẢI tự kiểm tra:
+
+- [ ] Mọi Trace ID trong index dùng đúng prefix được phép: BG, ACT, PORTAL, F, FR, NFR, EP, R, SCR, MEM, A{N}
+- [ ] FR IDs trong backbone.md dùng định dạng **zero-padded thống nhất**: `FR-01, FR-02` (KHÔNG `FR-1, FR-2`)
+- [ ] R IDs dùng định dạng `R-` prefix có dấu gạch ngang: `R-1, R-2` (KHÔNG `R1, R2`)
+- [ ] Mọi Trace ID trong index tồn tại dưới dạng **CHÍNH XÁC chuỗi ký tự** trong backbone.md (không suy đoán, không viết tắt)
+- [ ] KHÔNG có ID ngoài allowed families trong Trace IDs (không `D1-D8`, `OQ-BB-01`, `DESIGN`, `NEXT`, `FRD`, `STORIES`, `SRS`, `PACKAGE`)
+- [ ] Mỗi dòng index có ít nhất 1 Trace ID hợp lệ (KHÔNG dùng `—` thay thế)
+- [ ] `source_hash` đã được tính lại từ backbone.md **hiện tại** (SHA256 thật, không placeholder)
+
+Nếu phát hiện vi phạm → sửa backbone.md và/hoặc index TRƯỚC KHI chạy validator. Không dùng validator như công cụ khám phá lỗi.
