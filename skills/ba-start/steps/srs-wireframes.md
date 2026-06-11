@@ -111,6 +111,30 @@ Required screen canon result:
 - Figma sync run as a separate consumer skill
 - compiled `paths.srs` refreshed after canon changes
 
+**Message Placement Rules [BẮT BUỘC]:**
+- Every inline message declared in `## Message Placement` MUST have a `▼ MSG-ERR-XX` marker at the exact field position in the wireframe
+- Toast messages MUST be drawn in a toast zone (corner box) in the wireframe
+- Banner messages MUST be drawn as a banner bar in the wireframe
+- Every wireframe MUST end with a `Message Zones:` legend listing all message positions
+
+Example wireframe with markers:
+```
++--------------------------------------------------+
+| {Screen Title}                                   |
++--------------------------------------------------+
+| {field label}: [________________]                |
+| ▼ MSG-ERR-01: {error message}                    |
+| [{Action Button}]                                |
+|              ┌──────────────────┐                |
+|              │ ✓ MSG-SUC-01     │                |
+|              └──────────────────┘                |
++--------------------------------------------------+
+
+Message Zones:
+  Inline: dưới field {field_name} (MSG-ERR-01)
+  Toast area: góc phải dưới (MSG-SUC-01: tự tắt sau 3s)
+```
+
 ## Step 10 - Produce Final Screen Field Contract
 
 After Step 9 resolves, expand final screen field contract from use case canon, screen canon, and backbone.

@@ -73,12 +73,15 @@ Collaboration intent (module claim, review handoff, conflict check, PR, commit, 
 ### Slug
 - Prefer explicit `--slug`.
 - Otherwise inspect directories matching `patterns.project_dir` under `plans/`.
+  Use `bash ls -d plans/*-*` or `find plans/ -type d` for directory discovery.
+  The `Glob` tool only matches files — never use it for directory resolution.
 - Ignore legacy report trees.
 - If more than one slug exists, stop and ask.
 
 ### Date
 - Prefer explicit `--date`.
-- Otherwise derive from the resolved project directory name.
+- Otherwise derive the date from the resolved project directory name by applying `patterns.project_dir`.
+  Same tool rule as Slug: use `bash ls -d` or `find -type d` for directory discovery, never `Glob`.
 - If more than one dated set exists for the slug, stop and ask.
 
 ### Module
@@ -193,6 +196,14 @@ After the user explicitly approves a mutating rerun step:
 - do not reopen generic discovery
 - do not fall back to prompts like "what do you want me to do next?"
 - only break the lock when command, slug, date, module, or overwrite approval becomes genuinely ambiguous
+
+## Incremental Artifact Writes
+
+When generating artifacts that exceed about 150 lines, use incremental writes:
+
+1. Write the skeleton first using the template structure.
+2. Append group content sequentially into the correct section.
+3. Never assemble and flush the full artifact in one large write.
 
 ## Token Discipline
 

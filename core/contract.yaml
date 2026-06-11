@@ -114,6 +114,7 @@
     "behavior_srs": "core/behavior/srs.md",
     "behavior_wireframes": "core/behavior/wireframes.md",
     "behavior_figma_sync": "core/behavior/figma-sync.md",
+    "behavior_stitch_sync": "core/behavior/stitch-sync.md",
     "behavior_package_status_next": "core/behavior/package-status-next.md",
     "impact_receipt": "plans/{slug}-{date}/02_backbone/impact-receipt.md",
     "options_receipt": "plans/{slug}-{date}/01_intake/options/options-receipt.md",
@@ -125,6 +126,13 @@
     "reverse_focus_excerpts": "plans/{slug}-{date}/00_reverse/reverse-focus-excerpts.md",
     "reverse_evidence_ledger": "plans/{slug}-{date}/00_reverse/reverse-evidence-ledger.md",
     "reverse_drift_state": "plans/{slug}-{date}/00_reverse/reverse-drift-state.json",
+    "audit_report": "plans/{slug}-{date}/shared/audit-report.md",
+    "stitch_lane_root": "plans/{slug}-{date}/05_tool-lanes/stitch",
+    "stitch_design_system_id": "plans/{slug}-{date}/05_tool-lanes/stitch/stitch-design-system-id.json",
+    "stitch_screen_map": "plans/{slug}-{date}/05_tool-lanes/stitch/stitch-screen-map.json",
+    "stitch_sync_report": "plans/{slug}-{date}/05_tool-lanes/stitch/stitch-sync-report.md",
+    "stitch_mismatch_report": "plans/{slug}-{date}/05_tool-lanes/stitch/stitch-mismatch-report.md",
+    "check_freshness_state": "~/.claude/ba-kit/state/last-freshness-check.json",
     "reverse_read_manifest": "plans/{slug}-{date}/00_reverse/reverse-read-manifest.ndjson",
     "behavior_reverse": "core/behavior/reverse.md",
     "qc_output_root": "plans/{slug}-{date}/03_modules/{module_slug}/qc-review",
@@ -237,7 +245,12 @@
     "reverse_focus_excerpts": "agent_facing",
     "reverse_evidence_ledger": "agent_facing",
     "reverse_drift_state": "machine_facing",
-    "reverse_read_manifest": "machine_facing"
+    "reverse_read_manifest": "machine_facing",
+    "audit_report": "agent_facing",
+    "stitch_design_system_id": "machine_facing",
+    "stitch_screen_map": "machine_facing",
+    "stitch_sync_report": "agent_facing",
+    "stitch_mismatch_report": "agent_facing"
   },
   "patterns": {
     "date_token": "^\\d{6}-\\d{4}$",
@@ -329,6 +342,13 @@
       "outputs": ["figma_sync_report", "figma_mismatch_report"],
       "notes": "Separate downstream visual consumer. Reads ascii-screen/index.md and screen files. It may interact with Figma MCP and write sync/mismatch reports, but it must not mutate BA canon sources, shared shell contracts, or compiled SRS."
     },
+    "stitch-sync": {
+      "module_required": true,
+      "mutable": true,
+      "requires": ["ascii_screen_index", "srs_compile_receipt", "design_doc", "shared_shell_contract"],
+      "outputs": ["stitch_sync_report", "stitch_mismatch_report", "stitch_design_system_id", "stitch_screen_map"],
+      "notes": "Downstream visual consumer. Reads screen canon and DESIGN.md, bootstraps Stitch design system, generates consistent UI screens via Stitch MCP. Must not mutate BA canon sources, shared shell contracts, or compiled SRS. Blocks immediately if Stitch MCP is unreachable. Supports --device DESKTOP|MOBILE|TABLET|AGNOSTIC (default DESKTOP). Refresh triggers full regeneration — old screens destroyed."
+    },
     "package": {
       "module_required": false,
       "mutable": true,
@@ -410,6 +430,7 @@
     "srs": ["behavior_srs"],
     "wireframes": ["behavior_wireframes"],
     "figma-sync": ["behavior_figma_sync"],
+    "stitch-sync": ["behavior_stitch_sync"],
     "package": ["behavior_package_status_next"],
     "status": ["behavior_package_status_next"],
     "next": ["behavior_package_status_next"],
@@ -421,7 +442,7 @@
     "qc-review": ["behavior_qc_review"]
   },
   "source_of_truth_order": ["backbone", "intake"],
-  "next_step_order": ["intake", "options", "backbone", "frd", "stories", "srs", "package", "status"],
+  "next_step_order": ["intake", "options", "backbone", "frd", "stories", "srs", "stitch-sync", "package", "status"],
   "reverse": {
     "canonical": false,
     "evidence_zone": true,

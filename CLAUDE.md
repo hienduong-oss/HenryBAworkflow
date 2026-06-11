@@ -179,3 +179,18 @@ The checklist has 5 checks:
 **If any check fails or is uncertain → surface to user before proceeding.**
 
 Include `methodology-check: pass` sign-off in commit message for every BA-kit change. See checklist for full sign-off format.
+
+## Source Repo Fix Rule [CRITICAL]
+
+When fixing bugs or implementing features in THIS repository (BA-kit source), apply changes ONLY to files under this repo root. Do NOT apply fixes to installed locations:
+- `~/.claude/ba-kit/` — installed by `install.sh`
+- `~/.local/bin/ba-kit` — installed by `install.sh`
+- `~/.codex/ba-kit/` — installed by `scripts/install-codex-ba-kit.sh`
+- `~/.gemini/antigravity-cli/ba-kit/` — installed by `scripts/install-antigravity-ba-kit.sh`
+
+Installation pipeline:
+- `install.sh` → copies `scripts/ba-kit` → `~/.local/bin/ba-kit`
+- `install.sh` → calls `scripts/install-claude-code-ba-kit.sh` → copies `scripts/*.py` → `~/.claude/ba-kit/scripts/`, writes hooks to `~/.claude/ba-kit/hooks/`
+- Templates: `install.sh:164` → copies `templates/*` → `~/.claude/templates/`
+
+User runs `bash install.sh` to apply source fixes to their installation.
