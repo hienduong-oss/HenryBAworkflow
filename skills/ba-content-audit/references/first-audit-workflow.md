@@ -162,6 +162,7 @@ Write audit report to `paths.audit_report` path per `template/audit-report-templ
 - Summary table: Blocking / Warning / Info counts
 - Findings grouped by severity, then by artifact path
 - Each finding: ID, severity, location, description, suggested fix
+- **Fix Commands**: Map every Blocking and Warning finding to an actionable command per `references/audit-rules.md` Finding-to-Fix-Command Mapping section, grouped into Direct Edit / Skill-Based / Manual Actions tables
 
 ## Step 7: Print Chat Summary
 

@@ -84,7 +84,7 @@ Note: `persistent_count = total_findings - new_count`. Computed after classifica
 3. **Blocking** — grouped by file, `[NEW]` flag on new ones
 4. **Warning** — grouped by file, `[NEW]` flag on new ones
 5. **Info** — grouped by file, `[NEW]` flag on new ones
-6. **Resolved** — findings from previous audit no longer detected
+6. **Fix Commands** — Map every Blocking and Warning finding to an actionable command per `references/audit-rules.md` Finding-to-Fix-Command Mapping section, grouped into Direct Edit / Skill-Based / Manual Actions tables.
 
 ## Step 5: Print Chat Summary
 

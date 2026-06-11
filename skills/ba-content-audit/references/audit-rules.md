@@ -320,7 +320,60 @@ First pass: scan all files, collect `{id: (file, line)}` defined IDs into a map.
 Second pass: scan all files for ID references, check against map.
 Unmatched refs → Warning. IDs defined but never referenced → Info.
 
-## Edge Cases
+## Finding-to-Fix-Command Mapping
+
+After audit, each Blocking and Warning finding is classified into a fix command group for the `## Fix Commands` section of the report.
+
+### Classification Rules
+
+**Direct Edit** — finding can be fixed by editing the source file:
+
+| check_type | description_pattern | command_template |
+|---|---|---|
+| `frontmatter` | Missing required field `{field}` | `Edit {file_path}` |
+| `frontmatter` | Expected type `{expected}`, got `{actual}` | `Edit {file_path}` |
+| `frontmatter` | Missing YAML frontmatter | `Edit {file_path}` |
+| `frontmatter` | Cannot parse frontmatter: `{error}` | `Edit {file_path}` |
+| `frontmatter` | Missing optional field `{field}` | `Edit {file_path}` |
+| `section` | Missing mandatory section `{section}` | `Edit {file_path}` |
+| `section` | Extra section `{section}` not in template | `Edit {file_path}` |
+| `crossref` | Broken wikilink: `{path}` | `Edit {file_path}` |
+| `crossref` | Broken frontmatter link: `{path}` | `Edit {file_path}` |
+| `crossref` | Broken ID reference: `{id}` | `Edit {file_path}` |
+| `crossref` | Broken markdown link: `{path}` | `Edit {file_path}` |
+| `crossref` | Index entry references missing file: `{path}` | `Edit {file_path}` |
+| `id_orphan` | ID `{id}` defined but never referenced | `Edit {file_path}` |
+| `naming` | Naming deviation: expected `{expected}` | `Edit {file_path}` |
+
+The `Description` from the finding becomes the "What to change" / "Change" column content verbatim.
+
+**Skill-Based** — finding needs a BA-kit skill to fix:
+
+| check_type | description_pattern | command_template |
+|---|---|---|
+| `crossref` | Module `{module}` listed but no folder found | `/ba-next --slug {slug}` — review missing module |
+| `crossref` | Compiled SRS inconsistent with source canon | `/srs {module} --update` |
+| `section` | Missing mandatory section `{section}` in `srs.md` (compiled) | `/srs {module} --compile` |
+| `crossref` | Broken UC screen reference: `{screen}` | `/srs {module} --update` or `Edit` to fix screen reference |
+| `crossref` | Missing use case file referenced in index | `/usecase {module} --create {slug}` |
+| `crossref` | Missing user story file referenced in index | `/userstory {module} --create {nnn}` |
+| `section` | Missing diagram in use case `{file}` | `Edit {file_path}` — add PlantUML/Mermaid diagram |
+| `section` | Missing acceptance criteria in `{file}` | `Edit {file_path}` — add acceptance criteria section |
+
+The "Why" column contains the finding description verbatim.
+
+**Manual Actions** — finding needs a manual file/directory operation:
+
+| check_type | description_pattern | action_template |
+|---|---|---|
+| `naming` | Naming deviation: expected `{expected}` | `Rename {file_path} → {expected_dir}/{expected_name}` |
+| `crossref` | Module `{module}` listed but no folder found | `Create 03_modules/{module}/ directory` |
+
+The "Reason" column contains the finding description verbatim.
+
+### Fallback Rule
+
+If no pattern matches, classify as **Direct Edit** with command `Edit {file_path}` and use the finding's "Suggested Fix" as the change description.
 
 | Case | Handling |
 |------|----------|

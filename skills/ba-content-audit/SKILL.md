@@ -82,6 +82,7 @@ Detailed steps in the referenced workflow file. Overview:
    - Warning count + top 3-5 Warning findings
    - Info count
    - Report file path
+   - "Fix commands: see `## Fix Commands` in report — copy-paste per finding."
 
 ## Boundaries
 
