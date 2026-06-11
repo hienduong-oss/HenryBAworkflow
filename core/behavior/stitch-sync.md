@@ -11,6 +11,7 @@ screens via Stitch MCP. It never owns BA requirements.
 - Must read `core/contract.yaml` and `core/contract-behavior.md`.
 - Must read `paths.ascii_screen_index` before individual screen files.
 - Must read `paths.design_doc` and `paths.shared_shell_contract`.
+- Must read `paths.message_list` for MSG-* code resolution.
 - May read `paths.ascii_screen_root` and `paths.srs_compile_receipt`.
 - Must not read `paths.usecases_root`, `paths.userstories_root`, or `paths.frd`.
 
@@ -40,6 +41,7 @@ screens via Stitch MCP. It never owns BA requirements.
 - Refresh means full regeneration: destroy old DS, regenerate ALL screens.
 - Screens with `stitch_sync_eligible: false` in ascii-screen frontmatter are skipped.
 - `--device` flag (DESKTOP default | MOBILE | TABLET | AGNOSTIC) controls screen device type.
+- `--skip-states` flag skips state variant generation (Phase 2a). Default screens are still generated.
 
 ## Design System Bootstrap
 
@@ -55,8 +57,10 @@ screens via Stitch MCP. It never owns BA requirements.
 For each eligible screen:
 1. Read the ascii-screen canon file.
 2. Extract: screen name, Portal ID, Nav Schema ID, active_menu, field table, state coverage, ASCII wireframe.
-3. Read portal/nav context from `paths.shared_shell_contract`.
-4. Build prompt in plain natural language — NO IDs, NO keys, NO contract references. Stitch MCP is stateless and does not understand BA-kit IDs. Resolve every ID to its human-readable display text:
+3. Extract documented states from `## States` table and `## ASCII Wireframe` subsections.
+4. Extract MSG-* codes from field table (Validation Rules, Behaviour Rules) and resolve against `paths.message_list`.
+5. Read portal/nav context from `paths.shared_shell_contract`.
+6. Build prompt in plain natural language — NO IDs, NO keys, NO contract references. Stitch MCP is stateless and does not understand BA-kit IDs. Resolve every ID to its human-readable display text:
    - Portal: display name + description in prose (not portal_id).
    - Navigation: full list of menu items with exact visible labels (not nav_schema_id).
    - Active state: "The '{menu_label}' item is highlighted" (not a key reference).
@@ -67,13 +71,31 @@ For each eligible screen:
    - Anti-hallucination: "Do NOT add any UI element not explicitly described. No invented logos, avatars, breadcrumbs, or extra menu items." **Reinforce with per-zone bans:** every zone description in the prompt must end with an explicit "Do NOT add X, Y, Z here" list covering the most common Stitch inventions for that zone type (search bars in topbar, notification icons, user profile sections, empty-state illustrations, extra filter controls).
    - Consistency directive: "Every screen in this portal must have the exact same navigation menu — same items, same order, same labels. Do not add, remove, rename, or reorder any menu item."
    - Cross-screen: reference already-generated screens by display name, not by ID.
-5. **Prompt Sanitizer Gate (HARD):** Before calling `generate_screen_from_text`, scan the built prompt for leaked BA-kit ID patterns (`PORTAL-`, `NAV-`, `SCR-`, `UC-`, `FR-`, etc.) and empty resolved values. If any leak detected or lookup incomplete → block that screen, do NOT call Stitch. If all screens fail the gate → block entire Phase 2.
-6. Call `generate_screen_from_text(projectId, prompt, deviceType=<resolved_device>, designSystem=<assetId>)`.
-7. Record `{ba_screen_id: {stitch_screen_id, generated_at}}` in `paths.stitch_screen_map`.
+7. **States in prompt:** for screens with >1 state, append a `## Screen States` block describing each non-default state: trigger condition, visual differences (exact element changes, resolved message text, surface type), and state-specific ASCII wireframe. Error messages must be resolved FULL text, not MSG-* codes. Surface must be explicit: inline below field, toast (position + auto-dismiss), banner (position + dismissible), dialog (overlay + close behavior).
+8. **Prompt Sanitizer Gate (HARD):** Before calling `generate_screen_from_text`, scan the built prompt for leaked BA-kit ID patterns (`PORTAL-`, `NAV-`, `SCR-`, `UC-`, `FR-`, `MSG-`, `CR-`, etc.) and empty resolved values. If any leak detected or lookup incomplete → block that screen, do NOT call Stitch. If all screens fail the gate → block entire Phase 2.
+9. Call `generate_screen_from_text(projectId, prompt, deviceType=<resolved_device>, designSystem=<assetId>)`.
+10. Record `{ba_screen_id: {default: {stitch_screen_id, generated_at, status}, states: {}}}` in `paths.stitch_screen_map`.
+
+### State Variant Generation
+
+After base screen generated successfully, for each non-default state documented in the screen canon:
+1. Build a state-specific delta prompt: describe ONLY what changes from the base screen (error messages, toast, banner, disabled controls). Do NOT repeat layout, nav, chrome, or zones — these are inherited from the base.
+2. Resolve ALL MSG-* codes to canonical text. The literal string `MSG-` must NOT appear in the prompt.
+3. Specify exact feedback surface and styling: inline (below field, red text + red border), toast (position, color, auto-dismiss duration, text), banner (position, dismissible, color, text), dialog (overlay, close behavior).
+4. Include state-specific ASCII wireframe from screen canon.
+5. Run state prompt sanitizer gate: no IDs, no unresolved MSG-* codes, non-empty values, no structural changes.
+6. Call `generate_variants(projectId, selectedScreenIds=[base_stitch_screen_id], prompt, variantOptions={creativeRange: REFINE, aspects: [TEXT_CONTENT], variantCount: 1}, deviceType, designSystem=<assetId>)`.
+   - `creativeRange: REFINE` → minimal changes, preserve base structure.
+   - `aspects: [TEXT_CONTENT]` → only text-level changes applied. Layout, nav, chrome inherited from base.
+   - `variantCount: 1` → exactly one variant per state.
+7. If variant screen ID equals base screen ID → mark as `uncertain` (Stitch may not have applied changes).
+8. Record state variant: `{ba_screen_id: {default: {...}, states: {state_name: {stitch_screen_id, generated_at, status}}}}`.
+9. Incremental write to `paths.stitch_screen_map` after EACH state variant.
+10. Do not retry failed state variants — `generate_variants` is non-deterministic on retry.
 
 ## Output
 
 - `stitch-design-system-id.json`: `{asset_id, design_md_hash, created_at, project_id}`
-- `stitch-screen-map.json`: `{ba_screen_id: {stitch_screen_id, generated_at, status}}`
-- `stitch-sync-report.md`: what was generated, skipped, verified
-- `stitch-mismatch-report.md`: cross-screen drift detected (logo, navbar, colors)
+- `stitch-screen-map.json`: `{ba_screen_id: {default: {stitch_screen_id, generated_at, status}, states: {state_name: {stitch_screen_id, generated_at, status}}}}`
+- `stitch-sync-report.md`: what was generated, skipped, verified (base screens + state variants)
+- `stitch-mismatch-report.md`: cross-screen drift detected (logo, navbar, colors, state feedback text, state feedback surface)
