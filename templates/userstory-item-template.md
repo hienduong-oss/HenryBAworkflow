@@ -1,7 +1,7 @@
 ---
 type: user-story
 module: "{module_slug}"
-story_id: "US-{NNN}"
+story_id: "US-{module}-{NNN}"
 slug: "{story-slug}"
 actor: "{actor}"
 priority: P0
@@ -15,7 +15,7 @@ changelog:
   - {YYYY-MM-DD} | /stories | initial draft
 ---
 
-# US-{NNN}: {story title}
+# US-{module}-{NNN}: {story title}
 
 ## Story Statement
 

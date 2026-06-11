@@ -85,7 +85,7 @@ Generation rules:
 - Story actor, goal, feature, and priority must trace to backbone module scope.
 
 Story item fields:
-- `story_id`: `US-{NNN}` (zero-padded, sequential within module)
+- `story_id`: `US-{module}-{NNN}` (zero-padded, sequential within module)
 - `slug`: stable kebab-case from story title
 - `actor`: from backbone actor registry
 - `priority`: P0 / P1 / P2 from backbone feature priority
