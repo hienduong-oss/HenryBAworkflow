@@ -41,6 +41,7 @@ screens via Stitch MCP. It never owns BA requirements.
 - Refresh means full regeneration: destroy old DS, regenerate ALL screens.
 - Screens with `stitch_sync_eligible: false` in ascii-screen frontmatter are skipped.
 - `--device` flag (DESKTOP default | MOBILE | TABLET | AGNOSTIC) controls screen device type.
+- `--skip-states` flag skips state variant generation (Phase 2a). Default screens are still generated.
 
 ## Design System Bootstrap
 
@@ -78,14 +79,19 @@ For each eligible screen:
 ### State Variant Generation
 
 After base screen generated successfully, for each non-default state documented in the screen canon:
-1. Build a state-specific minimal prompt: layout/nav/chrome identical to default, only state visual changes described.
+1. Build a state-specific delta prompt: describe ONLY what changes from the base screen (error messages, toast, banner, disabled controls). Do NOT repeat layout, nav, chrome, or zones — these are inherited from the base.
 2. Resolve ALL MSG-* codes to canonical text. The literal string `MSG-` must NOT appear in the prompt.
 3. Specify exact feedback surface and styling: inline (below field, red text + red border), toast (position, color, auto-dismiss duration, text), banner (position, dismissible, color, text), dialog (overlay, close behavior).
 4. Include state-specific ASCII wireframe from screen canon.
-5. Run prompt sanitizer gate (same rules as base screen).
-6. Call `generate_screen_from_text(projectId, statePrompt, deviceType=<resolved_device>, designSystem=<assetId>)`.
-7. Record state variant: `{ba_screen_id: {default: {...}, states: {state_name: {stitch_screen_id, generated_at, status}}}}`.
-8. Incremental write to `paths.stitch_screen_map` after EACH state variant.
+5. Run state prompt sanitizer gate: no IDs, no unresolved MSG-* codes, non-empty values, no structural changes.
+6. Call `generate_variants(projectId, selectedScreenIds=[base_stitch_screen_id], prompt, variantOptions={creativeRange: REFINE, aspects: [TEXT_CONTENT], variantCount: 1}, deviceType, designSystem=<assetId>)`.
+   - `creativeRange: REFINE` → minimal changes, preserve base structure.
+   - `aspects: [TEXT_CONTENT]` → only text-level changes applied. Layout, nav, chrome inherited from base.
+   - `variantCount: 1` → exactly one variant per state.
+7. If variant screen ID equals base screen ID → mark as `uncertain` (Stitch may not have applied changes).
+8. Record state variant: `{ba_screen_id: {default: {...}, states: {state_name: {stitch_screen_id, generated_at, status}}}}`.
+9. Incremental write to `paths.stitch_screen_map` after EACH state variant.
+10. Do not retry failed state variants — `generate_variants` is non-deterministic on retry.
 
 ## Output
 

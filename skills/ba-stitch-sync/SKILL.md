@@ -160,6 +160,30 @@ After every MCP call that returns an ID (screen ID, asset ID, project ID):
 - **CRITICAL:** This ID is used in EVERY screen generation call. Wrong ID = all screens broken.
   Print the ID to user so they can verify: "Using design system: {asset_id}"
 
+### Step 2.1a: Migrate stitch-screen-map.json schema (if exists)
+
+The schema changed from v1 (flat) to v2 (nested with `default` + `states`). Existing maps from prior sync runs may use v1.
+
+- Check if `paths.stitch_screen_map` exists.
+- If file doesn't exist → skip migration (fresh run).
+- If file exists:
+  - Read and parse JSON.
+  - Check format:
+    - **v2 (current):** entries have `default` key → no migration needed. Print: "Screen map already v2 format."
+    - **v1 (legacy):** entries have `stitch_screen_id` at top level → auto-migrate.
+  - **Migration (v1 → v2):**
+    For each entry `{ba_screen_id: {stitch_screen_id, generated_at, status, error?}}`:
+    ```
+    {ba_screen_id: {
+      default: {stitch_screen_id, generated_at, status, error?},
+      states: {}
+    }}
+    ```
+  - Write migrated map back to `paths.stitch_screen_map`.
+  - Print: "Migrated {N} screen entries from v1 to v2 format. State variants will be added on this run."
+  - **VALIDATE:** Re-read file, confirm entries have `default` key → if not, **BLOCK** "Schema migration failed. Map still in v1 format. Check JSON structure manually."
+- **If map has mixed format** (some v1, some v2) → **BLOCK** "stitch-screen-map.json has mixed v1/v2 entries. Cannot auto-migrate. Fix manually or delete map for fresh regeneration."
+
 ### Step 2.2: Build BA-kit ID Reference Index
 
 Before reading any screen file, build a lookup index from shared_shell_contract:
@@ -612,7 +636,12 @@ For each eligible screen:
 
 ### Step 2.6a: Generate State Variants
 
-After base (default) screen is generated successfully, generate a separate Stitch screen for each non-default state documented in the screen canon. Each state variant is a distinct screen in Stitch with the same layout but state-specific visual changes applied.
+After base (default) screen is generated successfully, generate a state variant for each non-default state documented in the screen canon. Use `generate_variants` — it starts from the base screen and applies only the described changes, guaranteeing structural identity (nav, layout, chrome, zones) with the base.
+
+**Why `generate_variants`, not `generate_screen_from_text`:**
+- `generate_variants` starts from the base screen → layout, nav, chrome identical by construction. A second `generate_screen_from_text` call may reposition elements, reflow layout, or shift colors — losing state-to-default fidelity.
+- With `creativeRange: REFINE` and `aspects: [TEXT_CONTENT]`, only text-level changes are applied. The layout structure is preserved.
+- State prompt is simpler — no need to repeat portal/nav/zone descriptions. Only describe the delta.
 
 **When to skip state generation:**
 - Screen has only one state (default only) → skip Step 2.6a for this screen.
@@ -621,22 +650,22 @@ After base (default) screen is generated successfully, generate a separate Stitc
 
 **State generation loop (for each non-default state):**
 
-1. **Build state-specific prompt:**
-   The state prompt is minimal — it describes ONLY what changes from the base screen. Do NOT repeat the full portal/nav/layout description; Stitch generates this as a standalone screen but the prompt must focus on the state transformation.
+1. **Build state-specific delta prompt:**
+   Describe ONLY what changes from the base screen. The prompt is a delta — `generate_variants` inherits everything else from the base.
 
-   **State prompt structure:**
+   **State delta prompt structure:**
 
    ```
    This is the "{state_name}" state of the "{screen_name}" screen.
 
    Trigger: {state description — when this state appears}.
 
-   The layout, navigation, and chrome are IDENTICAL to the default state. Only the following elements change:
+   Only the following elements differ from the base screen:
 
    1. {specific change}: e.g., "A red inline error message appears below the Email field:
       'Email không hợp lệ.' The Email field border turns red."
-   2. {specific change}: e.g., "A red error banner spans the top of the content area below the page header:
-      'Vui lòng sửa các lỗi bên dưới.' The banner has an X dismiss button."
+   2. {specific change}: e.g., "A red error banner spans the top of the content area below the
+      page header: 'Vui lòng sửa các lỗi bên dưới.' The banner has an X dismiss button."
    3. {specific change}: e.g., "A toast notification appears at the top-right corner:
       'Đã lưu thành công.' Green background, white text. Auto-dismisses after 3 seconds."
 
@@ -652,15 +681,7 @@ After base (default) screen is generated successfully, generate a separate Stitc
    - Banner: {dismissible: yes + X button | persistent} (from DESIGN.md §5, or default: dismissible)
    - Inline error: red text, red field border, error icon if specified in DESIGN.md §5
 
-   Consistency: The navigation menu, layout zones, and chrome MUST be identical to the default state. Only change what is listed above.
-
-   Zone coverage (same rules as base screen):
-   - Topbar: INTENTIONALLY EMPTY except page title. NO search bar, NO notification bell.
-   - Sidebar header: INTENTIONALLY EMPTY. NO logo.
-   - Sidebar footer: INTENTIONALLY EMPTY. NO user avatar.
-   - Footer: NO footer.
-   - {Any zone NOT occupied by state-specific elements → explicitly ban additions}
-
+   Do NOT describe layout, navigation, chrome, or zones — these are inherited from the base screen.
    Do NOT add any UI element not explicitly listed above. Do NOT invent extra error messages, extra fields, or extra controls.
    ```
 
@@ -671,23 +692,44 @@ After base (default) screen is generated successfully, generate a separate Stitc
    - If a code is unresolved → WARN "State {state_name}: MSG-{code} not found in message list. Using code as fallback." → use the code string as fallback text.
 
 3. **State prompt sanitizer gate:**
-   Run all checks from Step 2.6.5a, adapted for state prompts:
-   - **Check 1 — Banned ID patterns:** Scan for `MSG-`, `SCR-`, `CR-`, and all other banned patterns from Step 2.6.5a Check 1. State prompts MUST contain only resolved text.
-   - **Check 2 — Empty values:** Verify state name, trigger description, and each change description is non-empty.
-   - **Check 3 — MSG-* resolution:** The literal string `MSG-` must NOT appear in the prompt (all codes must be resolved). If found → **BLOCK** this state. "MSG-* code not resolved in state prompt for {screen_name}/{state_name}."
-   - **Check 4 — State wireframe present:** If the state has no ASCII wireframe from the screen canon → WARN but proceed (text description only).
-   - **Check 5 — No structural changes:** Verify the prompt contains "layout... IDENTICAL" or equivalent consistency directive. If the prompt appears to describe a different layout (new zones, different nav) → **BLOCK** "State variant prompt for {screen_name}/{state_name} appears to describe structural changes. State prompts must only describe visual overlays/feedback."
+   Minimal checks — the base screen already passed full sanitization:
+   - **Check 1 — Banned ID patterns:** Scan for `MSG-`, `SCR-`, `CR-`, and all banned patterns from Step 2.6.5a Check 1. State prompts MUST contain only resolved text.
+   - **Check 2 — MSG-* resolution:** The literal string `MSG-` must NOT appear in the prompt. If found → **BLOCK** this state. "MSG-* code not resolved in state prompt for {screen_name}/{state_name}."
+   - **Check 3 — Empty values:** Verify state name, trigger description, and each change description is non-empty.
+   - **Check 4 — No structural changes:** The prompt must NOT describe layout shifts, nav changes, new zones, or chrome modifications. If detected → **BLOCK** "State variant prompt for {screen_name}/{state_name} describes structural changes. State prompts must only describe visual overlays/feedback."
    - **Gate outcome:**
      - PASS → print "State prompt gate OK for {screen_name}/{state_name}." → proceed.
      - FAIL → WARN "State prompt gate FAIL for {screen_name}/{state_name}: {reason}." → mark state as `failed`, continue to next state.
 
-4. **Call generate_screen_from_text for state:**
-   Call `mcp__stitch__generate_screen_from_text(projectId, statePrompt, deviceType=<resolved_device>, designSystem=<assetId>)`.
-   - Use the SAME `designSystem` asset ID as the base screen.
-   - Use the SAME `deviceType`.
-   - **VALIDATE response:** same validation as Step 2.6.6.
+4. **Call `generate_variants` for state:**
+   ```
+   mcp__stitch__generate_variants(
+     projectId,
+     selectedScreenIds: [base_stitch_screen_id],
+     prompt: <state_delta_prompt>,
+     variantOptions: {
+       creativeRange: REFINE,
+       aspects: [TEXT_CONTENT],
+       variantCount: 1
+     },
+     deviceType: <resolved_device>,
+     designSystem: <assetId>
+   )
+   ```
+   - `selectedScreenIds` is the Stitch screen ID from the base (default) generation.
+   - `creativeRange: REFINE` → minimal changes, preserve base structure.
+   - `aspects: [TEXT_CONTENT]` → only text-level changes (error messages, labels, notifications).
+   - `variantCount: 1` → generate exactly one variant per state.
 
-5. **Record state in stitch-screen-map.json:**
+5. **VALIDATE response:**
+   - Response is an array of generated variant screen objects.
+   - Extract the variant screen ID from the first element.
+   - If response is null/empty/undefined → mark state as `failed`, record "generate_variants returned no variant", continue.
+   - If timeout (no response after 5 minutes) → mark as `failed`, record "timeout", continue.
+   - If error code `RATE_LIMITED` → **BLOCK** state generation. "Stitch daily quota exceeded during state generation. Default screens already saved."
+   - If variant screen ID equals base screen ID → WARN "State variant returned same ID as base. Stitch may not have applied state changes. Marking as uncertain." → mark state as `uncertain`.
+
+6. **Record state in stitch-screen-map.json:**
    Append to the screen's entry:
    ```json
    {ba_screen_id: {
@@ -700,14 +742,14 @@ After base (default) screen is generated successfully, generate a separate Stitc
    ```
    - Write `paths.stitch_screen_map` after EACH state variant (same incremental-write pattern as base screens).
 
-6. **Print progress:**
+7. **Print progress:**
    "[{N}/{total_screens}] {screen_name} → {state_name} state → {stitch_screen_id} ✓" or "✗ {error}"
 
-7. **State variant failure handling:**
+8. **State variant failure handling:**
    - If a state variant fails → mark as `failed` in the map, record reason, continue to next state.
    - If ALL state variants for a screen fail → WARN "All {K} state variants failed for {screen_name}. Only default state generated."
-   - If RATE_LIMITED → **BLOCK** state generation. "Stitch daily quota exceeded during state generation. {N} states remaining. Default screens already saved."
    - Do NOT block the entire Phase 2 for individual state failures — the default screen is already generated.
+   - Do NOT retry failed state variants (unlike base screens). `generate_variants` retries produce different variants each time.
 
 **State generation summary:**
 After all screens processed, print:
