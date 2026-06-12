@@ -10,6 +10,14 @@ Detailed step-by-step for re-audit when an existing `audit-report.md` is found.
 - `references/audit-rules.md` loaded (artifact rules)
 - `template/audit-report-template.md` loaded (output format)
 
+## Step 0: Choose Audit Strategy (Same as First-Audit)
+
+Apply same batching decision as `first-audit-workflow.md` Step 0:
+- ≤60 files, ≤2 modules → single-agent re-audit
+- >60 files or >2 modules → multi-agent batched re-audit (spawn sub-agents per module)
+
+For batched re-audit: the orchestrator loads existing report IDs (Grep for finding IDs only, not full report), then spawns sub-agents per module with the old ID set for comparison. Sub-agents flag `[NEW]` / `Persistent` / `Resolved` in their module finding files. Orchestrator merges at end.
+
 ## Step 1: Load Existing Report (Output-Limited)
 
 **DO NOT read the full report.** Use output-limiting strategy to extract metadata + finding IDs only.

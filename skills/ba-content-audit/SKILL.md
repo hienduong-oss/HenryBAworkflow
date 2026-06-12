@@ -61,6 +61,10 @@ Read `template/audit-report-template.md` for output format.
 
 Detailed steps in the referenced workflow file. Overview:
 
+**Strategy selection** (both flows, `first-audit-workflow.md` Step 0):
+- ≤60 files, ≤2 modules → single-agent sequential audit
+- >60 files or >2 modules → multi-agent batched: orchestrator handles system files + index, spawns sub-agent per module (fresh context each), merges results
+
 **First audit** (`references/first-audit-workflow.md`):
 - Scan artifacts in lifecycle order
 - Per-file: frontmatter check, mandatory sections check, cross-reference check
@@ -68,8 +72,8 @@ Detailed steps in the referenced workflow file. Overview:
 - Write report per `template/audit-report-template.md`
 
 **Re-audit** (`references/re-audit-workflow.md`):
-- Load existing report
-- Re-scan all artifacts
+- Load existing report (frontmatter + Grep for IDs only, not full read)
+- Re-scan all artifacts (batched if large project)
 - Compare old vs new findings using content-hash IDs
 - Flag `[NEW]`, bump severity on persistent, move resolved to "Resolved" section
 - Overwrite report preserving trace

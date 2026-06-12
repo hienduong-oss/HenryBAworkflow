@@ -9,6 +9,57 @@ Detailed step-by-step for first-time audit when no existing `audit-report.md` is
 - `references/audit-rules.md` loaded (artifact rules)
 - `template/audit-report-template.md` loaded (output format)
 
+## Step 0: Choose Audit Strategy (Batching)
+
+Estimate context budget before starting. Count files and modules from manifest:
+
+| Project Size | Strategy | Context per batch |
+|---|---|---|
+| ≤60 files, ≤2 modules | **Single-agent**: audit all files sequentially | ~45% of 200K |
+| >60 files or >2 modules | **Multi-agent batched**: spawn sub-agents per module | ~45% each, fresh context |
+
+### 0a: Single-Agent Strategy (Small Projects)
+
+Proceed with Steps 1–7 inline. All files audited in one session. Findings appended incrementally. No delegation needed.
+
+### 0b: Multi-Agent Batched Strategy (Large Projects)
+
+**Orchestrator (main agent)** handles:
+1. Step 1: Build file manifest for all files
+2. Step 2: Build on-disk ID index for ALL files (one Bash, zero context)
+3. Step 3A: Audit system-level files (01_intake, 02_backbone, design doc) → append findings
+4. **For each module**: Spawn a sub-agent to audit that module's files. Each sub-agent gets:
+   - Module path and file list
+   - Path to on-disk ID index (`shared/.audit-id-index.txt`)
+   - Output: append findings to `shared/.audit-module-{module_slug}.md`
+   - Fresh context window (~200K tokens)
+5. Step 4: Orphan detection on combined index (Bash, zero context)
+6. Merge: Concatenate system findings + all module finding files into final report, prepend summary
+
+**Sub-agent prompt template** (spawn per module):
+```
+Audit module: {module_slug}
+Module path: {module_root}
+ID index: {project_root}/shared/.audit-id-index.txt
+Output: {project_root}/shared/.audit-module-{module_slug}.md
+
+For each file in module:
+- Frontmatter check: Read first 40 lines (offset=0, limit=40)
+- Section check: Read TOC (80 lines) + Grep template headings
+- Cross-ref check: Grep file for IDs, query disk index via `grep -c "ID"` on .audit-id-index.txt
+- Append findings to output file immediately (incremental)
+
+Rules: never read files >10KB fully. Never load index into context. Use offset+limit.
+```
+
+### 0c: Final Merge
+
+After all sub-agents complete:
+```bash
+cat {project_root}/shared/.audit-module-*.md >> {project_root}/shared/audit-report.md
+```
+Then prepend frontmatter + summary + fix commands. Clean up temp module files.
+
 ## Step 1: Build File Manifest
 
 Scan project root to discover all artifacts. For each contract.yaml path key in core lifecycle (P0), resolve with `{slug}`, `{date}`, and `{module_slug}` placeholders.
