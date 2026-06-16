@@ -23,8 +23,8 @@ As a **{actor}**, I want to **{goal}**, so that **{business value}**.
 
 ## Acceptance Criteria
 
-- [ ] AC-001: {criterion}
-- [ ] AC-002: {criterion}
+- [ ] AC-{module}-001: {criterion}
+- [ ] AC-{module}-002: {criterion}
 
 ## Trace
 

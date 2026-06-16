@@ -108,6 +108,10 @@ Required screen canon result:
 - `ascii_status: current`
 - `## ASCII Wireframe` present
 - one ASCII subsection per required state listed in State Visual Coverage
+- **[BẮT BUỘC]** Every inline message declared in `## Message Placement` MUST have a `▼ MSG-ERR-XX` marker at the exact field position in the wireframe
+- **[BẮT BUỘC]** Toast messages MUST be drawn in a toast zone (corner box) in the wireframe
+- **[BẮT BUỘC]** Banner messages MUST be drawn as a banner bar in the wireframe
+- **[BẮT BUỘC]** Every wireframe MUST end with a `Message Zones:` legend listing all message positions
 - Figma sync run as a separate consumer skill
 - compiled `paths.srs` refreshed after canon changes
 
@@ -116,7 +120,6 @@ Required screen canon result:
 - Toast messages MUST be drawn in a toast zone (corner box) in the wireframe
 - Banner messages MUST be drawn as a banner bar in the wireframe
 - Every wireframe MUST end with a `Message Zones:` legend listing all message positions
-
 Example wireframe with markers:
 ```
 +--------------------------------------------------+

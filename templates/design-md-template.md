@@ -110,7 +110,25 @@ Trong flow canon-first, phần này là visual/BA-facing snapshot. Contract máy
 - Form adaptation: [Rule]
 - Minimum touch/interaction targets: [Rule]
 
-## 10. Design Handoff Guide
+## 10. Thư viện UI / UI Library
+
+> **Quan trọng:** Mục này là gate bắt buộc trước khi tạo `control-type-library.md`.
+> Khi chạy backbone lần đầu, để `TBD`. Sau khi research và chốt thư viện, điền tên + phiên bản cụ thể rồi chạy lại backbone để tạo `control-type-library.md`.
+
+| Trường | Giá trị |
+|--------|---------|
+| Thư viện UI | `TBD` |
+| Phiên bản | `TBD` |
+| Docs tham chiếu | `TBD` |
+| Ghi chú | [Lý do chọn library này, trade-off, hoặc "none" nếu không dùng thư viện nào] |
+
+**Trạng thái chốt:** [ ] Chưa chốt / [ ] Đã chốt
+
+- Nếu Thư viện UI = `TBD` hoặc trống → backbone sẽ DỪNG ở gate 5.1a, chưa tạo `control-type-library.md`.
+- Nếu Thư viện UI = `none` → gate passed, tạo control-type-library với baseline = `none`.
+- Nếu Thư viện UI = tên library cụ thể (vd `Ant Design 5.x`) → gate passed, tạo control-type-library với pruning theo library.
+
+## 11. Design Handoff Guide
 
 - Use this file as the system design document before creating any manual wireframe or mockup for this project.
 - Use the shared shell contract as the source for machine-readable portal, navigation, shell, layout, and active-menu validation.

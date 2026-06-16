@@ -1,6 +1,27 @@
-# BA-kit
+## BA-kit
+
+<div align="center">
+
+[![bakit-org - bakit](https://img.shields.io/static/v1?label=bakit-org&message=bakit&color=blue&logo=github)](https://github.com/bakit-org/bakit)
+
+[![License](https://img.shields.io/badge/License-Commercial-blue)](#license)
+
+[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://docs.bakit.ai.vn)
+
+[![Made with Bash](https://img.shields.io/badge/Bash->=3-blue?logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![Made with Python](https://img.shields.io/badge/Python->=3.13-blue?logo=python&logoColor=white)](https://python.org)
+
+[![Agent - Claude Code](https://img.shields.io/badge/Agent-Claude_Code-2ea44f&logo=claudecode)](https://claude.com/product/claude-code)
+[![Agent - CodeX](https://img.shields.io/badge/Agent-CodeX-2ea44f)](https://openai.com/codex/)
+[![Agent - Antigravity 2.0](https://img.shields.io/badge/Agent-Antigravity_2.0-2ea44f)](https://antigravity.google/)
+[![Agent - Antigravity CLI](https://img.shields.io/badge/Agent-Antigravity_CLI-2ea44f)](https://antigravity.google/)
+[![Agent - Antigravity IDE](https://img.shields.io/badge/Agent-Antigravity_IDE-2ea44f)](https://antigravity.google/)
+
+</div>
 
 BA-kit là playbook Business Analysis cho Claude Code, Codex, và Antigravity. Repo này biến agent thành một BA workstation có lifecycle rõ ràng, artifact có cấu trúc, collaboration theo module, và handoff đủ chuẩn cho stakeholder/engineering.
+
+
 
 ## License
 
@@ -70,7 +91,7 @@ Module BA chỉ làm việc trong module đã nhận, không sửa module khác 
 | 2 | **Viết user stories** | `/ba-start stories --slug <slug> --module <module>` | `userstories/index.md`, `us-*.md` |
 | 3 | **Viết FRD** (nếu cần) | `/ba-start frd --slug <slug> --module <module>` | `frd.md` |
 | 4 | **Viết SRS canon** | `/ba-start srs --slug <slug> --module <module>` | `usecases/*.md`, `ascii-screen/*.md`, `srs/*.md`, `srs-index.md`, `srs.md` |
-| 5 | **Kiểm tra SRS** | `ba-kit doctor-srs plans/{slug}-{date}/03_modules/{module}` | Xác nhận canon đúng schema, compile receipt hợp lệ |
+| 5 | **Kiểm tra SRS** | `ba-kit doctor-srs plans/{slug}-{date}/03_modules/{module}` | Xác nhận canon đúng schema, Behaviour Rules hợp lệ, compile receipt hợp lệ |
 | 6 | **Gửi review** | `/ba-collab Gửi module <module> cho Lead BA review` | `delegation/review-packets/{module}.md` |
 | 7 | **Sửa theo feedback** | Quay lại bước 4-5, chỉ sửa canon, compile lại `srs.md` | Canon cập nhật, receipt mới |
 
@@ -425,7 +446,7 @@ ba-kit doctor-srs plans/{slug}-{date}/03_modules/{module}
 ba-kit check-write-scope --command figma-sync plans/{slug}-{date}/03_modules/{module}/ascii-screen/scr-01.md
 ```
 
-`doctor-srs` kiểm tra `ascii-screen/index.md`, screen canon schema, và compile receipt. `check-write-scope` dùng cho hook/runtime để chặn lệnh downstream như Figma sync sửa nhầm canon.
+`doctor-srs` kiểm tra `ascii-screen/index.md`, screen canon schema, Behaviour Rules trong `ascii-screen/*.md` khi có screen canon, source-of-truth invariants, và compile receipt. `check-write-scope` dùng cho hook/runtime để chặn lệnh downstream như Figma sync sửa nhầm canon.
 
 `/ba-start wireframes` chỉ còn là compatibility validation command. Flow hiện tại không tạo legacy wireframe pack artifacts. Nếu ASCII thiếu hoặc stale, chạy lại `/ba-start srs --slug <slug> --module <module>`.
 

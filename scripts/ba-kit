@@ -19,6 +19,7 @@ Usage:
   ba-kit next [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit check-prereq <command> [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
   ba-kit doctor-srs <module_root> [--json]
+  ba-kit check-screen-behaviour <path...> [--json]
   ba-kit check-write-scope --command <command> <path>...
   ba-kit check-srs-index <srs-index.md> [--json]
   ba-kit check-screen-canon <screen.md> [--json]
@@ -26,6 +27,7 @@ Usage:
   ba-kit guardrail --command <command> --slug <slug> --date <YYMMDD-HHmm> [--module <module_slug>]
   ba-kit check-token-budget [--repo <path>]
   ba-kit validate-index --index-key <key> --slug <slug> --date <YYMMDD-HHmm> [--module <module_slug>] [--writeback]
+  ba-kit validate-shared-rule-message-registry [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>] [--write-index] [--json]
   ba-kit template-section <template> <group>
   ba-kit source-extract <file> [--slug <slug>] [--date <YYMMDD-HHmm>] [--chunk-chars <n>] [--copy-raw] [--promote]
   ba-kit context-budget [--command <command>] [--slug <slug>] [--date <YYMMDD-HHmm>] [--module <module_slug>]
@@ -44,6 +46,7 @@ Commands:
   next            Recommend the next BA-kit command for the resolved modular artifact set.
   check-prereq    Validate the exact prerequisite artifacts for a BA command.
   doctor-srs      Run canon-first SRS guardrails for one module directory.
+  check-screen-behaviour  Validate screen Behaviour Rules format and required screen sections.
   check-write-scope  Block writes outside the command-owned artifact scope.
   check-srs-index [LEGACY] Validate old srs-index.md registry (deprecated; use doctor-srs for new architecture).
   check-screen-canon [LEGACY] Validate old screens/*.md canon file (deprecated; use check-ascii-screen-index for new architecture).
@@ -51,6 +54,7 @@ Commands:
   guardrail       Run preflight guardrail verdict for a guarded BA command.
   check-token-budget  Validate file sizes against core/token-budget.md budgets.
   validate-index  Run producer-side index quality validation with optional writeback.
+  validate-shared-rule-message-registry  Validate backbone CR/MSG registries against module usage, with optional --write-index.
   template-section  Print only the requested template group from templates/manifest.json.
   source-extract  Extract a source file into staged cache and optionally promote it into 00_source.
   context-budget  Estimate runtime read-context bytes for a BA command.
@@ -1506,6 +1510,11 @@ doctor_srs_command() {
   python_guardrail_command "doctor-srs.py" "$@"
 }
 
+check_screen_behaviour_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-screen-behaviour <path...> [--json]"
+  python_guardrail_command "check-screen-behaviour.py" "$@"
+}
+
 check_write_scope_command() {
   [[ "$#" -ge 3 ]] || fail "Usage: ba-kit check-write-scope --command <command> <path>..."
   python_guardrail_command "check-write-scope.py" "$@"
@@ -1524,6 +1533,132 @@ check_screen_canon_command() {
 check_source_of_truth_command() {
   [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-source-of-truth <module_root> [--json]"
   python_guardrail_command "check-source-of-truth.py" "$@"
+}
+
+check_control_type_compliance_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-control-type-compliance <path...> [--json]"
+  python_guardrail_command "check-control-type-compliance.py" "$@"
+}
+
+check_message_placement_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-message-placement <path...> [--json]"
+  python_guardrail_command "check-message-placement.py" "$@"
+}
+
+validate_cr_coverage_command() {
+  python_guardrail_command "validate-cr-coverage.py" "$@"
+}
+
+check_terminology_command() {
+  [[ "$#" -ge 1 ]] || fail "Usage: ba-kit check-terminology <path...> [--json] [--strict] [--fix]"
+  python_guardrail_command "check-terminology-consistency.py" "$@"
+}
+
+check_freshness_command() {
+  python_guardrail_command "check-freshness.py" "$@"
+}
+
+init_control_library_command() {
+  local target_dir="${1:-.}"
+  local repo
+  repo="$(resolve_registered_repo)"
+
+  local template="${repo}/templates/control-type-library-template.md"
+  if [[ ! -f "${template}" ]]; then
+    fail "Template not found: ${template}"
+  fi
+
+  # Detect plan root from target_dir
+  local plan_root="${target_dir}"
+  if [[ -d "${target_dir}/03_modules" ]]; then
+    plan_root="${target_dir}"
+  elif [[ "${target_dir}" =~ (plans/[^/]+-[0-9]{6}-[0-9]{4}) ]]; then
+    plan_root="${BASH_REMATCH[1]}"
+  else
+    # Scan for plan dirs
+    local matches
+    matches="$(find "${target_dir}" -maxdepth 3 -type d -name "02_backbone" 2>/dev/null | head -1)"
+    if [[ -n "${matches}" ]]; then
+      plan_root="$(dirname "${matches}")"
+    else
+      fail "Cannot find plan root. Run from plan directory or specify path."
+    fi
+  fi
+
+  local backbone_dir="${plan_root}/02_backbone"
+  mkdir -p "${backbone_dir}"
+
+  # ── Gate 5.1a: UI Library Selection check ──────────────────────
+  # Extract slug from plan_root path: plans/{slug}-{date}
+  local slug
+  slug="$(echo "${plan_root}" | sed -n 's|.*/plans/\([^/]\+\)-[0-9]\{6\}-[0-9]\{4\}$|\1|p')"
+  if [[ -z "${slug}" ]]; then
+    fail "Cannot extract slug from plan root: ${plan_root}"
+  fi
+
+  # Resolve project root: go up 2 levels from plans/{slug}-{date}
+  local project_root
+  project_root="$(cd "$(dirname "$(dirname "${plan_root}")")" 2>/dev/null && pwd || true)"
+  if [[ -z "${project_root}" ]]; then
+    fail "Cannot resolve project root from plan root: ${plan_root}"
+  fi
+
+  local design_md="${project_root}/designs/${slug}/DESIGN.md"
+  if [[ ! -f "${design_md}" ]]; then
+    cat >&2 <<GATEMSG
+⏸️  DESIGN.md chưa tồn tại: ${design_md}
+
+DESIGN.md phải được tạo và có thư viện UI đã chốt trước khi tạo control-type-library.
+Chạy backbone trước: ba-start backbone --slug ${slug}
+GATEMSG
+    exit 1
+  fi
+
+  # Parse "Thư viện UI" from DESIGN.md section 10 table
+  # Table format: | Thư viện UI | \`value\` |
+  local library_value
+  library_value="$(awk -F '|' '
+    /Thư viện UI/ {
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", $3)
+      # Strip backticks
+      gsub(/`/, "", $3)
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", $3)
+      print $3
+      exit
+    }
+  ' "${design_md}" 2>/dev/null || echo "")"
+
+  if [[ -z "${library_value}" ]] || [[ "${library_value}" == "TBD" ]]; then
+    cat >&2 <<GATEMSG
+⏸️  DESIGN.md chưa chốt thư viện UI.
+
+File: ${design_md}
+Thư viện UI hiện tại: ${library_value:-<trống>}
+
+Chọn thư viện UI trước khi tạo control-type-library:
+- Gợi ý: Shadcn UI, MUI, Ant Design, Chakra UI, Tailwind UI, Flowbite...
+- Hoặc chọn "none" nếu không dùng thư viện nào.
+
+Khi đã chốt:
+- Cách 1: Chạy lại backbone, trả lời prompt chọn library (single-run, khuyên dùng).
+- Cách 2: Điền Section 10 trong DESIGN.md rồi chạy lại lệnh này.
+GATEMSG
+    exit 1
+  fi
+
+  echo "Gate 5.1a passed: UI Library = '${library_value}' (from ${design_md})"
+
+  local dest="${backbone_dir}/control-type-library.md"
+  if [[ -f "${dest}" ]]; then
+    echo "Control Type Library already exists: ${dest}"
+    echo "Remove it first or use a different plan root."
+    exit 1
+  fi
+
+  cp "${template}" "${dest}"
+  echo "Created: ${dest}"
+  echo "Next: edit screen files to add Control Type column, then run:"
+  echo "  ba-kit check-control-type-compliance 03_modules/<module>/ascii-screen/ --migrate"
 }
 
 guardrail_command() {
@@ -1561,16 +1696,19 @@ guardrail_command() {
   [[ -n "${slug}" ]] || fail "guardrail requires --slug"
   [[ -n "${date_token}" ]] || fail "guardrail requires --date"
 
-  repo="$(resolve_registered_repo)"
+  local source_repo project_repo
+  source_repo="$(resolve_registered_repo)"
+  project_repo="$(project_root_path "${source_repo}" "${slug}" "${date_token}")"
+  project_repo="${project_repo%/plans/${slug}-${date_token}}"
   local args=(
     --command "${command_name}"
     --slug "${slug}"
     --date "${date_token}"
-    --repo "${repo}"
+    --repo "${project_repo}"
   )
   [[ -n "${module_slug}" ]] && args+=(--module "${module_slug}")
 
-  python3 "${repo}/scripts/guardrail-preflight.py" "${args[@]}"
+  python3 "${source_repo}/scripts/guardrail-preflight.py" "${args[@]}"
 }
 
 check_token_budget_command() {
@@ -1589,8 +1727,10 @@ check_token_budget_command() {
     esac
   done
 
-  [[ -z "${repo}" ]] && repo="$(resolve_registered_repo)"
-  python3 "${repo}/scripts/check-token-budget.py" "${repo}"
+  [[ -z "${repo}" ]] && repo="${PWD}"
+  local source_repo
+  source_repo="$(resolve_registered_repo)"
+  python3 "${source_repo}/scripts/check-token-budget.py" "${repo}"
 }
 
 validate_index_command() {
@@ -1632,9 +1772,13 @@ validate_index_command() {
   [[ -n "${slug}" ]] || fail "validate-index requires --slug"
   [[ -n "${date_token}" ]] || fail "validate-index requires --date"
 
-  repo="$(resolve_registered_repo)"
+  local source_repo project_repo
+  source_repo="$(resolve_registered_repo)"
+  project_repo="$(project_root_path "${source_repo}" "${slug}" "${date_token}")"
+  # Strip trailing plans/{slug}-{date} to get the repo root
+  project_repo="${project_repo%/plans/${slug}-${date_token}}"
   local args=(
-    --repo "${repo}"
+    --repo "${project_repo}"
     --index-key "${index_key}"
     --slug "${slug}"
     --date "${date_token}"
@@ -1642,7 +1786,61 @@ validate_index_command() {
   [[ -n "${module_slug}" ]] && args+=(--module "${module_slug}")
   [[ -n "${writeback}" ]] && args+=(--writeback)
 
-  python3 "${repo}/scripts/validate-index-quality.py" "${args[@]}"
+  python3 "${source_repo}/scripts/validate-index-quality.py" "${args[@]}"
+}
+
+validate_shared_rule_message_registry_command() {
+  local slug="" date_token="" module_slug="" write_index="" json_output=""
+
+  while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+      --slug)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --slug"
+        slug="$2"
+        shift 2
+        ;;
+      --date)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --date"
+        date_token="$2"
+        shift 2
+        ;;
+      --module)
+        [[ "$#" -ge 2 ]] || fail "Missing value for --module"
+        module_slug="$2"
+        shift 2
+        ;;
+      --write-index)
+        write_index="1"
+        shift
+        ;;
+      --json)
+        json_output="1"
+        shift
+        ;;
+      *)
+        fail "Unsupported argument for 'validate-shared-rule-message-registry': $1"
+        ;;
+    esac
+  done
+
+  [[ -n "${slug}" ]] || fail "validate-shared-rule-message-registry requires --slug"
+  [[ -n "${date_token}" ]] || fail "validate-shared-rule-message-registry requires --date"
+
+  local source_repo project_repo
+  source_repo="$(resolve_registered_repo)"
+  project_repo="$(project_root_path "${source_repo}" "${slug}" "${date_token}")"
+  project_repo="${project_repo%/plans/${slug}-${date_token}}"
+
+  local args=(
+    --repo "${project_repo}"
+    --slug "${slug}"
+    --date "${date_token}"
+  )
+  [[ -n "${module_slug}" ]] && args+=(--module "${module_slug}")
+  [[ -n "${write_index}" ]] && args+=(--write-index)
+  [[ -n "${json_output}" ]] && args+=(--json)
+
+  python3 "${source_repo}/scripts/validate-shared-rule-message-registry.py" "${args[@]}"
 }
 
 next_command() {
@@ -1899,13 +2097,20 @@ context_budget_command() {
     esac
   done
 
-  repo="$(resolve_registered_repo)"
-  args=(--repo "${repo}" --command "${command_name}")
+  local source_repo project_repo
+  source_repo="$(resolve_registered_repo)"
+  if [[ -n "${slug}" ]] && [[ -n "${date_token}" ]]; then
+    project_repo="$(project_root_path "${source_repo}" "${slug}" "${date_token}")"
+    project_repo="${project_repo%/plans/${slug}-${date_token}}"
+  else
+    project_repo="${PWD}"
+  fi
+  args=(--repo "${project_repo}" --command "${command_name}")
   [[ -n "${slug}" ]] && args+=(--slug "${slug}")
   [[ -n "${date_token}" ]] && args+=(--date "${date_token}")
   [[ -n "${module_slug}" ]] && args+=(--module "${module_slug}")
 
-  python3 "${repo}/scripts/context-budget.py" "${args[@]}"
+  python3 "${source_repo}/scripts/context-budget.py" "${args[@]}"
 }
 
 design_snapshot_command() {
@@ -2188,6 +2393,27 @@ main() {
     doctor-srs)
       doctor_srs_command "$@"
       ;;
+    check-screen-behaviour)
+      check_screen_behaviour_command "$@"
+      ;;
+    check-control-type-compliance)
+      check_control_type_compliance_command "$@"
+      ;;
+    check-message-placement)
+      check_message_placement_command "$@"
+      ;;
+    validate-cr-coverage)
+      validate_cr_coverage_command "$@"
+      ;;
+    check-terminology)
+      check_terminology_command "$@"
+      ;;
+    check-freshness)
+      check_freshness_command "$@"
+      ;;
+    init-control-library)
+      init_control_library_command "$@"
+      ;;
     check-write-scope)
       check_write_scope_command "$@"
       ;;
@@ -2208,6 +2434,9 @@ main() {
       ;;
     validate-index)
       validate_index_command "$@"
+      ;;
+    validate-shared-rule-message-registry)
+      validate_shared_rule_message_registry_command "$@"
       ;;
     template-section)
       template_section_command "$@"

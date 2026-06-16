@@ -15,6 +15,7 @@ This catalog explains the BA-kit workflow skill plus the maintenance skills that
 | `ba-kit-update` | Update the installed BA-kit runtime assets from the registered source repo | None | None | One-command fast-forward update and reinstall |
 | `ba-notion` | Publish an exact BA markdown artifact into Notion via MCP | None | None | Notion page created or updated from BA source content |
 | `ba-figma-sync` | Downstream Figma canvas sync from approved screen canon, shared shell contract, and `DESIGN.md` | `figma-sync-report-template.md`, `figma-mismatch-report-template.md` | ui-ux-designer | Figma frames, sync report, mismatch report. Must not mutate BA canon. |
+| `ba-content-audit` | Read-only cross-artifact format + cross-reference consistency audit for BA-kit projects | `audit-report-template.md` | Lead BA / Module BA | Audit report at `shared/audit-report.md` with Blocking/Warning/Info findings |
 
 ## Workflow
 
@@ -73,6 +74,8 @@ After brainstorm, feed the output into `/ba-start intake` as source material.
 /ba-start status --slug <slug>
 /ba-notion srs --slug <slug> --page <url|id> --mode overwrite
 /ba-figma-sync --slug <slug> --module <module_slug>
+/ba-content-audit --slug <slug>
+/ba-content-audit --slug <slug> --date <YYMMDD-HHmm>
 /ba-start reverse --slug <slug> [--focus <area>] [--commit <hash>]
 /ba-start reverse status --slug <slug>
 /ba-start reverse refresh --slug <slug> [--commit <hash>]
@@ -135,7 +138,7 @@ If the user manually inserts wireframe images or links into the markdown source,
 
 Runtime guardrail helpers:
 
-- `ba-kit doctor-srs <module_root>` validates ASCII screen index paths, screen canon schema, source-of-truth invariants, and compile receipt presence.
+- `ba-kit doctor-srs <module_root>` validates ASCII screen index paths, screen canon schema, required screen sections, Behaviour Rules format, source-of-truth invariants, and compile receipt presence.
 - `ba-kit check-write-scope --command <command> <path>...` blocks downstream commands such as `figma-sync` and `package` from mutating canon files.
 - `ba-kit check-srs-index`, `ba-kit check-screen-canon`, and `ba-kit check-source-of-truth` expose the narrow validators for hooks and CI.
 
