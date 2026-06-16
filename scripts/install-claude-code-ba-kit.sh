@@ -971,7 +971,7 @@ EOF
 install_codex() {
   echo ""
   echo "Installing BA-kit guardrail hooks for CodeX..."
-  bash "${ROOT_DIR}/scripts/install-codex-ba-kit.sh"
+  bash "${ROOT_DIR}/platform/codex/scripts/install-codex-ba-kit.sh"
 }
 
 # ── main ─────────────────────────────────────────────────────────────
