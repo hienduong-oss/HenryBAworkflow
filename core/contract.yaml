@@ -10,7 +10,7 @@
   "states": {
     "tool_lane": ["manual", "figma-make", "not-applicable"],
     "wireframe": ["completed", "skipped", "not-applicable", "missing"],
-    "delegation": ["queued", "running", "completed", "needs-repartition", "blocked", "failed", "stalled"],
+    "delegation": ["queued", "running", "completed", "needs-repartition", "blocked", "failed"],
     "heartbeat_minutes": 5,
     "stall_after_minutes": 10
   },

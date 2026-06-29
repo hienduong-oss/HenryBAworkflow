@@ -33,6 +33,83 @@ MANAGED_SKILL_DIRS=(
   "qc-uc-review"
 )
 
+# ── python3 bootstrap (cross-platform) ───────────────────────────────
+# On macOS/Linux, python3 is the system Python 3 binary.
+# On Windows (Git Bash), python3 may resolve to a non-functional
+# Microsoft Store stub. This ensures python3 always points to a real
+# Python 3 interpreter so generated hooks and scripts work correctly.
+bootstrap_python3() {
+  # Already a working python3? Nothing to do.
+  if command -v python3 >/dev/null 2>&1 && python3 --version >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local real_python=""
+  # Try common candidates
+  for _c in python py python3.12 python3.13 python3.14; do
+    if command -v "${_c}" >/dev/null 2>&1 && "${_c}" --version >/dev/null 2>&1; then
+      real_python="${_c}"
+      break
+    fi
+  done
+
+  # Scan Windows Python install paths as last resort
+  if [[ -z "${real_python}" ]]; then
+    for _p in /c/Python313/python /c/Python312/python /c/Python314/python; do
+      if [[ -x "${_p}" ]]; then
+        real_python="${_p}"
+        break
+      fi
+    done
+  fi
+
+  if [[ -z "${real_python}" ]]; then
+    echo "WARNING: python3 not found and no real Python detected." >&2
+    echo "BA-kit hooks requiring Python will not function." >&2
+    return 1
+  fi
+
+  mkdir -p "${HOME}/bin"
+  local wrapper="${HOME}/bin/python3"
+  cat > "${wrapper}" <<WRAPEOF
+#!/usr/bin/env bash
+# BA-kit python3 bootstrap wrapper
+exec ${real_python} "\$@"
+WRAPEOF
+  chmod +x "${wrapper}"
+
+  # Ensure ~/bin is in PATH so the wrapper takes priority over
+  # broken python3 stubs (e.g. Microsoft Store redirect on Windows)
+  export PATH="${HOME}/bin:${PATH}"
+
+  # Persist in shell profile so future sessions also find it
+  local path_line="export PATH=\"\${HOME}/bin:\${PATH}\""
+  local profile_target=""
+  for _pf in "${HOME}/.bashrc" "${HOME}/.bash_profile" "${HOME}/.profile" "${HOME}/.zshrc"; do
+    if [[ -f "${_pf}" ]] && grep -qF '${HOME}/bin' "${_pf}" 2>/dev/null; then
+      profile_target=""
+      break  # already configured
+    fi
+    if [[ -z "${profile_target}" ]]; then
+      profile_target="${_pf}"
+    fi
+  done
+  if [[ -n "${profile_target}" ]]; then
+    mkdir -p "$(dirname "${profile_target}")"
+    { echo ""; echo "# BA-kit python3 bootstrap"; echo "${path_line}"; } >> "${profile_target}"
+  fi
+
+  # Verify the wrapper works
+  if ! "${wrapper}" --version >/dev/null 2>&1; then
+    echo "WARNING: python3 wrapper created but non-functional." >&2
+    rm -f "${wrapper}"
+    return 1
+  fi
+
+  echo "Bootstrap: created python3 → ${real_python}"
+  return 0
+}
+
 cleanup_managed_skill_dirs() {
   local pattern path
 
@@ -76,7 +153,7 @@ cleanup_previous_install() {
   cleanup_managed_agent_files
   cleanup_managed_template_files
   rm -rf "${RULES_TARGET}" "${CORE_TARGET}"
-  rm -f "${TARGET_HOME}/core"
+  rm -rf "${TARGET_HOME}/core"
 }
 
 cleanup_previous_agy_install() {
@@ -86,7 +163,7 @@ cleanup_previous_agy_install() {
   rm -rf "${target_home}/skills"/brainstorm 2>/dev/null || true
   rm -rf "${target_home}/skills"/reverse-web 2>/dev/null || true
   rm -rf "${target_home}/skills"/qc-uc-review 2>/dev/null || true
-  rm -f "${target_home}/core"
+  rm -rf "${target_home}/core"
   for agent_path in "${ROOT_DIR}"/agents/*; do
     [[ -f "${agent_path}" ]] || continue
     rm -f "${target_home}/agents/$(basename "${agent_path}")"
@@ -137,6 +214,93 @@ install_cli() {
   cp "${ROOT_DIR}/scripts/ba-kit" "${temp_target}"
   chmod +x "${temp_target}"
   mv "${temp_target}" "${LOCAL_BIN_TARGET}/ba-kit"
+
+  # Windows: also install .cmd wrapper so running "ba-kit" from cmd/PowerShell
+  # or double-click doesn't trigger "select program" popup
+  case "$(uname -s)" in
+    MINGW*|MSYS*|CYGWIN*)
+      cp "${ROOT_DIR}/scripts/ba-kit.cmd" "${LOCAL_BIN_TARGET}/ba-kit.cmd"
+      ;;
+  esac
+}
+
+ensure_path() {
+  local local_bin="${LOCAL_BIN_TARGET}"
+  local path_line="export PATH=\"\${HOME}/.local/bin:\${PATH}\""
+
+  # Already in the current PATH? Still check shell configs — this install
+  # may be the first time it was added, so configs might not reflect it.
+  if echo "${PATH}" | tr ':' '\n' | grep -qF "${local_bin}"; then
+    return 0
+  fi
+
+  # Detect candidate shell profiles
+  local profiles=()
+  local default_shell
+  default_shell="$(basename "${SHELL:-}" 2>/dev/null || echo "")"
+
+  case "$(uname -s)" in
+    Darwin)
+      # macOS: zsh (default since Catalina) or bash
+      profiles+=("${HOME}/.zshrc")
+      profiles+=("${HOME}/.zprofile")
+      profiles+=("${HOME}/.bash_profile")
+      profiles+=("${HOME}/.profile")
+      ;;
+    MINGW*|MSYS*|CYGWIN*)
+      # Windows Git Bash / MSYS2
+      profiles+=("${HOME}/.bashrc")
+      profiles+=("${HOME}/.bash_profile")
+      profiles+=("${HOME}/.profile")
+      ;;
+    *)
+      # Linux / others
+      profiles+=("${HOME}/.bashrc")
+      profiles+=("${HOME}/.profile")
+      # If user runs zsh on Linux
+      if [[ "${default_shell}" == "zsh" ]]; then
+        profiles+=("${HOME}/.zshrc")
+      fi
+      ;;
+  esac
+
+  # Append to the first writable profile that doesn't already have the entry
+  local target=""
+  for profile in "${profiles[@]}"; do
+    # Create if it doesn't exist; otherwise pick the first we can write to
+    if [[ -f "${profile}" ]]; then
+      if grep -qF '.local/bin' "${profile}"; then
+        continue  # already configured
+      fi
+      if [[ -w "${profile}" ]]; then
+        target="${profile}"
+        break
+      fi
+    else
+      # Doesn't exist yet — we'll create it
+      target="${profile}"
+      break
+    fi
+  done
+
+  if [[ -z "${target}" ]]; then
+    echo ""
+    echo "⚠️  Could not find a writable shell profile to add ${local_bin} to PATH."
+    echo "   Add this line manually to your shell config:"
+    echo "     ${path_line}"
+    return 0
+  fi
+
+  mkdir -p "$(dirname "${target}")"
+  {
+    echo ""
+    echo "# Added by BA-kit installer"
+    echo "${path_line}"
+  } >> "${target}"
+
+  echo ""
+  echo "✅  Added ${local_bin} to PATH in ${target/$HOME/~}"
+  echo "   Restart your terminal or run: source ${target/$HOME/~}"
 }
 
 write_manifest() {
@@ -167,6 +331,7 @@ copy_tree "${CORE_SOURCE}" "${CORE_TARGET}"
 remove_stale_core_paths "${CORE_TARGET}"
 ln -sfn ba-kit "${TARGET_HOME}/core"
 install_cli
+ensure_path
 
 mkdir -p "${ROOT_DIR}/docs" "${ROOT_DIR}/templates" "${ROOT_DIR}/designs"
 
@@ -176,6 +341,8 @@ echo "Installed agents to ${AGENTS_TARGET}"
 echo "Installed templates to ${TEMPLATES_TARGET}"
 echo "Installed BA core to ${CORE_TARGET}"
 echo "Installed update CLI to ${LOCAL_BIN_TARGET}/ba-kit"
+
+bootstrap_python3
 
 if [[ -f "${ROOT_DIR}/scripts/install-claude-code-ba-kit.sh" ]]; then
   echo ""

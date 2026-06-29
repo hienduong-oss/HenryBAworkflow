@@ -3,6 +3,47 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+find_python3() {
+  for candidate in python3 python py; do
+    if command -v "${candidate}" >/dev/null 2>&1 \
+       && "${candidate}" -c "import sys; assert sys.version_info >= (3,6)" >/dev/null 2>&1; then
+      printf '%s\n' "${candidate}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+PYTHON3="$(find_python3)" || {
+  echo "ERROR: Python 3.6+ is required but not found. Install from https://python.org" >&2
+  echo "  On Windows: disable App Execution Aliases for Python in Settings > Apps > Advanced app settings" >&2
+  exit 1
+}
+
+# Ensure python3 always resolves to a real interpreter — on Windows Git Bash
+# it may point to a non-functional Microsoft Store stub. Creates ~/bin/python3
+# wrapper if needed. macOS/Linux users get a no-op since python3 is standard.
+bootstrap_python3() {
+  if command -v python3 >/dev/null 2>&1 && python3 --version >/dev/null 2>&1; then
+    return 0
+  fi
+  mkdir -p "${HOME}/bin"
+  cat > "${HOME}/bin/python3" <<'WRAPEOF'
+#!/usr/bin/env bash
+exec "${_PYTHON_REAL}" "$@"
+WRAPEOF
+  sed -i "s|\${_PYTHON_REAL}|${PYTHON3}|g" "${HOME}/bin/python3"
+  chmod +x "${HOME}/bin/python3"
+  if ! "${HOME}/bin/python3" --version >/dev/null 2>&1; then
+    rm -f "${HOME}/bin/python3"
+    echo "WARNING: python3 bootstrap failed." >&2
+    return 1
+  fi
+  echo "Bootstrap: created python3 → ${PYTHON3}"
+}
+bootstrap_python3
+
 SOURCE_ROOT="${BA_KIT_CODEX_SOURCE_ROOT:-${ROOT_DIR}/codex}"
 SOURCE_SKILLS="${SOURCE_ROOT}/skills"
 SOURCE_AGENTS="${SOURCE_ROOT}/agents"
@@ -497,7 +538,20 @@ TOOL_DATA="$(cat - 2>/dev/null || echo "{}")"
 if [[ -z "${TOOL_DATA}" ]] || [[ "${TOOL_DATA}" == "{}" ]]; then
   exit 0
 fi
-python3 "${BA_KIT_HOOK_HOME}/scripts/context-preflight-guard.py" <<< "${TOOL_DATA}" 2>/dev/null
+
+# Resolve Python (python3 may be a non-functional Windows Store stub; 'python' is common on Windows)
+_PY=""
+for _c in python3 python; do
+  if command -v "${_c}" >/dev/null 2>&1 && "${_c}" --version >/dev/null 2>&1; then
+    _PY="${_c}"
+    break
+  fi
+done
+if [[ -z "${_PY}" ]]; then
+  exit 0
+fi
+
+"${_PY}" "${BA_KIT_HOOK_HOME}/scripts/context-preflight-guard.py" <<< "${TOOL_DATA}" 2>/dev/null
 PREFLIGHT_EXIT=$?
 if [[ ${PREFLIGHT_EXIT} -eq 1 ]]; then
   exit 1
@@ -603,7 +657,7 @@ register_codex_hooks() {
     echo '{"hooks":{}}' > "${HOOKS_FILE}"
   fi
 
-  python3 - "${HOOKS_FILE}" "${HOOK_TARGET}" <<'PYEOF'
+  "${PYTHON3}" - "${HOOKS_FILE}" "${HOOK_TARGET}" <<'PYEOF'
 import json, pathlib, sys
 
 hooks_path = pathlib.Path(sys.argv[1])

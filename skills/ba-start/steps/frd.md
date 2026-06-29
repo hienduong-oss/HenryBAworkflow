@@ -1,5 +1,7 @@
 # BA Start Step - FRD
 
+- **[CWD GATE]** After resolve, cd to the project root (`Project root:` line from `ba-kit resolve` output). All artifact paths in `contract.yaml` are relative to the project root. A stale CWD from a previous step will cause false prerequisite failures.
+
 ## Checkpoint
 
 Write `plans/{slug}-{date}/_checkpoint.md` as the **first action** before reading any artifact:

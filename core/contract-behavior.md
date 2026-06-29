@@ -25,6 +25,7 @@ Use this file as the shared runtime-neutral behavior layer for BA-kit.
 - Keep module-scoped authoring inside `paths.module_root` and compiled output inside `paths.compiled_root`.
 - Treat `paths.project_home` as the BA-facing dashboard. It is not a source of truth and must not override backbone, intake, or module artifacts.
 - Runtime-local chat memory is not authoritative. Persist reusable project memory on disk.
+- Before any file-system operation in a lifecycle step, ensure the shell CWD is the resolved project root (from `ba-kit resolve` output). CWD drift from a previous step (e.g., stranded inside a module subdirectory) must not carry into the current step. After `ba-kit resolve`, cd to the project root before evaluating prerequisites or reading/writing any artifact.
 
 ## Canonical Lifecycle Status Mapping
 
@@ -69,6 +70,8 @@ Do not mutate artifacts directly from a bare correction statement. Route to `imp
 Collaboration intent (module claim, review handoff, conflict check, PR, commit, push, merge) routes to `ba-collab`. GitHub actions are external side effects and require explicit approval after showing files and action plan.
 
 ## Resolution Rules
+
+Use the resolution order from resolution.*.
 
 ### Slug
 - Prefer explicit `--slug`.
